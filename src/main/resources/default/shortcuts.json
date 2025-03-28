@@ -1,0 +1,84 @@
+[
+  {
+    "appName": "idea64.exe",
+    "appDescription": "IntelliJ IDEA",
+    "shortcuts": [
+        {
+            "shortcut": "Ctrl + Shift + A",
+            "description": "Find Action"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Find in Path"
+        },
+        {
+            "shortcut": "Ctrl + Shift + R",
+            "description": "Find in Path"
+        },
+        {
+            "shortcut": "Ctrl + Shift + N",
+            "description": "Find Class"
+        },
+        {
+            "shortcut": "Ctrl + Shift + E",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + T",
+            "description": "Find Class"
+        },
+        {
+            "shortcut": "Ctrl + Shift + V",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + C",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + S",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + D",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F",
+            "description": "Recent Files"
+        }
+    ]
+  }
+]
