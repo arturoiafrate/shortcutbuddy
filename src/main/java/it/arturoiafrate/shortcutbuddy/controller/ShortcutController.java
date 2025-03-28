@@ -1,5 +1,6 @@
 package it.arturoiafrate.shortcutbuddy.controller;
 
+import atlantafx.base.theme.Styles;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import it.arturoiafrate.shortcutbuddy.model.bean.Shortcut;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
@@ -12,9 +13,14 @@ import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -30,10 +36,24 @@ public class ShortcutController implements IKeyObserver {
     @FXML
     private GridPane shortcutsGrid;
 
+    @FXML
+    private ImageView appIconImageView;
+
+    @FXML
+    private Label appNameLabel;
+
     private ForegroundAppInterceptor foregroundAppInterceptor;
     private Stage stage;
     private boolean blockView = false;
     private ResourceBundle bundle;
+
+
+    @FXML
+    public void initialize(){
+        appNameLabel.getStyleClass().addAll(Styles.ACCENT, Styles.TEXT_BOLD, Styles.TEXT_ITALIC, Styles.TITLE_3);
+        messageLabel.getStyleClass().addAll(Styles.WARNING, Styles.TEXT_BOLD);
+        searchBox.getStyleClass().addAll(Styles.LARGE, Styles.ROUNDED);
+    }
 
 
     @Override
@@ -69,12 +89,15 @@ public class ShortcutController implements IKeyObserver {
         if(mode == KeyOperation.KEY_HOLD){
             if(!stage.isShowing()){
                 shortcutsGrid.getChildren().clear();
+                searchBox.clear();
                 String appName = foregroundAppInterceptor.getForegroundAppName();
                 int width = Integer.parseInt(SettingsManager.getInstance().getSetting("width").value());
                 int height = Integer.parseInt(SettingsManager.getInstance().getSetting("height").value());
                 Rectangle2D appBounds = foregroundAppInterceptor.getForegroundAppBounds();
                 List<Shortcut> shortcutList = ShortcutManager.getInstance().getShortcutsForApp(appName);
                 setShortcuts(shortcutList);
+                String appDescription = ShortcutManager.getInstance().getAppDescription(appName);
+                setHeader(appName, appDescription);
                 Platform.runLater(() -> {
                     stage.show();
                     stage.toFront();
@@ -108,8 +131,20 @@ public class ShortcutController implements IKeyObserver {
             });
         }
     }
-
-    public void setShortcuts(List<Shortcut> shortcuts) {
+    private void setHeader(String appName, String appDescription) {
+        boolean supportedApp = !StringUtils.isEmpty(appDescription);
+        appNameLabel.setText(supportedApp ? appDescription : appName);
+        String appImageName = supportedApp ? appName : "openjdk";
+        String imagePath = SettingsManager.getInstance().getAppImagePath(appImageName);
+        File imageFile = new File(imagePath);
+        if(!imageFile.exists()){
+            appIconImageView.setVisible(false);
+            return;
+        }
+        Image appIcon = new Image(imageFile.toURI().toString());
+        appIconImageView.setImage(appIcon);
+    }
+    private void setShortcuts(List<Shortcut> shortcuts) {
         if (shortcuts == null || shortcuts.isEmpty()) {
             messageLabel.setText(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_SHORTCUT));
             messageLabel.setVisible(true);
@@ -131,6 +166,7 @@ public class ShortcutController implements IKeyObserver {
         for (int i = 0; i < shortcuts.size(); i++) {
             Shortcut shortcut = shortcuts.get(i);
             Label shortcutLabel = new Label(shortcut.shortcut() + ": " + shortcut.description());
+            shortcutLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.SUCCESS, Styles.TITLE_4);
             shortcutsGrid.add(shortcutLabel, i % 2, i / 2);
         }
     }
@@ -144,6 +180,7 @@ public class ShortcutController implements IKeyObserver {
 
         if(filteredShortcuts.isEmpty()){
             Label emptyLabel = new Label (bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_RESULTS));
+            emptyLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.WARNING, Styles.TEXT_CAPTION);
             shortcutsGrid.add(emptyLabel, 0 ,0 );
         }
     }

@@ -38,11 +38,38 @@ public abstract class AbstractManager {
                 createDefaultFile(file, "/default/" + fileName);
             }
             String json = FileUtils.readFileToString(file, "UTF-8");
+            try{
+                copyImages();
+            } catch (Exception e){
+                System.out.println("Error while copying images");
+            }
             return new Gson().fromJson(json, type);
         } catch (IOException e) {
             System.out.println("Error while loading file " + fileName);
             throw new RuntimeException(e);
         }
+    }
+
+    public String getAppImagePath(String appName) {
+        String userHome = System.getProperty("user.home");
+        Path myAppDir = Paths.get(userHome, ".shortcutbuddy/appimages");
+        return Paths.get(myAppDir.toString(), appName+".png").toString();
+    }
+
+    private void copyImages() throws IOException {
+        String userHome = System.getProperty("user.home");
+        Path myAppDir = Paths.get(userHome, ".shortcutbuddy/appimages");
+        if (!Files.exists(myAppDir)) {
+            try {
+                Files.createDirectory(myAppDir);
+            } catch (IOException e) {
+                System.out.println("Error while creating directory for images");
+                throw new RuntimeException(e);
+            }
+        }
+        String sourcePath = Objects.requireNonNull(this.getClass().getResource("/images/apps")).getPath();
+        String destinationPath = myAppDir.toString();
+        FileUtils.copyDirectory(new File(sourcePath), new File(destinationPath));
     }
 
 

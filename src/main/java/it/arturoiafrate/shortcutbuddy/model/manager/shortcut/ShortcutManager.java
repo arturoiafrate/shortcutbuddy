@@ -37,4 +37,12 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         return singleAppShortcut.isPresent() ? singleAppShortcut.get().shortcuts() : Collections.emptyList();
     }
 
+    public String getAppDescription(String appName) {
+        return appShortcuts.stream()
+                .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
+                .map(AppShortcuts::appDescription)
+                .findFirst()
+                .orElse("");
+    }
+
 }
