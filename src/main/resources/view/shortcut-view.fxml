@@ -12,8 +12,8 @@
     <padding>
         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
     </padding>
-    <TextField fx:id="searchBox" promptText="Premi . per iniziare a cercare..." VBox.vgrow="NEVER" />
-    <Label fx:id="messageLabel" text="" visible="false" />
+    <TextField fx:id="searchBox" promptText="%app.textboxPrompt" VBox.vgrow="NEVER" />
+    <Label fx:id="messageLabel" visible="false" />
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
         <content>
             <GridPane fx:id="shortcutsGrid" hgap="10.0" vgap="5.0">

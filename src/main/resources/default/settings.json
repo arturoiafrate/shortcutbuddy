@@ -18,5 +18,10 @@
     "key": "theme",
     "value": "light",
     "readonly": false
+  },
+  {
+    "key": "language",
+    "value": "english",
+    "readonly": false
   }
 ]

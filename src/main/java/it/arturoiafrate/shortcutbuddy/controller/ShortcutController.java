@@ -16,6 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 public class ShortcutController implements IKeyObserver {
@@ -30,9 +31,9 @@ public class ShortcutController implements IKeyObserver {
     private GridPane shortcutsGrid;
 
     private ForegroundAppInterceptor foregroundAppInterceptor;
-
     private Stage stage;
     private boolean blockView = false;
+    private ResourceBundle bundle;
 
 
     @Override
@@ -56,6 +57,10 @@ public class ShortcutController implements IKeyObserver {
         this.foregroundAppInterceptor = foregroundAppInterceptor;
     }
 
+    public void setBundle(ResourceBundle bundle) {
+        this.bundle = bundle;
+    }
+
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -63,6 +68,7 @@ public class ShortcutController implements IKeyObserver {
     private void manageCtrlKey(KeyOperation mode) {
         if(mode == KeyOperation.KEY_HOLD){
             if(!stage.isShowing()){
+                shortcutsGrid.getChildren().clear();
                 String appName = foregroundAppInterceptor.getForegroundAppName();
                 int width = Integer.parseInt(SettingsManager.getInstance().getSetting("width").value());
                 int height = Integer.parseInt(SettingsManager.getInstance().getSetting("height").value());
@@ -105,7 +111,7 @@ public class ShortcutController implements IKeyObserver {
 
     public void setShortcuts(List<Shortcut> shortcuts) {
         if (shortcuts == null || shortcuts.isEmpty()) {
-            messageLabel.setText("L'app non è supportata");
+            messageLabel.setText(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_SHORTCUT));
             messageLabel.setVisible(true);
             return;
         }
@@ -137,7 +143,7 @@ public class ShortcutController implements IKeyObserver {
         updateShortcutsGrid(filteredShortcuts);
 
         if(filteredShortcuts.isEmpty()){
-            Label emptyLabel = new Label ("Nessun risultato");
+            Label emptyLabel = new Label (bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_RESULTS));
             shortcutsGrid.add(emptyLabel, 0 ,0 );
         }
     }

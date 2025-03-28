@@ -4,6 +4,8 @@ import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
+import it.arturoiafrate.shortcutbuddy.model.constant.Label;
+import it.arturoiafrate.shortcutbuddy.model.enumerator.Languages;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
@@ -24,13 +26,16 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 public class ShortcutBuddyApp extends Application {
     private Stage primaryStage;
     private Stage splashStage;
     private KeyListener keyListener;
     private ForegroundAppInterceptor foregroundAppInterceptor;
+    ResourceBundle bundle;
 
     @Override
     public void init() {
@@ -38,13 +43,13 @@ public class ShortcutBuddyApp extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
         this.primaryStage.initStyle(StageStyle.UNDECORATED);
         this.primaryStage.hide();
         Platform.setImplicitExit(false);
         if (!System.getProperty("os.name").toLowerCase().contains("windows") || !SystemTray.isSupported()) {
-            throw new RuntimeException("System Tray is not supported");
+            throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
         showSplashScreen();
     }
@@ -78,7 +83,7 @@ public class ShortcutBuddyApp extends Application {
     }
 
     private void loadApplication(ProgressBar progressBar) {
-        Task<Void> loadTask = new Task<Void>() {
+        Task<Void> loadTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 updateProgress(0, 100);
@@ -98,9 +103,7 @@ public class ShortcutBuddyApp extends Application {
             }
         };
 
-        loadTask.setOnSucceeded(event -> {
-            splashStage.close();
-        });
+        loadTask.setOnSucceeded(event -> splashStage.close());
 
         progressBar.progressProperty().bind(loadTask.progressProperty());
 
@@ -109,13 +112,11 @@ public class ShortcutBuddyApp extends Application {
 
     private void startTrayIcon(){
         Image image = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo_128.png"));
-        // Crea il popup menu
         PopupMenu popup = new PopupMenu();
-        MenuItem exitItem = new MenuItem("Esci");
+        MenuItem exitItem = new MenuItem(bundle.getString(Label.BUTTON_EXIT));
         popup.add(exitItem);
 
-        // Crea la TrayIcon
-        TrayIcon trayIcon = new TrayIcon(image, "ShortcutBuddy", popup);
+        TrayIcon trayIcon = new TrayIcon(image, bundle.getString(Label.APP_TITLE), popup);
         trayIcon.setImageAutoSize(true);
 
         exitItem.addActionListener(e -> Platform.runLater(Platform::exit));
@@ -123,21 +124,24 @@ public class ShortcutBuddyApp extends Application {
         try {
             SystemTray.getSystemTray().add(trayIcon);
         } catch (AWTException e) {
-            throw new RuntimeException("Impossibile aggiungere l'icona alla System Tray");
+            throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
     }
     private void initPrimaryStage() {
         Platform.runLater(() -> {
-            String choosedTheme = SettingsManager.getInstance().getSetting("theme").value();
-            if(!StringUtils.isEmpty(choosedTheme)){
-                if(choosedTheme.equals("dark")){
+            String chosenTheme = SettingsManager.getInstance().getSetting("theme").value();
+            if(!StringUtils.isEmpty(chosenTheme)){
+                if(chosenTheme.equals("dark")){
                     Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
-                }else if(choosedTheme.equals("light")){
+                }else if(chosenTheme.equals("light")){
                     Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
                 }
             }
-            primaryStage.setTitle("ShortcutBuddy");
-            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcut-view.fxml"));
+            String chosenLanguage = SettingsManager.getInstance().getSetting("language").value();
+            Locale locale = Languages.getLocale(chosenLanguage);
+            bundle = ResourceBundle.getBundle("i18n/messages", locale);
+            primaryStage.setTitle(bundle.getString(Label.APP_TITLE));
+            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcut-view.fxml"), bundle);
             try {
                 Scene scene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
                 primaryStage.setScene(scene);
@@ -146,6 +150,7 @@ public class ShortcutBuddyApp extends Application {
                 keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
                 ShortcutController controller = fxmlLoader.getController();
                 controller.setForegroundAppInterceptor(foregroundAppInterceptor);
+                controller.setBundle(bundle);
                 controller.setStage(primaryStage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
