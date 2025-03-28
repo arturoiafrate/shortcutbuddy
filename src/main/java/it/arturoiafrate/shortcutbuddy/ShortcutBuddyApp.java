@@ -1,5 +1,7 @@
 package it.arturoiafrate.shortcutbuddy;
 
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
@@ -18,6 +20,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.io.IOException;
@@ -28,6 +31,11 @@ public class ShortcutBuddyApp extends Application {
     private Stage splashStage;
     private KeyListener keyListener;
     private ForegroundAppInterceptor foregroundAppInterceptor;
+
+    @Override
+    public void init() {
+        Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+    }
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -120,6 +128,14 @@ public class ShortcutBuddyApp extends Application {
     }
     private void initPrimaryStage() {
         Platform.runLater(() -> {
+            String choosedTheme = SettingsManager.getInstance().getSetting("theme").value();
+            if(!StringUtils.isEmpty(choosedTheme)){
+                if(choosedTheme.equals("dark")){
+                    Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+                }else if(choosedTheme.equals("light")){
+                    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+                }
+            }
             primaryStage.setTitle("ShortcutBuddy");
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcut-view.fxml"));
             try {

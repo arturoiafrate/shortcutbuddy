@@ -13,5 +13,10 @@
     "key": "height",
     "value": "480",
     "readonly": false
+  },
+  {
+    "key": "theme",
+    "value": "light",
+    "readonly": false
   }
 ]

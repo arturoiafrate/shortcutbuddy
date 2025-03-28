@@ -1,5 +1,4 @@
 module it.arturoiafrate.shortcutbuddy {
-    requires javafx.controls;
     requires javafx.fxml;
     requires com.github.kwhat.jnativehook;
     requires com.sun.jna;
@@ -7,6 +6,7 @@ module it.arturoiafrate.shortcutbuddy {
     requires org.apache.commons.io;
     requires com.google.gson;
     requires org.apache.commons.lang3;
+    requires atlantafx.base;
 
 
     opens it.arturoiafrate.shortcutbuddy to javafx.fxml;
