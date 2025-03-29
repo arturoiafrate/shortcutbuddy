@@ -10,7 +10,9 @@ import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundApp
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.tray.TrayManager;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
@@ -20,7 +22,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
@@ -37,9 +38,11 @@ public class ShortcutBuddyApp extends Application {
     private Stage settingsStage;
     private KeyListener keyListener;
     private TrayIcon trayIcon;
-    ShortcutController shortcutController;
+    private ShortcutController shortcutController;
     private ForegroundAppInterceptor foregroundAppInterceptor;
     private ResourceBundle bundle;
+    private TrayManager trayManager;
+    private static HostServices appHostServices;
 
     @Override
     public void init() {
@@ -48,6 +51,7 @@ public class ShortcutBuddyApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        this.appHostServices = getHostServices();
         this.primaryStage = primaryStage;
         this.primaryStage.initStyle(StageStyle.UNDECORATED);
         this.primaryStage.hide();
@@ -115,54 +119,12 @@ public class ShortcutBuddyApp extends Application {
     }
 
     private void startTrayIcon(){
-        Image image = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo_128.png"));
-        MenuItem settingsItem = new MenuItem(bundle.getString(Label.BUTTON_SETTINGS));
-        MenuItem exitItem = new MenuItem(bundle.getString(Label.BUTTON_EXIT));
-
-        settingsItem.addActionListener(e -> Platform.runLater(this::openSettingsWindow));
-        exitItem.addActionListener(e -> {
-            SystemTray.getSystemTray().remove(trayIcon);
-            Platform.runLater(Platform::exit);
+        trayManager = new TrayManager(bundle, appHostServices);
+        Platform.runLater(() -> {
+            trayManager.setSettingsStage(settingsStage);
+            trayManager.setShortcutController(shortcutController);
+            trayManager.startTray();
         });
-
-        PopupMenu popup = new PopupMenu();
-        popup.add(settingsItem);
-        popup.addSeparator();
-        popup.add(exitItem);
-
-        trayIcon = new TrayIcon(image, bundle.getString(Label.APP_TITLE), popup);
-        trayIcon.setImageAutoSize(true);
-
-        try {
-            SystemTray.getSystemTray().add(trayIcon);
-        } catch (AWTException e) {
-            throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
-        }
-    }
-
-    private void openSettingsWindow(){
-        try{
-            if (settingsStage != null && settingsStage.isShowing()) {
-                settingsStage.toFront();
-                return;
-            }
-            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/settings-view.fxml"), bundle);
-            settingsStage = new Stage();
-            settingsStage.setTitle(bundle.getString(Label.SETTINGS_TITLE));
-            Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
-            settingsStage.setScene(settingsScene);
-            settingsStage.initModality(Modality.APPLICATION_MODAL);
-            settingsStage.setOnCloseRequest(event -> {
-                shortcutController.setSettingsShown(false);
-                settingsStage = null;
-            });
-            shortcutController.setSettingsShown(true);
-            settingsStage.sizeToScene();
-            settingsStage.showAndWait();
-        } catch (Exception e) {
-            settingsStage = null;
-            throw new RuntimeException(e);
-        }
     }
 
     private void initPrimaryStage() {

@@ -6,16 +6,18 @@ import it.arturoiafrate.shortcutbuddy.model.bean.Shortcut;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
 public class ShortcutManager extends AbstractManager implements IFileSystemManager {
     private static ShortcutManager instance;
     private List<AppShortcuts> appShortcuts;
-    private final String filename = "shortcuts.json";
+    private List<AppShortcuts> userDefinedShortcuts;
 
     private ShortcutManager() {
         appShortcuts = new ArrayList<>();
+        userDefinedShortcuts = new ArrayList<>();
     }
 
     public static ShortcutManager getInstance() {
@@ -26,6 +28,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
     }
     @Override
     public void load() {
+        final String filename = "shortcuts.json";
         appShortcuts = loadFromFile(filename, new TypeToken<List<AppShortcuts>>() {}.getType(), false);
         if (appShortcuts == null) {
             appShortcuts = new ArrayList<>();
@@ -46,21 +49,42 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
                 }
             }
         }
+        loadUserDefinedShortcuts();
+    }
+
+    public void loadUserDefinedShortcuts() {
+        final String filename = "usershortcuts.json";
+        userDefinedShortcuts = loadIfFileExists(filename, new TypeToken<List<AppShortcuts>>() {}.getType());
+        if (userDefinedShortcuts == null) {
+            userDefinedShortcuts = new ArrayList<>();
+        }
     }
 
     public List<Shortcut> getShortcutsForApp(String appName) {
         Optional<AppShortcuts> singleAppShortcut =  appShortcuts.stream()
                 .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
                 .findFirst();
+        if(singleAppShortcut.isPresent()){
+            return singleAppShortcut.get().shortcuts();
+        }
+        singleAppShortcut = userDefinedShortcuts.stream()
+                .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
+                .findFirst();
         return singleAppShortcut.isPresent() ? singleAppShortcut.get().shortcuts() : Collections.emptyList();
     }
 
     public String getAppDescription(String appName) {
-        return appShortcuts.stream()
+        Optional<String> appDescription = appShortcuts.stream()
                 .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
                 .map(AppShortcuts::appDescription)
-                .findFirst()
-                .orElse("");
+                .findFirst();
+        if(appDescription.isPresent() && StringUtils.isEmpty(appDescription.get())){
+            appDescription = userDefinedShortcuts.stream()
+                    .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
+                    .map(AppShortcuts::appDescription)
+                    .findFirst();
+        }
+        return appDescription.orElse("");
     }
 
 }

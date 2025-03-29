@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.Setting;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
-import it.arturoiafrate.shortcutbuddy.utility.AppVersion;
+import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -22,7 +22,7 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
 
     private SettingsManager() {
         settings = new ArrayList<>();
-        currentAppVersion = AppVersion.getVersion();
+        currentAppVersion = AppInfo.getVersion();
     }
 
     public static SettingsManager getInstance() {

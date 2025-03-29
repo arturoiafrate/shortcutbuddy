@@ -32,6 +32,20 @@ public abstract class AbstractManager {
         return Paths.get(myAppDir.toString(), fileName).toString();
     }
 
+    protected <T> T loadIfFileExists(String fileName, Type type){
+        try {
+            File file = new File(getFilePath(fileName));
+            if (!file.exists()) {
+                return null;
+            }
+            String json = FileUtils.readFileToString(file, "UTF-8");
+            return new Gson().fromJson(json, type);
+        } catch (IOException e) {
+            System.out.println("Error while loading file " + fileName);
+            throw new RuntimeException(e);
+        }
+    }
+
     protected <T> T loadFromFile(String fileName, Type type, boolean getfromResource) {
         try {
             File file;
