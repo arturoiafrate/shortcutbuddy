@@ -12,15 +12,16 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.io.InputStream;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -41,6 +42,12 @@ public class ShortcutController implements IKeyObserver {
 
     @FXML
     private Label appNameLabel;
+
+    @FXML
+    private ScrollPane scrollPane;
+
+    private static final int VISIBLE_ROWS = 10;
+    private static final double ESTIMATED_ROW_HEIGHT = 28.0;
 
     private ForegroundAppInterceptor foregroundAppInterceptor;
     private Stage stage;
@@ -162,13 +169,47 @@ public class ShortcutController implements IKeyObserver {
 
     private void updateShortcutsGrid(List<Shortcut> shortcuts) {
         shortcutsGrid.getChildren().clear();
-
-        for (int i = 0; i < shortcuts.size(); i++) {
-            Shortcut shortcut = shortcuts.get(i);
-            Label shortcutLabel = new Label(shortcut.shortcut() + ": " + shortcut.description());
-            shortcutLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.SUCCESS, Styles.TITLE_4);
-            shortcutsGrid.add(shortcutLabel, i % 2, i / 2);
+        shortcutsGrid.getColumnConstraints().clear();
+        if (shortcuts == null) {
+            shortcuts = List.of();
         }
+        int itemCount = shortcuts.size();
+        int numColumns = (itemCount <= 20) ? 2 : 3;
+        if (itemCount > 0) {
+            double percentWidth = 100.0 / numColumns;
+            for (int i = 0; i < numColumns; i++) {
+                ColumnConstraints colConst = new ColumnConstraints();
+                colConst.setPercentWidth(percentWidth);
+                shortcutsGrid.getColumnConstraints().add(colConst);
+            }
+        } else {
+            ColumnConstraints colConst = new ColumnConstraints();
+            colConst.setPercentWidth(100.0);
+            shortcutsGrid.getColumnConstraints().add(colConst);
+        }
+        if (scrollPane != null) {
+            double gridTopPadding = shortcutsGrid.getPadding().getTop();
+            double gridBottomPadding = shortcutsGrid.getPadding().getBottom();
+            double totalVGap = (VISIBLE_ROWS > 1) ? (VISIBLE_ROWS - 1) * shortcutsGrid.getVgap() : 0;
+            double calculatedPrefHeight = (VISIBLE_ROWS * ESTIMATED_ROW_HEIGHT) + totalVGap + gridTopPadding + gridBottomPadding;
+
+            scrollPane.setPrefViewportHeight(calculatedPrefHeight);
+            scrollPane.setFitToWidth(true);
+        }
+        for (int i = 0; i < itemCount; i++) {
+            Label label = createShortcutLabel(shortcuts.get(i), numColumns == 3);
+            shortcutsGrid.add(label, i % numColumns, i / numColumns);
+        }
+    }
+
+    private Label createShortcutLabel(Shortcut shortcut, boolean useSmallerText) {
+        Label label = new Label(shortcut.shortcut() + ": " + shortcut.description());
+        label.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.SUCCESS);
+        if(!useSmallerText) label.getStyleClass().add(Styles.TITLE_4);
+        label.setWrapText(true);
+        label.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setFillWidth(label, true);
+        return label;
     }
 
     private void updateFilteredShortcuts(List<Shortcut> shortcuts, String filter) {
