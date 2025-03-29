@@ -172,5 +172,209 @@
             "description": "Show usages"
         }
     ]
+  },
+  {
+    "appName": "datagrip64.exe",
+    "appDescription": "DataGrip",
+    "shortcuts": [
+        {
+            "shortcut": "Ctrl + Shift + A",
+            "description": "Find any action"
+        },
+        {
+            "shortcut": "Alt + Enter",
+            "description": "Quick-fixes"
+        },
+        {
+            "shortcut": "Ctrl + D",
+            "description": "Duplicate Line"
+        },
+        {
+            "shortcut": "Ctrl + Y",
+            "description": "Delete Line"
+        },
+        {
+            "shortcut": "Ctrl + C",
+            "description": "Copy Line"
+        },
+        {
+            "shortcut": "Ctrl + Alt + L",
+            "description": "Reformat code"
+        },
+        {
+            "shortcut": "Ctrl + F4",
+            "description": "Close active console/editor tab"
+        },
+        {
+            "shortcut": "Ctrl + /",
+            "description": "Comment Line"
+        },
+        {
+            "shortcut": "Ctrl + Shift + /",
+            "description": "Comment Block"
+        },
+        {
+            "shortcut": "Ctrl + Enter",
+            "description": "Submit changes"
+        },
+        {
+            "shortcut": "Ctrl + Alt + Z",
+            "description": "Revert changes"
+        },
+        {
+            "shortcut": "Ctrl + Space",
+            "description": "Value completion"
+        },
+        {
+            "shortcut": "Ctrl + F",
+            "description": "Text search"
+        },
+        {
+            "shortcut": "F4",
+            "description": "Go to related data"
+        },
+        {
+            "shortcut": "Alt + F7",
+            "description": "Go to referencing data"
+        },
+        {
+            "shortcut": "Ctrl + Alt + Shift + N",
+            "description": "Go to object"
+        },
+        {
+            "shortcut": "Ctrl + F6",
+            "description": "Modify object"
+        },
+        {
+            "shortcut": "F4",
+            "description": "Jump to table’s data"
+        },
+        {
+            "shortcut": "Ctrl + B",
+            "description": "Jump to DDL"
+        },
+        {
+            "shortcut": "Double Shift",
+            "description": "Search everywhere"
+        },
+        {
+            "shortcut": "Alt + F7",
+            "description": "Find usages"
+        },
+        {
+            "shortcut": "Ctrl + Alt + F7",
+            "description": "Show usages"
+        }
+    ]
+  },
+  {
+    "appName": "msedge.exe",
+    "appDescription": "Microsoft Edge",
+    "shortcuts":[
+        {
+            "shortcut": "Ctrl + Shift + B",
+            "description": "Show or hide the favorites bar"
+        },
+        {
+            "shortcut": "Ctrl + D",
+            "description": "Save the current tab as a favorite"
+        },
+        {
+            "shortcut": "Alt + D",
+            "description": "Select the URL in the address bar to edit"
+        },
+        {
+            "shortcut": "Ctrl + E",
+            "description": "Open a search query in the address bar"
+        },
+        {
+            "shortcut": "Ctrl + F",
+            "description": "Open find on page"
+        },
+        {
+            "shortcut": "Ctrl + G",
+            "description": "Jump to the next result for find on page"
+        },
+        {
+            "shortcut": "Ctrl + Shift + G",
+            "description": "Jump to the previous result for find on page"
+        },
+        {
+            "shortcut": "Ctrl + H",
+            "description": "Open History"
+        },
+        {
+            "shortcut": "Ctrl + Shift + I",
+            "description": "Open Developer Tools"
+        },
+        {
+            "shortcut": "Ctrl + L",
+            "description": "Select the URL in the address bar to edit"
+        },
+        {
+            "shortcut": "Ctrl + Shift + L",
+            "description": "Paste and search or Paste and go (if it's a URL)"
+        },
+        {
+            "shortcut": "Ctrl + M",
+            "description": "Mute the current tab (toggle)"
+        },
+        {
+            "shortcut": "Ctrl + N",
+            "description": "Open a new window"
+        },
+        {
+            "shortcut": "Ctrl + Shift + N",
+            "description": "Open a new InPrivate window"
+        },
+        {
+            "shortcut": "Ctrl + Shift + O",
+            "description": "Open Favorites"
+        },
+        {
+            "shortcut": "Ctrl + P",
+            "description": "Print the current page"
+        },
+        {
+            "shortcut": "Ctrl + R",
+            "description": "Reload the current page"
+        },
+        {
+            "shortcut": "Ctrl + Shift + R",
+            "description": "Reload the current page, ignoring cached content"
+        },
+        {
+            "shortcut": "Ctrl + T",
+            "description": "Open a new tab and switch to it"
+        },
+        {
+            "shortcut": "Ctrl + Shift + T",
+            "description": "Reopen the last closed tab, and switch to it"
+        },
+        {
+            "shortcut": "Ctrl + U",
+            "description": "View source"
+        },
+        {
+            "shortcut": "Ctrl + Shift + V",
+            "description": "Paste without formatting"
+        },
+        {
+            "shortcut": "Ctrl + W",
+            "description": "Close the current tab"
+        },
+        {
+            "shortcut": "Ctrl + Shift + W",
+            "description": "Close the current window"
+        },
+        {
+            "shortcut": "Ctrl + Enter",
+            "description": "Add www. to the beginning and .com to the end of text typed in the address bar"
+        },
+        {
+            "shortcut": "Ctrl + Tab",
+            "description": "Switch to the next tab"
+        }
+    ]
   }
 ]

@@ -140,9 +140,7 @@ public class ShortcutController implements IKeyObserver {
     private void managePeriodKey(KeyOperation mode) {
         if(mode == KeyOperation.KEY_PRESS && !blockView && stage.isShowing()){
             blockView = true;
-            Platform.runLater(() -> {
-                searchBox.requestFocus();
-            });
+            Platform.runLater(() -> searchBox.requestFocus());
         }
     }
     private void setHeader(String appName, String appDescription) {
@@ -169,9 +167,7 @@ public class ShortcutController implements IKeyObserver {
 
         searchBox.getParent().requestFocus();
 
-        searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
-            updateFilteredShortcuts(shortcuts, newValue);
-        });
+        searchBox.textProperty().addListener((observable, oldValue, newValue) -> updateFilteredShortcuts(shortcuts, newValue));
     }
 
     private void updateShortcutsGrid(List<Shortcut> shortcuts) {
@@ -204,8 +200,6 @@ public class ShortcutController implements IKeyObserver {
             scrollPane.setFitToWidth(true);
         }
         for (int i = 0; i < itemCount; i++) {
-            /*Label label = createShortcutLabel(shortcuts.get(i), numColumns == 3);
-            shortcutsGrid.add(label, i % numColumns, i / numColumns);*/
             Node shortcutEntryNode = createShortcutEntryNode(shortcuts.get(i), numColumns == 3);
             shortcutsGrid.add(shortcutEntryNode, i % numColumns, i / numColumns);
         }
@@ -241,16 +235,6 @@ public class ShortcutController implements IKeyObserver {
         GridPane.setFillWidth(container, true);
 
         return container;
-    }
-
-    private Label createShortcutLabel(Shortcut shortcut, boolean useSmallerText) {
-        Label label = new Label(shortcut.shortcut() + ": " + shortcut.description());
-        label.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.SUCCESS);
-        if(!useSmallerText) label.getStyleClass().add(Styles.TITLE_4);
-        label.setWrapText(true);
-        label.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setFillWidth(label, true);
-        return label;
     }
 
     private void updateFilteredShortcuts(List<Shortcut> shortcuts, String filter) {
