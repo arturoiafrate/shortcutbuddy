@@ -22,7 +22,7 @@ public abstract class AbstractManager {
         }
     }
 
-    private String getFilePath(String fileName) throws IOException {
+    protected String getFilePath(String fileName) throws IOException {
         String userHome = System.getProperty("user.home");
         Path myAppDir = Paths.get(userHome, ".shortcutbuddy");
         if (!Files.exists(myAppDir)) {

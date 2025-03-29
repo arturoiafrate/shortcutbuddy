@@ -15,11 +15,13 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.commons.lang3.StringUtils;
@@ -33,9 +35,12 @@ import java.util.ResourceBundle;
 public class ShortcutBuddyApp extends Application {
     private Stage primaryStage;
     private Stage splashStage;
+    private Stage settingsStage;
     private KeyListener keyListener;
+    private TrayIcon trayIcon;
+    ShortcutController shortcutController;
     private ForegroundAppInterceptor foregroundAppInterceptor;
-    ResourceBundle bundle;
+    private ResourceBundle bundle;
 
     @Override
     public void init() {
@@ -112,14 +117,22 @@ public class ShortcutBuddyApp extends Application {
 
     private void startTrayIcon(){
         Image image = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo_128.png"));
-        PopupMenu popup = new PopupMenu();
+        MenuItem settingsItem = new MenuItem(bundle.getString(Label.BUTTON_SETTINGS));
         MenuItem exitItem = new MenuItem(bundle.getString(Label.BUTTON_EXIT));
+
+        settingsItem.addActionListener(e -> Platform.runLater(this::openSettingsWindow));
+        exitItem.addActionListener(e -> {
+            SystemTray.getSystemTray().remove(trayIcon);
+            Platform.runLater(Platform::exit);
+        });
+
+        PopupMenu popup = new PopupMenu();
+        popup.add(settingsItem);
+        popup.addSeparator();
         popup.add(exitItem);
 
-        TrayIcon trayIcon = new TrayIcon(image, bundle.getString(Label.APP_TITLE), popup);
+        trayIcon = new TrayIcon(image, bundle.getString(Label.APP_TITLE), popup);
         trayIcon.setImageAutoSize(true);
-
-        exitItem.addActionListener(e -> Platform.runLater(Platform::exit));
 
         try {
             SystemTray.getSystemTray().add(trayIcon);
@@ -127,6 +140,32 @@ public class ShortcutBuddyApp extends Application {
             throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
     }
+
+    private void openSettingsWindow(){
+        try{
+            if (settingsStage != null && settingsStage.isShowing()) {
+                settingsStage.toFront();
+                return;
+            }
+            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/settings-view.fxml"), bundle);
+            settingsStage = new Stage();
+            settingsStage.setTitle(bundle.getString(Label.SETTINGS_TITLE));
+            Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
+            settingsStage.setScene(settingsScene);
+            settingsStage.initModality(Modality.APPLICATION_MODAL);
+            settingsStage.setOnCloseRequest(event -> {
+                shortcutController.setSettingsShown(false);
+                settingsStage = null;
+            });
+            shortcutController.setSettingsShown(true);
+            settingsStage.sizeToScene();
+            settingsStage.showAndWait();
+        } catch (Exception e) {
+            settingsStage = null;
+            throw new RuntimeException(e);
+        }
+    }
+
     private void initPrimaryStage() {
         Platform.runLater(() -> {
             String chosenTheme = SettingsManager.getInstance().getSetting("theme").value();
@@ -148,10 +187,10 @@ public class ShortcutBuddyApp extends Application {
                 keyListener.subscribe(NativeKeyEvent.VC_CONTROL, fxmlLoader.getController());
                 keyListener.subscribe(NativeKeyEvent.VC_PERIOD, fxmlLoader.getController());
                 keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
-                ShortcutController controller = fxmlLoader.getController();
-                controller.setForegroundAppInterceptor(foregroundAppInterceptor);
-                controller.setBundle(bundle);
-                controller.setStage(primaryStage);
+                shortcutController = fxmlLoader.getController();
+                shortcutController.setForegroundAppInterceptor(foregroundAppInterceptor);
+                shortcutController.setBundle(bundle);
+                shortcutController.setStage(primaryStage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

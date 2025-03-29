@@ -17,11 +17,13 @@
   {
     "key": "theme",
     "value": "light",
-    "readonly": false
+    "readonly": false,
+    "options": ["light", "dark"]
   },
   {
     "key": "language",
     "value": "english",
-    "readonly": false
+    "readonly": false,
+    "options": ["english"]
   }
 ]

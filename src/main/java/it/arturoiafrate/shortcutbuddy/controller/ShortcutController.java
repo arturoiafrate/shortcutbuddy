@@ -52,6 +52,7 @@ public class ShortcutController implements IKeyObserver {
     private ForegroundAppInterceptor foregroundAppInterceptor;
     private Stage stage;
     private boolean blockView = false;
+    private boolean isSettingsShown = false;
     private ResourceBundle bundle;
 
 
@@ -65,6 +66,7 @@ public class ShortcutController implements IKeyObserver {
 
     @Override
     public void update(int keyCode, KeyOperation mode) {
+        if(isSettingsShown) return;
         switch (keyCode) {
             case NativeKeyEvent.VC_CONTROL:
                 manageCtrlKey(mode);
@@ -78,6 +80,10 @@ public class ShortcutController implements IKeyObserver {
             default:
                 break;
         }
+    }
+
+    public void setSettingsShown(boolean settingsShown) {
+        isSettingsShown = settingsShown;
     }
 
     public void setForegroundAppInterceptor(ForegroundAppInterceptor foregroundAppInterceptor) {
