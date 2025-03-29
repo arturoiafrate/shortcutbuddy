@@ -24,7 +24,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
     }
     @Override
     public void load() {
-        appShortcuts = loadFromFile(filename, new TypeToken<List<AppShortcuts>>() {}.getType());
+        appShortcuts = loadFromFile(filename, new TypeToken<List<AppShortcuts>>() {}.getType(), false);
         if (appShortcuts == null) {
             appShortcuts = new ArrayList<>();
         }

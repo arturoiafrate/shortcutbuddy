@@ -47,37 +47,38 @@ public class SettingsController {
         // Popola la griglia
         for (int i = 0; i < settingsList.size(); i++) {
             Setting setting = settingsList.get(i);
+            if(!setting.isHide()){
+                Label keyLabel = new Label(setting.key() + ":");
+                keyLabel.getStyleClass().addAll(Styles.ACCENT, Styles.TEXT_BOLD);
+                keyLabel.setAlignment(Pos.CENTER_LEFT);
 
-            Label keyLabel = new Label(setting.key() + ":");
-            keyLabel.getStyleClass().addAll(Styles.ACCENT, Styles.TEXT_BOLD);
-            keyLabel.setAlignment(Pos.CENTER_LEFT);
-
-            Control valueField;
-            if (setting.options() == null) {
-                TextField valueTextField = new TextField(setting.value());
-                valueTextField.setEditable(!setting.readonly());
-                valueTextField.setMaxWidth(Double.MAX_VALUE);
-                valueField = valueTextField;
-            } else {
-                if(setting.options().length == 2 && "y".equals(setting.options()[0]) && "n".equals(setting.options()[1])){
-                    ToggleSwitch toggleSwitch = new ToggleSwitch();
-                    toggleSwitch.setLabelPosition(HorizontalDirection.RIGHT);
-                    toggleSwitch.setSelected("y".equals(setting.value()));
-                    valueField = toggleSwitch;
+                Control valueField;
+                if (setting.options() == null) {
+                    TextField valueTextField = new TextField(setting.value());
+                    valueTextField.setEditable(!setting.readonly());
+                    valueTextField.setMaxWidth(Double.MAX_VALUE);
+                    valueField = valueTextField;
                 } else {
-                    ComboBox<String> comboBox = new ComboBox<>();
-                    comboBox.setItems(FXCollections.observableArrayList(setting.options()));
-                    comboBox.setValue(setting.value());
-                    comboBox.setDisable(setting.readonly());
-                    valueField = comboBox;
+                    if(setting.options().length == 2 && "y".equals(setting.options()[0]) && "n".equals(setting.options()[1])){
+                        ToggleSwitch toggleSwitch = new ToggleSwitch();
+                        toggleSwitch.setLabelPosition(HorizontalDirection.RIGHT);
+                        toggleSwitch.setSelected("y".equals(setting.value()));
+                        valueField = toggleSwitch;
+                    } else {
+                        ComboBox<String> comboBox = new ComboBox<>();
+                        comboBox.setItems(FXCollections.observableArrayList(setting.options()));
+                        comboBox.setValue(setting.value());
+                        comboBox.setDisable(setting.readonly());
+                        valueField = comboBox;
+                    }
                 }
+
+
+                settingsGrid.add(keyLabel, 0, i);
+                settingsGrid.add(valueField, 1, i);
+
+                settingFields.put(setting.key(), valueField);
             }
-
-
-            settingsGrid.add(keyLabel, 0, i);
-            settingsGrid.add(valueField, 1, i);
-
-            settingFields.put(setting.key(), valueField);
         }
     }
 
@@ -96,7 +97,7 @@ public class SettingsController {
             } else if (control instanceof ToggleSwitch toggleSwitch) {
                 newValue=toggleSwitch.isSelected() ? "y" : "n";
             }
-            newSettings.add(new Setting(currentSetting.key(), newValue, currentSetting.readonly(), currentSetting.options()));
+            newSettings.add(new Setting(currentSetting.key(), newValue, currentSetting.readonly(), currentSetting.options(), currentSetting.isHide()));
         }
         boolean isSaved = SettingsManager.getInstance().save(newSettings);
         Alert alert = isSaved ? new Alert(Alert.AlertType.INFORMATION) : new Alert(Alert.AlertType.ERROR);

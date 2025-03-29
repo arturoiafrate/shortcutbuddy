@@ -1,10 +1,5 @@
 [
   {
-    "key": "appName",
-    "value": "ShortcutBuddy",
-    "readonly": true
-  },
-  {
     "key": "width",
     "value": "640",
     "readonly": false

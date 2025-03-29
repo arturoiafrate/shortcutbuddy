@@ -6,6 +6,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,10 +32,15 @@ public abstract class AbstractManager {
         return Paths.get(myAppDir.toString(), fileName).toString();
     }
 
-    protected <T> T loadFromFile(String fileName, Type type) {
+    protected <T> T loadFromFile(String fileName, Type type, boolean getfromResource) {
         try {
-            File file = new File(getFilePath(fileName));
-            if (!file.exists()) {
+            File file;
+            if(getfromResource) {
+                file = new File(this.getClass().getResource(fileName).toURI());
+            } else {
+                file = new File(getFilePath(fileName));
+            }
+            if (!file.exists() && !getfromResource) {
                 createDefaultFile(file, "/default/" + fileName);
             }
             String json = FileUtils.readFileToString(file, "UTF-8");
@@ -44,7 +50,7 @@ public abstract class AbstractManager {
                 System.out.println("Error while copying images");
             }
             return new Gson().fromJson(json, type);
-        } catch (IOException e) {
+        } catch (IOException | URISyntaxException e) {
             System.out.println("Error while loading file " + fileName);
             throw new RuntimeException(e);
         }
