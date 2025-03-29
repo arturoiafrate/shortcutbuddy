@@ -5,6 +5,8 @@ import it.arturoiafrate.shortcutbuddy.model.bean.AppShortcuts;
 import it.arturoiafrate.shortcutbuddy.model.bean.Shortcut;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
+
 import java.util.*;
 
 public class ShortcutManager extends AbstractManager implements IFileSystemManager {
@@ -27,6 +29,22 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         appShortcuts = loadFromFile(filename, new TypeToken<List<AppShortcuts>>() {}.getType(), false);
         if (appShortcuts == null) {
             appShortcuts = new ArrayList<>();
+        }
+        if(SettingsManager.getInstance().isAppVersionUpdated()){
+            List<AppShortcuts> resourceAppShortcuts = loadFromFile("/default/" + filename, new TypeToken<List<AppShortcuts>>() {}.getType(), true);
+            for(AppShortcuts resourceAppShortcut : resourceAppShortcuts) {
+                Optional<AppShortcuts> appShortcut = appShortcuts.stream()
+                        .filter(appShortcuts -> appShortcuts.appName().equals(resourceAppShortcut.appName()))
+                        .findFirst();
+                if (appShortcut.isPresent()) {
+                    if(resourceAppShortcut.shortcuts() != appShortcut.get().shortcuts()) {
+                        appShortcuts.remove(appShortcut.get());
+                        appShortcuts.add(resourceAppShortcut);
+                    }
+                } else {
+                    appShortcuts.add(resourceAppShortcut);
+                }
+            }
         }
     }
 
