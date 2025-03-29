@@ -4,80 +4,172 @@
     "appDescription": "IntelliJ IDEA",
     "shortcuts": [
         {
-            "shortcut": "Ctrl + Shift + A",
-            "description": "Find Action"
+            "shortcut": "F8 / F7",
+            "description": "Step over / into"
+        },
+        {
+            "shortcut": "Shift + F7 / Shift + F8",
+            "description": "Smart step into / Step out"
+        },
+        {
+            "shortcut": "Alt + F9",
+            "description": "Run to cursor"
+        },
+        {
+            "shortcut": "Alt + F8",
+            "description": "Evaluate expression"
+        },
+        {
+            "shortcut": "F9",
+            "description": "Resume program"
+        },
+        {
+            "shortcut": "Ctrl + F8",
+            "description": "Toggle breakpoint"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F8",
+            "description": "View breakpoints"
+        },
+        {
+            "shortcut": "Double Shift",
+            "description": "Search everywhere"
+        },
+        {
+            "shortcut": "Ctrl + F",
+            "description": "Find"
+        },
+        {
+            "shortcut": "F3 / Shift + F3",
+            "description": "Find next / previous"
+        },
+        {
+            "shortcut": "Ctrl + R",
+            "description": "Replace"
         },
         {
             "shortcut": "Ctrl + Shift + F",
-            "description": "Find in Path"
+            "description": "Find in path"
         },
         {
             "shortcut": "Ctrl + Shift + R",
-            "description": "Find in Path"
+            "description": "Replace in path"
+        },
+        {
+            "shortcut": "Ctrl + Space",
+            "description": "Basic code completion"
+        },
+        {
+            "shortcut": "Ctrl + Q",
+            "description": "Quick documentation lookup"
+        },
+        {
+            "shortcut": "Ctrl + O",
+            "description": "Override methods"
+        },
+        {
+            "shortcut": "Ctrl + I",
+            "description": "Implement methods"
+        },
+        {
+            "shortcut": "Ctrl + Alt + T",
+            "description": "Surround with…"
+        },
+        {
+            "shortcut": "Ctrl + /",
+            "description": "Comment / uncomment with line comment"
+        },
+        {
+            "shortcut": "Ctrl + Shift + /",
+            "description": "Comment / uncomment with block comment"
+        },
+        {
+            "shortcut": "Ctrl + Alt + L",
+            "description": "Reformat code"
+        },
+        {
+            "shortcut": "Shift + F6",
+            "description": "Rename"
+        },
+        {
+            "shortcut": "Ctrl + N",
+            "description": "Go to class"
         },
         {
             "shortcut": "Ctrl + Shift + N",
-            "description": "Find Class"
+            "description": "Go to file"
         },
         {
-            "shortcut": "Ctrl + Shift + E",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + Alt + Shift + N",
+            "description": "Go to symbol"
         },
         {
-            "shortcut": "Ctrl + Shift + T",
-            "description": "Find Class"
+            "shortcut": "Ctrl + G",
+            "description": "Go to line"
         },
         {
-            "shortcut": "Ctrl + Shift + V",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + E",
+            "description": "Recent files popup"
         },
         {
-            "shortcut": "Ctrl + Shift + C",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + Alt + Left / Right",
+            "description": "Navigate back / forward"
         },
         {
-            "shortcut": "Ctrl + Shift + S",
-            "description": "Recent Files"
+            "shortcut": "F11",
+            "description": "Toggle bookmark"
         },
         {
-            "shortcut": "Ctrl + Shift + D",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + F11",
+            "description": "Toggle bookmark with mnemonic"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + #[0-9]",
+            "description": "Go to numbered bookmark"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Shift + F11",
+            "description": "Show bookmarks"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + B, Ctrl + Click",
+            "description": "Go to declaration"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + Alt + B",
+            "description": "Go to implementation(s)"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + Shift + I",
+            "description": "Open quick definition lookup"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + F9",
+            "description": "Build project"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Ctrl + Shift + F9",
+            "description": "Compile selected file, package or module"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Alt + Shift + F10 / F9",
+            "description": "Select configuration and run / debug"
         },
         {
-            "shortcut": "Ctrl + Shift + F",
-            "description": "Recent Files"
+            "shortcut": "Shift + F10 / F9",
+            "description": "Run / Debug"
+        },
+        {
+            "shortcut": "Alt + F7 / Ctrl + F7",
+            "description": "Find usages / Find usages in file"
+        },
+        {
+            "shortcut": "Ctrl + Shift + F7",
+            "description": "Highlight usages in file"
+        },
+        {
+            "shortcut": "Ctrl + Alt + F7",
+            "description": "Show usages"
         }
     ]
   }

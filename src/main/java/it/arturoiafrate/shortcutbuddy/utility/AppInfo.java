@@ -18,15 +18,12 @@ public class AppInfo {
         if (loaded) return;
         try (InputStream input = AppInfo.class.getResourceAsStream(PROPERTIES_PATH)) {
             if (input == null) {
-                System.err.println("ERRORE: Impossibile trovare " + PROPERTIES_PATH);
                 loaded = true;
                 return;
             }
             properties.load(input);
             loaded = true;
-            System.out.println("Caricate proprietà da " + PROPERTIES_PATH);
         } catch (IOException ex) {
-            System.err.println("ERRORE: Impossibile caricare " + PROPERTIES_PATH);
             loaded = true;
         }
     }

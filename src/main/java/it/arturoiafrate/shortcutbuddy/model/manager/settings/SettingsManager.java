@@ -17,7 +17,7 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
     private static SettingsManager instance;
     private List<Setting> settings;
     private final String filename = "settings.json";
-    private String currentAppVersion;
+    private final String currentAppVersion;
     private boolean appVersionUpdated = false;
 
     private SettingsManager() {

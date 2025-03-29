@@ -10,14 +10,15 @@ import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
+import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
@@ -203,9 +204,43 @@ public class ShortcutController implements IKeyObserver {
             scrollPane.setFitToWidth(true);
         }
         for (int i = 0; i < itemCount; i++) {
-            Label label = createShortcutLabel(shortcuts.get(i), numColumns == 3);
-            shortcutsGrid.add(label, i % numColumns, i / numColumns);
+            /*Label label = createShortcutLabel(shortcuts.get(i), numColumns == 3);
+            shortcutsGrid.add(label, i % numColumns, i / numColumns);*/
+            Node shortcutEntryNode = createShortcutEntryNode(shortcuts.get(i), numColumns == 3);
+            shortcutsGrid.add(shortcutEntryNode, i % numColumns, i / numColumns);
         }
+    }
+
+    private Node createShortcutEntryNode(Shortcut shortcut, boolean useSmallerText) {
+        Label shortcutLabel = new Label(shortcut.shortcut());
+        shortcutLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
+
+        Label descriptionLabel = new Label(shortcut.description());
+        descriptionLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.SUCCESS);
+
+        if (!useSmallerText) {
+            shortcutLabel.getStyleClass().add(Styles.TITLE_4);
+            descriptionLabel.getStyleClass().add(Styles.TITLE_4);
+        }
+
+        shortcutLabel.setWrapText(true);
+        descriptionLabel.setWrapText(true);
+
+        Pane container;
+        if(shortcutLabel.getText().length() > 30 || descriptionLabel.getText().length() > 30){
+            container = new VBox(shortcutLabel, descriptionLabel);
+            ((VBox)container).setAlignment(Pos.BASELINE_LEFT);
+        } else {
+            container = new HBox(shortcutLabel, descriptionLabel);
+            ((HBox)container).setSpacing(2);
+            ((HBox)container).setAlignment(Pos.BASELINE_LEFT);
+        }
+        container.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
+
+        container.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setFillWidth(container, true);
+
+        return container;
     }
 
     private Label createShortcutLabel(Shortcut shortcut, boolean useSmallerText) {
