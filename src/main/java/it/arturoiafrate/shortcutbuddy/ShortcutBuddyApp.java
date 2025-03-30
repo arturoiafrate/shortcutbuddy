@@ -48,6 +48,7 @@ public class ShortcutBuddyApp extends Application {
 
     @Override
     public void init() {
+        log.info("Initializing application - setting Atlantafx theme");
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
     }
 
@@ -59,6 +60,7 @@ public class ShortcutBuddyApp extends Application {
         this.primaryStage.hide();
         Platform.setImplicitExit(false);
         if (!System.getProperty("os.name").toLowerCase().contains("windows") || !SystemTray.isSupported()) {
+            log.error("System tray is not supported on this OS");
             throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
         showSplashScreen();
@@ -96,19 +98,32 @@ public class ShortcutBuddyApp extends Application {
         Task<Void> loadTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
+                log.info("Loading application...");
                 updateProgress(0, 100);
-                Thread.sleep(500);
+                log.info("Loading settings...");
                 SettingsManager.getInstance().load();
+                log.info("Settings loaded");
+                updateProgress(10, 100);
+                log.info("Initializing KeyListener...");
                 keyListener = new KeyListener();
+                log.info("KeyListener initialized");
+                updateProgress(15, 100);
+                log.info("Initializing foreground app interceptor...");
                 foregroundAppInterceptor = new ForegroundAppInterceptor();
+                log.info("Foreground app interceptor initialized");
                 updateProgress(25, 100);
+                log.info("Initializing stages...");
                 initPrimaryStage();
+                log.info("Primary stage initialized");
                 updateProgress(50, 100);
+                log.info("Loading shortcuts...");
                 ShortcutManager.getInstance().load();
+                log.info("Shortcuts loaded");
                 updateProgress(75, 100);
+                log.info("Starting the tray icon...");
                 startTrayIcon();
+                log.info("Tray icon started");
                 updateProgress(100, 100);
-                Thread.sleep(100);
                 return null;
             }
         };
