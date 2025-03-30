@@ -1,24 +1,27 @@
 package it.arturoiafrate.shortcutbuddy.model.manager;
 
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.stream.Stream;
 
+@Slf4j
 public abstract class AbstractManager {
 
     private void createDefaultFile(File shortcutsFile, String filePath) {
         try {
             FileUtils.copyURLToFile(Objects.requireNonNull(this.getClass().getResource(filePath)), shortcutsFile);
         } catch (IOException e) {
-            System.out.println("Error while creating default file "+ filePath);
+            log.error("Error while creating default file {}", filePath, e);
             throw new RuntimeException(e);
         }
     }
@@ -41,7 +44,7 @@ public abstract class AbstractManager {
             String json = FileUtils.readFileToString(file, "UTF-8");
             return new Gson().fromJson(json, type);
         } catch (IOException e) {
-            System.out.println("Error while loading file " + fileName);
+            log.error("Error while loading file {}", fileName, e);
             throw new RuntimeException(e);
         }
     }
@@ -61,11 +64,11 @@ public abstract class AbstractManager {
             try{
                 copyImages();
             } catch (Exception e){
-                System.out.println("Error while copying images");
+                log.error("Error while copying images", e);
             }
             return new Gson().fromJson(json, type);
         } catch (IOException | URISyntaxException e) {
-            System.out.println("Error while loading file " + fileName);
+            log.error("Error while loading file {}", fileName, e);
             throw new RuntimeException(e);
         }
     }
@@ -76,21 +79,69 @@ public abstract class AbstractManager {
         return Paths.get(myAppDir.toString(), appName+".png").toString();
     }
 
-    private void copyImages() throws IOException {
+    private void copyImages() throws IOException, URISyntaxException {
+        String resourceDir = "/images/apps"; // La cartella nelle risorse da copiare
         String userHome = System.getProperty("user.home");
-        Path myAppDir = Paths.get(userHome, ".shortcutbuddy/appimages");
-        if (!Files.exists(myAppDir)) {
+        Path destinationDir = Paths.get(userHome, ".shortcutbuddy", "appimages"); // Cartella di destinazione
+
+        log.info("Starting files copy from ({}) to {}", resourceDir, destinationDir);
+        if (!Files.exists(destinationDir)) {
             try {
-                Files.createDirectory(myAppDir);
+                Files.createDirectories(destinationDir);
+                log.info("Target folder created: {}", destinationDir);
             } catch (IOException e) {
-                System.out.println("Error while creating directory for images");
-                throw new RuntimeException(e);
+                log.error("Error while creating target directory {}", destinationDir, e);
+                throw e;
             }
         }
-        String sourcePath = Objects.requireNonNull(this.getClass().getResource("/images/apps")).getPath();
-        String destinationPath = myAppDir.toString();
-        FileUtils.copyDirectory(new File(sourcePath), new File(destinationPath));
+
+        URI uri = getClass().getResource(resourceDir).toURI();
+        log.debug("URI resource: {}", uri);
+
+        Path sourcePathBase = null;
+        FileSystem jarFileSystem = null; // Teniamo traccia del FileSystem del JAR se lo apriamo
+
+        try {
+            if ("jar".equals(uri.getScheme())) {
+                try {
+                    jarFileSystem = FileSystems.getFileSystem(uri);
+                } catch (FileSystemNotFoundException e) {
+                    jarFileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+                }
+                sourcePathBase = jarFileSystem.getPath(resourceDir); // Ottiene il Path INTERNO al JAR
+            } else {
+                sourcePathBase = Paths.get(uri); // Ottiene il Path normale dal file system
+            }
+            if (sourcePathBase == null || !Files.exists(sourcePathBase)) {
+                log.error("Cannot resolve or find resource path: {}", resourceDir);
+                return;
+            }
+            log.info("Copying files from {}...", sourcePathBase);
+            try (Stream<Path> stream = Files.walk(sourcePathBase, 1)) {
+                Path finalSourcePathBase = sourcePathBase;
+                stream.filter(path -> !path.equals(finalSourcePathBase))
+                        .filter(Files::isRegularFile)
+                        .forEach(sourceFile -> {
+                            try {
+                                Path fileName = sourceFile.getFileName();
+                                Path destinationFile = destinationDir.resolve(fileName.toString());
+                                log.debug("Copy {} -> {}", sourceFile, destinationFile);
+                                Files.copy(sourceFile, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                            } catch (IOException e) {
+                                log.error("Cannot copy {}", sourceFile, e);
+                            }
+                        });
+            }
+            log.info("Image copying completed.");
+
+        } finally {
+            if (jarFileSystem != null && jarFileSystem != FileSystems.getDefault() && jarFileSystem.isOpen()) {
+                try {
+                    jarFileSystem.close();
+                } catch (IOException e) {
+                    log.warn("Error closing jar file system", e);
+                }
+            }
+        }
     }
-
-
 }

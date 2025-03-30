@@ -7,6 +7,9 @@ module it.arturoiafrate.shortcutbuddy {
     requires com.google.gson;
     requires org.apache.commons.lang3;
     requires atlantafx.base;
+    requires java.desktop;
+    requires static lombok;
+    requires org.slf4j;
 
 
     opens it.arturoiafrate.shortcutbuddy to javafx.fxml;

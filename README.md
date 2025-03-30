@@ -33,6 +33,45 @@ The `usershortcuts.json` file should be in the following format:
   }
 ]
 ```
+
+## How to build the project
+To build the project, you need to have Java 21 or higher installed on your machine. You can download the latest version of Java from the [official website](https://www.oracle.com/java/technologies/javase-jdk21-downloads.html).
+You also need to have Maven installed on your machine. You can download the latest version of Maven from the [official website](https://maven.apache.org/download.cgi).
+
+### Automatically build the project through `build_dist.bat` script
+1. Clone the repository to your local machine.
+2. Open a terminal and navigate to the project directory.
+3. Run the `build_dist.bat` script. This will build the project and create a `ShortcutBuddy.jar` file in the `target` directory. This will also create a `lib` folder with dependencies.
+
+### Manually build the project
+1. Clone the repository to your local machine.
+2. Open a terminal and navigate to the project directory.
+3. Run the following command to build the project:
+   ```bash
+   mvn clean package
+   ```
+   This will create a `ShortcutBuddy.jar` file in the `target` directory.
+4. Run the following command to copy the dependencies to the `lib` folder:
+   ```bash
+   mvn dependency:copy-dependencies -Dmdep.includeScope=runtime -Dmdep.excludeScope=test -DoutputDirectory=target/libs
+   ```
+   This will create a `lib` folder with all the dependencies.
+
+### Next steps:
+Create a folder called `shortcutbuddy` with the following structure:
+```
+shortcutbuddy
+├── ShortcutBuddy.jar
+├── lib
+│   ├── all libs.jar
+├── native
+│   ├── JNativeHook.dll
+├── run_shortcut.bat
+```
+1. Copy the `ShortcutBuddy.jar` file from the `target` directory to the `shortcutbuddy` directory.
+2. Copy the `lib` folder from the `target` directory to the `shortcutbuddy` directory. This folder contains all the dependencies required to run the application.
+3. You need to manually create a `native` folder in the `shortcutbuddy` directory and copy the `JNativeHook.dll` file from `lib\jnativehook*.jar` file. You can find in the path `com\github\kwhat\jnativehook\lib\windows\x86_64\`
+
 ## Roadmap
 - [ ] Add a GUI to manage user defined shortcuts.
 - [ ] Sort the shortcuts by the usage frequency.

@@ -157,6 +157,7 @@ public class ShortcutController implements IKeyObserver {
         appIconImageView.setImage(appIcon);
     }
     private void setShortcuts(List<Shortcut> shortcuts) {
+        messageLabel.setVisible(false);
         if (shortcuts == null || shortcuts.isEmpty()) {
             messageLabel.setText(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_SHORTCUT));
             messageLabel.setVisible(true);

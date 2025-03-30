@@ -4,9 +4,11 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
+@Slf4j
 public class KeyListener implements NativeKeyListener {
 
 
@@ -23,6 +25,7 @@ public class KeyListener implements NativeKeyListener {
             GlobalScreen.registerNativeHook();
             GlobalScreen.addNativeKeyListener(this);
         } catch (NativeHookException e) {
+            log.error("Error registering native hook", e);
             throw new RuntimeException(e);
         }
     }

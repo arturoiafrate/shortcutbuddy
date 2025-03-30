@@ -6,6 +6,7 @@ import it.arturoiafrate.shortcutbuddy.model.bean.Setting;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
 import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 public class SettingsManager extends AbstractManager implements IFileSystemManager {
     private static SettingsManager instance;
     private List<Setting> settings;
@@ -93,7 +95,9 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
             String jsonString = new Gson().toJson(settings);
             FileUtils.writeStringToFile(file, jsonString, "UTF-8");
             return true;
-        } catch (Exception e){}
+        } catch (Exception e){
+            log.error("Error while saving settings", e);
+        }
         return false;
     }
 

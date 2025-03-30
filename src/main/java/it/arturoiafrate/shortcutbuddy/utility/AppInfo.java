@@ -1,9 +1,12 @@
 package it.arturoiafrate.shortcutbuddy.utility;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.InputStream;
 import java.util.Properties;
 import java.io.IOException;
 
+@Slf4j
 public class AppInfo {
 
     private static final String PROPERTIES_PATH = "/application.properties";
@@ -24,6 +27,7 @@ public class AppInfo {
             properties.load(input);
             loaded = true;
         } catch (IOException ex) {
+            log.error("Error loading properties file: {}", PROPERTIES_PATH, ex);
             loaded = true;
         }
     }

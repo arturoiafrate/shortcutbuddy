@@ -24,6 +24,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
@@ -32,6 +33,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+@Slf4j
 public class ShortcutBuddyApp extends Application {
     private Stage primaryStage;
     private Stage splashStage;
@@ -153,6 +155,7 @@ public class ShortcutBuddyApp extends Application {
                 shortcutController.setBundle(bundle);
                 shortcutController.setStage(primaryStage);
             } catch (IOException e) {
+                log.error("Error while loading primary stage", e);
                 throw new RuntimeException(e);
             }
         });

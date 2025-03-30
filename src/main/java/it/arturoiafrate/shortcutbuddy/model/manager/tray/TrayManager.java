@@ -16,11 +16,13 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
+@Slf4j
 public class TrayManager {
     private final ResourceBundle bundle;
     private static HostServices appHostServices;
@@ -68,6 +70,7 @@ public class TrayManager {
         try {
             SystemTray.getSystemTray().add(trayIcon);
         } catch (AWTException e) {
+            log.error("Error adding tray icon", e);
             throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
     }
@@ -121,6 +124,7 @@ public class TrayManager {
             settingsStage.sizeToScene();
             settingsStage.showAndWait();
         } catch (Exception e) {
+            log.error("Error while opening settings window", e);
             settingsStage = null;
             throw new RuntimeException(e);
         }
