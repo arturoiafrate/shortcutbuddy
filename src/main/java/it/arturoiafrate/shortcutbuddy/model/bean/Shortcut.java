@@ -1,4 +1,6 @@
 package it.arturoiafrate.shortcutbuddy.model.bean;
 
-public record Shortcut(String shortcut, String description) {
+import java.util.List;
+
+public record Shortcut(String shortcut, String description, List<String> keys) {
 }

@@ -206,35 +206,69 @@ public class ShortcutController implements IKeyObserver {
         }
     }
 
+    private String formatKeyName(String rawKey) {
+        if (rawKey == null) return "";
+        // Esempio semplice: mette in maiuscolo la prima lettera, il resto minuscolo
+        // tranne per tasti funzione tipo F1, F2... o tasti speciali come "Space"
+        if (rawKey.matches("F\\d+")) { // F1, F2, ...
+            return rawKey.toUpperCase();
+        }
+        if (rawKey.length() <= 1) {
+            return rawKey.toUpperCase(); // Es: "n" -> "N"
+        }
+        // Capitalizza parole come "Ctrl", "Alt", "Shift", "Space", "Enter", "Tab", "Esc"
+        return StringUtils.capitalize(rawKey.toLowerCase()); // Usa capitalize da commons-lang3
+    }
+
     private Node createShortcutEntryNode(Shortcut shortcut, boolean useSmallerText) {
-        Label shortcutLabel = new Label(shortcut.shortcut());
-        shortcutLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
-
+        Pane container;
         Label descriptionLabel = new Label(shortcut.description());
-        descriptionLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.SUCCESS);
-
+        descriptionLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_MUTED);
         if (!useSmallerText) {
-            shortcutLabel.getStyleClass().add(Styles.TITLE_4);
             descriptionLabel.getStyleClass().add(Styles.TITLE_4);
         }
-
-        shortcutLabel.setWrapText(true);
         descriptionLabel.setWrapText(true);
+        if(shortcut.keys() != null && !shortcut.keys().isEmpty()){
+            HBox keysContainer = new HBox();
+            keysContainer.setSpacing(4);
+            keysContainer.setAlignment(Pos.CENTER);
+            for (String key : shortcut.keys()) {
+                Label keyLabel = new Label(formatKeyName(key));
+                keyLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
+                keyLabel.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 2px 6px; -fx-border-style: solid;");
+                keysContainer.getChildren().add(keyLabel);
+                keysContainer.getChildren().add(new Label("+"));
+            }
+            keysContainer.getChildren().removeLast();
+            if(keysContainer.getChildren().size() == 1){
+                container = new HBox(keysContainer, descriptionLabel);
+                ((HBox)container).setSpacing(20);
+                ((HBox)container).setAlignment(Pos.CENTER_LEFT);
+            } else {
+                container = new VBox(keysContainer, descriptionLabel);
+                ((VBox)container).setAlignment(Pos.BASELINE_CENTER);
+            }
 
-        Pane container;
-        if(shortcutLabel.getText().length() > 30 || descriptionLabel.getText().length() > 30){
-            container = new VBox(shortcutLabel, descriptionLabel);
-            ((VBox)container).setAlignment(Pos.BASELINE_LEFT);
         } else {
-            container = new HBox(shortcutLabel, descriptionLabel);
-            ((HBox)container).setSpacing(2);
-            ((HBox)container).setAlignment(Pos.BASELINE_LEFT);
+            Label shortcutLabel = new Label(shortcut.shortcut());
+            shortcutLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
+
+            if (!useSmallerText) {
+                shortcutLabel.getStyleClass().add(Styles.TITLE_4);
+            }
+            shortcutLabel.setWrapText(true);
+            if(shortcutLabel.getText().length() > 30 || descriptionLabel.getText().length() > 30){
+                container = new VBox(shortcutLabel, descriptionLabel);
+                ((VBox)container).setAlignment(Pos.BASELINE_LEFT);
+            } else {
+                container = new HBox(shortcutLabel, descriptionLabel);
+                ((HBox)container).setSpacing(2);
+                ((HBox)container).setAlignment(Pos.BASELINE_LEFT);
+            }
         }
         container.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
-
         container.setMaxWidth(Double.MAX_VALUE);
         GridPane.setFillWidth(container, true);
-
         return container;
     }
 
