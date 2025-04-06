@@ -1,453 +1,297 @@
 [
-  {
-    "appName": "idea64.exe",
-    "appDescription": "IntelliJ IDEA",
-    "shortcuts": [
-        {
-            "shortcut": "F8",
-            "keys" : ["F8"],
-            "description": "Step over",
-            "category": "Debug"
-        },
-        {
-            "shortcut": "F7",
-            "keys" : ["F7"],
-            "description": "Step into"
-        },
-        {
-            "shortcut": "F9",
-            "keys" : ["F9"],
-            "description": "Resume program"
-        },
-        {
-            "shortcut": "Shift + F8",
-            "keys" : ["Shift", "F8"],
-            "description": "Step out"
-        },
-        {
-            "shortcut": "Alt + F9",
-            "keys" : ["Alt", "F9"],
-            "description": "Run to cursor"
-        },
-        {
-            "shortcut": "Alt + F8",
-            "keys" : ["Alt", "F8"],
-            "description": "Evaluate expression"
-        },
-        {
-            "shortcut": "Ctrl + F8",
-            "keys" : ["Ctrl", "F8"],
-            "description": "Toggle breakpoint"
-        },
-        {
-            "shortcut": "Ctrl + Shift + F8",
-            "keys" : ["Ctrl", "Shift", "F8"],
-            "description": "View breakpoints"
-        },
-        {
-            "shortcut": "Double Shift",
-            "keys" : ["Shift", "Shift"],
-            "description": "Search everywhere"
-        },
-        {
-            "shortcut": "Ctrl + F",
-            "keys" : ["Ctrl", "F"],
-            "description": "Find"
-        },
-        {
-            "shortcut": "F3",
-            "keys" : ["F3"],
-            "description": "Find next"
-        },
-        {
-            "shortcut": "Shift + F3",
-            "keys" : ["Shift", "F3"],
-            "description": "Find previous"
-        },
-        {
-            "shortcut": "Ctrl + R",
-            "keys" : ["Ctrl", "R"],
-            "description": "Replace"
-        },
-        {
-            "shortcut": "Ctrl + Shift + F",
-            "keys" : ["Ctrl", "Shift", "F"],
-            "description": "Find in path"
-        },
-        {
-            "shortcut": "Ctrl + Shift + R",
-            "keys" : ["Ctrl", "Shift", "R"],
-            "description": "Replace in path"
-        },
-        {
-            "shortcut": "Ctrl + Space",
-            "keys" : ["Ctrl", "Space"],
-            "description": "Basic code completion"
-        },
-        {
-            "shortcut": "Ctrl + Q",
-            "keys" : ["Ctrl", "Q"],
-            "description": "Quick documentation lookup"
-        },
-        {
-            "shortcut": "Ctrl + O",
-            "keys" : ["Ctrl", "O"],
-            "description": "Override methods"
-        },
-        {
-            "shortcut": "Ctrl + I",
-            "keys" : ["Ctrl", "I"],
-            "description": "Implement methods"
-        },
-        {
-            "shortcut": "Ctrl + Alt + T",
-            "keys" : ["Ctrl", "Alt", "T"],
-            "description": "Surround with…"
-        },
-        {
-            "shortcut": "Ctrl + /",
-            "keys" : ["Ctrl", "/"],
-            "description": "Comment / uncomment with line comment"
-        },
-        {
-            "shortcut": "Ctrl + Shift + /",
-            "keys" : ["Ctrl", "Shift", "/"],
-            "description": "Comment / uncomment with block comment"
-        },
-        {
-            "shortcut": "Ctrl + Alt + L",
-            "keys" : ["Ctrl", "Alt", "L"],
-            "description": "Reformat code"
-        },
-        {
-            "shortcut": "Shift + F6",
-            "keys" : ["Shift", "F6"],
-            "description": "Rename"
-        },
-        {
-            "shortcut": "Ctrl + N",
-            "keys" : ["Ctrl", "N"],
-            "description": "Go to class"
-        },
-        {
-            "shortcut": "Ctrl + Shift + N",
-            "keys" : ["Ctrl", "Shift", "N"],
-            "description": "Go to file"
-        },
-        {
-            "shortcut": "Ctrl + Alt + Shift + N",
-            "keys" : ["Ctrl", "Alt", "Shift", "N"],
-            "description": "Go to symbol"
-        },
-        {
-            "shortcut": "Ctrl + G",
-            "keys" : ["Ctrl", "G"],
-            "description": "Go to line"
-        },
-        {
-            "shortcut": "Ctrl + E",
-            "keys" : ["Ctrl", "E"],
-            "description": "Recent files popup"
-        },
-        {
-            "shortcut": "Ctrl + Alt + Left",
-            "keys" : ["Ctrl", "Alt", "Left"],
-            "description": "Navigate back"
-        },
-        {
-            "shortcut": "Ctrl + Alt + Right",
-            "keys" : ["Ctrl", "Alt", "Right"],
-            "description": "Navigate forward"
-        },
-        {
-            "shortcut": "F11",
-            "keys" : ["F11"],
-            "description": "Toggle bookmark"
-        },
-        {
-            "shortcut": "Ctrl + F11",
-            "keys" : ["Ctrl", "F11"],
-            "description": "Toggle bookmark with mnemonic"
-        },
-        {
-            "shortcut": "Ctrl + #[0-9]",
-            "keys" : ["Ctrl", "#[0-9]"],
-            "description": "Go to numbered bookmark"
-        },
-        {
-            "shortcut": "Shift + F11",
-            "keys" : ["Shift", "F11"],
-            "description": "Show bookmarks"
-        },
-        {
-            "shortcut": "Ctrl + B",
-            "keys" : ["Ctrl", "B"],
-            "description": "Go to declaration"
-        },
-        {
-            "shortcut": "Ctrl + Alt + B",
-            "keys" : ["Ctrl", "Alt", "B"],
-            "description": "Go to implementation(s)"
-        },
-        {
-            "shortcut": "Ctrl + Shift + I",
-            "keys" : ["Ctrl", "Shift", "I"],
-            "description": "Open quick definition lookup"
-        },
-        {
-            "shortcut": "Ctrl + F9",
-            "keys" : ["Ctrl", "F9"],
-            "description": "Build project"
-        },
-        {
-            "shortcut": "Ctrl + Shift + F9",
-            "keys" : ["Ctrl", "Shift", "F9"],
-            "description": "Compile selected file, package or module"
-        },
-        {
-            "shortcut": "Alt + Shift + F10",
-            "keys" : ["Alt", "Shift", "F10"],
-            "description": "Select configuration and run"
-        },
-        {
-            "shortcut": "Alt + Shift + F9",
-            "keys" : ["Alt", "Shift", "F9"],
-            "description": "Select configuration and debug"
-        },
-        {
-            "shortcut": "Shift + F10",
-            "keys" : ["Shift", "F10"],
-            "description": "Run"
-        },
-        {
-            "shortcut": "Shift + F9",
-            "keys" : ["Shift", "F9"],
-            "description": "Debug"
-        },
-        {
-            "shortcut": "Alt + F7",
-            "keys" : ["Alt", "F7"],
-            "description": "Find usages"
-        },
-        {
-            "shortcut": "Ctrl + F7",
-            "keys" : ["Ctrl", "F7"],
-            "description": "Find usages in file"
-        },
-        {
-            "shortcut": "Ctrl + Shift + F7",
-            "keys" : ["Ctrl", "Shift", "F7"],
-            "description": "Highlight usages in file"
-        },
-        {
-            "shortcut": "Ctrl + Alt + F7",
-            "keys" : ["Ctrl", "Alt", "F7"],
-            "description": "Show usages"
-        }
-    ]
-  },
-  {
-    "appName": "datagrip64.exe",
-    "appDescription": "DataGrip",
-    "shortcuts": [
-        {
-            "shortcut": "Ctrl + Shift + A",
-            "description": "Find any action"
-        },
-        {
-            "shortcut": "Alt + Enter",
-            "description": "Quick-fixes"
-        },
-        {
-            "shortcut": "Ctrl + D",
-            "description": "Duplicate Line"
-        },
-        {
-            "shortcut": "Ctrl + Y",
-            "description": "Delete Line"
-        },
-        {
-            "shortcut": "Ctrl + C",
-            "description": "Copy Line"
-        },
-        {
-            "shortcut": "Ctrl + Alt + L",
-            "description": "Reformat code"
-        },
-        {
-            "shortcut": "Ctrl + F4",
-            "description": "Close active console/editor tab"
-        },
-        {
-            "shortcut": "Ctrl + /",
-            "description": "Comment Line"
-        },
-        {
-            "shortcut": "Ctrl + Shift + /",
-            "description": "Comment Block"
-        },
-        {
-            "shortcut": "Ctrl + Enter",
-            "description": "Submit changes"
-        },
-        {
-            "shortcut": "Ctrl + Alt + Z",
-            "description": "Revert changes"
-        },
-        {
-            "shortcut": "Ctrl + Space",
-            "description": "Value completion"
-        },
-        {
-            "shortcut": "Ctrl + F",
-            "description": "Text search"
-        },
-        {
-            "shortcut": "F4",
-            "description": "Go to related data"
-        },
-        {
-            "shortcut": "Alt + F7",
-            "description": "Go to referencing data"
-        },
-        {
-            "shortcut": "Ctrl + Alt + Shift + N",
-            "description": "Go to object"
-        },
-        {
-            "shortcut": "Ctrl + F6",
-            "description": "Modify object"
-        },
-        {
-            "shortcut": "F4",
-            "description": "Jump to table’s data"
-        },
-        {
-            "shortcut": "Ctrl + B",
-            "description": "Jump to DDL"
-        },
-        {
-            "shortcut": "Double Shift",
-            "description": "Search everywhere"
-        },
-        {
-            "shortcut": "Alt + F7",
-            "description": "Find usages"
-        },
-        {
-            "shortcut": "Ctrl + Alt + F7",
-            "description": "Show usages"
-        }
-    ]
-  },
-  {
-    "appName": "msedge.exe",
-    "appDescription": "Microsoft Edge",
-    "shortcuts":[
-        {
-            "shortcut": "Ctrl + Shift + B",
-            "description": "Show or hide the favorites bar"
-        },
-        {
-            "shortcut": "Ctrl + D",
-            "description": "Save the current tab as a favorite"
-        },
-        {
-            "shortcut": "Alt + D",
-            "description": "Select the URL in the address bar to edit"
-        },
-        {
-            "shortcut": "Ctrl + E",
-            "description": "Open a search query in the address bar"
-        },
-        {
-            "shortcut": "Ctrl + F",
-            "description": "Open find on page"
-        },
-        {
-            "shortcut": "Ctrl + G",
-            "description": "Jump to the next result for find on page"
-        },
-        {
-            "shortcut": "Ctrl + Shift + G",
-            "description": "Jump to the previous result for find on page"
-        },
-        {
-            "shortcut": "Ctrl + H",
-            "description": "Open History"
-        },
-        {
-            "shortcut": "Ctrl + Shift + I",
-            "description": "Open Developer Tools"
-        },
-        {
-            "shortcut": "Ctrl + L",
-            "description": "Select the URL in the address bar to edit"
-        },
-        {
-            "shortcut": "Ctrl + Shift + L",
-            "description": "Paste and search or Paste and go (if it's a URL)"
-        },
-        {
-            "shortcut": "Ctrl + M",
-            "description": "Mute the current tab (toggle)"
-        },
-        {
-            "shortcut": "Ctrl + N",
-            "description": "Open a new window"
-        },
-        {
-            "shortcut": "Ctrl + Shift + N",
-            "description": "Open a new InPrivate window"
-        },
-        {
-            "shortcut": "Ctrl + Shift + O",
-            "description": "Open Favorites"
-        },
-        {
-            "shortcut": "Ctrl + P",
-            "description": "Print the current page"
-        },
-        {
-            "shortcut": "Ctrl + R",
-            "description": "Reload the current page"
-        },
-        {
-            "shortcut": "Ctrl + Shift + R",
-            "description": "Reload the current page, ignoring cached content"
-        },
-        {
-            "shortcut": "Ctrl + T",
-            "description": "Open a new tab and switch to it"
-        },
-        {
-            "shortcut": "Ctrl + Shift + T",
-            "description": "Reopen the last closed tab, and switch to it"
-        },
-        {
-            "shortcut": "Ctrl + U",
-            "description": "View source"
-        },
-        {
-            "shortcut": "Ctrl + Shift + V",
-            "description": "Paste without formatting"
-        },
-        {
-            "shortcut": "Ctrl + W",
-            "description": "Close the current tab"
-        },
-        {
-            "shortcut": "Ctrl + Shift + W",
-            "description": "Close the current window"
-        },
-        {
-            "shortcut": "Ctrl + Enter",
-            "description": "Add www. to the beginning and .com to the end of text typed in the address bar"
-        },
-        {
-            "shortcut": "Ctrl + Tab",
-            "description": "Switch to the next tab"
-        }
-    ]
-  }
+    {
+        "appName": "idea64.exe",
+        "appDescription": "IntelliJ IDEA",
+        "shortcuts": [
+            { "shortcut": "F8", "keys" : ["F8"], "description": "Step over", "category": "debug" },
+            { "shortcut": "F7", "keys" : ["F7"], "description": "Step into", "category": "debug" },
+            { "shortcut": "F9", "keys" : ["F9"], "description": "Resume program", "category": "debug" },
+            { "shortcut": "Shift + F8", "keys" : ["Shift", "F8"], "description": "Step out", "category": "debug" },
+            { "shortcut": "Alt + F9", "keys" : ["Alt", "F9"], "description": "Run to cursor", "category": "debug" },
+            { "shortcut": "Alt + F8", "keys" : ["Alt", "F8"], "description": "Evaluate expression", "category": "debug" },
+            { "shortcut": "Ctrl + F8", "keys" : ["Ctrl", "F8"], "description": "Toggle breakpoint", "category": "debug" },
+            { "shortcut": "Ctrl + Shift + F8", "keys" : ["Ctrl", "Shift", "F8"], "description": "View breakpoints", "category": "debug" },
+            { "shortcut": "Double Shift", "keys" : ["Shift", "Shift"], "description": "Search everywhere", "category": "navigation" },
+            { "shortcut": "Ctrl + F", "keys" : ["Ctrl", "F"], "description": "Find", "category": "navigation" },
+            { "shortcut": "F3", "keys" : ["F3"], "description": "Find next", "category": "navigation" },
+            { "shortcut": "Shift + F3", "keys" : ["Shift", "F3"], "description": "Find previous", "category": "navigation" },
+            { "shortcut": "Ctrl + R", "keys" : ["Ctrl", "R"], "description": "Replace", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + F", "keys" : ["Ctrl", "Shift", "F"], "description": "Find in path", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + R", "keys" : ["Ctrl", "Shift", "R"], "description": "Replace in path", "category": "navigation" },
+            { "shortcut": "Ctrl + Space", "keys" : ["Ctrl", "Space"], "description": "Basic code completion", "category": "development" },
+            { "shortcut": "Ctrl + Q", "keys" : ["Ctrl", "Q"], "description": "Quick documentation lookup", "category": "development" },
+            { "shortcut": "Ctrl + O", "keys" : ["Ctrl", "O"], "description": "Override methods", "category": "development" },
+            { "shortcut": "Ctrl + I", "keys" : ["Ctrl", "I"], "description": "Implement methods", "category": "development" },
+            { "shortcut": "Ctrl + Alt + T", "keys" : ["Ctrl", "Alt", "T"], "description": "Surround with…", "category": "development" },
+            { "shortcut": "Ctrl + /", "keys" : ["Ctrl", "/"], "description": "Comment / uncomment with line comment", "category": "development" },
+            { "shortcut": "Ctrl + Shift + /", "keys" : ["Ctrl", "Shift", "/"], "description": "Comment / uncomment with block comment", "category": "development" },
+            { "shortcut": "Ctrl + Alt + L", "keys" : ["Ctrl", "Alt", "L"], "description": "Reformat code", "category": "development" },
+            { "shortcut": "Shift + F6", "keys" : ["Shift", "F6"], "description": "Rename", "category": "development" },
+            { "shortcut": "Ctrl + N", "keys" : ["Ctrl", "N"], "description": "Go to class", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + N", "keys" : ["Ctrl", "Shift", "N"], "description": "Go to file", "category": "navigation" },
+            { "shortcut": "Ctrl + Alt + Shift + N", "keys" : ["Ctrl", "Alt", "Shift", "N"], "description": "Go to symbol", "category": "navigation" },
+            { "shortcut": "Ctrl + G", "keys" : ["Ctrl", "G"], "description": "Go to line", "category": "navigation" },
+            { "shortcut": "Ctrl + E", "keys" : ["Ctrl", "E"], "description": "Recent files popup", "category": "navigation" },
+            { "shortcut": "Ctrl + Alt + Left", "keys" : ["Ctrl", "Alt", "Left"], "description": "Navigate back", "category": "navigation" },
+            { "shortcut": "Ctrl + Alt + Right", "keys" : ["Ctrl", "Alt", "Right"], "description": "Navigate forward", "category": "navigation" },
+            { "shortcut": "F11", "keys" : ["F11"], "description": "Toggle bookmark", "category": "navigation" },
+            { "shortcut": "Ctrl + F11", "keys" : ["Ctrl", "F11"], "description": "Toggle bookmark with mnemonic", "category": "navigation" },
+            { "shortcut": "Ctrl + #[0-9]", "keys" : ["Ctrl", "#[0-9]"], "description": "Go to numbered bookmark", "category": "navigation" },
+            { "shortcut": "Shift + F11", "keys" : ["Shift", "F11"], "description": "Show bookmarks", "category": "navigation" },
+            { "shortcut": "Ctrl + B", "keys" : ["Ctrl", "B"], "description": "Go to declaration", "category": "development" },
+            { "shortcut": "Ctrl + Alt + B", "keys" : ["Ctrl", "Alt", "B"], "description": "Go to implementation(s)", "category": "development" },
+            { "shortcut": "Ctrl + Shift + I", "keys" : ["Ctrl", "Shift", "I"], "description": "Open quick definition lookup", "category": "development" },
+            { "shortcut": "Ctrl + F9", "keys" : ["Ctrl", "F9"], "description": "Build project", "category": "development" },
+            { "shortcut": "Ctrl + Shift + F9", "keys" : ["Ctrl", "Shift", "F9"], "description": "Compile selected file, package or module", "category": "development" },
+            { "shortcut": "Alt + Shift + F10", "keys" : ["Alt", "Shift", "F10"], "description": "Select configuration and run", "category": "development" },
+            { "shortcut": "Alt + Shift + F9", "keys" : ["Alt", "Shift", "F9"], "description": "Select configuration and debug", "category": "development" },
+            { "shortcut": "Shift + F10", "keys" : ["Shift", "F10"], "description": "Run", "category": "development" },
+            { "shortcut": "Shift + F9", "keys" : ["Shift", "F9"], "description": "Debug", "category": "development" },
+            { "shortcut": "Alt + F7", "keys" : ["Alt", "F7"], "description": "Find usages", "category": "development" },
+            { "shortcut": "Ctrl + F7", "keys" : ["Ctrl", "F7"], "description": "Find usages in file", "category": "development" },
+            { "shortcut": "Ctrl + Shift + F7", "keys" : ["Ctrl", "Shift", "F7"], "description": "Highlight usages in file", "category": "development" },
+            { "shortcut": "Ctrl + Alt + F7", "keys" : ["Ctrl", "Alt", "F7"], "description": "Show usages", "category": "development" }
+        ]
+    },
+    {
+        "appName": "datagrip64.exe",
+        "appDescription": "DataGrip",
+        "shortcuts": [
+            { "shortcut": "Ctrl + Shift + A", "keys": ["Ctrl", "Shift", "A"], "description": "Find any action", "category": "navigation" },
+            { "shortcut": "Alt + Enter", "keys": ["Alt", "Enter"], "description": "Quick-fixes", "category": "editing" },
+            { "shortcut": "Ctrl + D", "keys": ["Ctrl", "D"], "description": "Duplicate Line", "category": "editing" },
+            { "shortcut": "Ctrl + Y", "keys": ["Ctrl", "Y"], "description": "Delete Line", "category": "editing" },
+            { "shortcut": "Ctrl + C", "keys": ["Ctrl", "C"], "description": "Copy Line", "category": "editing" },
+            { "shortcut": "Ctrl + Alt + L", "keys": ["Ctrl", "Alt", "L"], "description": "Reformat code", "category": "editing" },
+            { "shortcut": "Ctrl + F4", "keys": ["Ctrl", "F4"], "description": "Close active console/editor tab", "category": "tabs" },
+            { "shortcut": "Ctrl + /", "keys": ["Ctrl", "/"], "description": "Comment Line", "category": "editing" },
+            { "shortcut": "Ctrl + Shift + /", "keys": ["Ctrl", "Shift", "/"], "description": "Comment Block", "category": "editing" },
+            { "shortcut": "Ctrl + Enter", "keys": ["Ctrl", "Enter"], "description": "Submit changes", "category": "database" },
+            { "shortcut": "Ctrl + Alt + Z", "keys": ["Ctrl", "Alt", "Z"], "description": "Revert changes", "category": "database" },
+            { "shortcut": "Ctrl + Space", "keys": ["Ctrl", "Space"], "description": "Value completion", "category": "editing" },
+            { "shortcut": "Ctrl + F", "keys": ["Ctrl", "F"], "description": "Text search", "category": "navigation" },
+            { "shortcut": "Ctrl + Alt + Shift + N", "keys": ["Ctrl", "Alt", "Shift", "N"], "description": "Go to object", "category": "navigation" },
+            { "shortcut": "Ctrl + F6", "keys": ["Ctrl", "F6"], "description": "Modify object", "category": "database" },
+            { "shortcut": "F4", "keys": ["F4"], "description": "Jump to table’s data", "category": "navigation" },
+            { "shortcut": "Ctrl + B", "keys": ["Ctrl", "B"], "description": "Jump to DDL", "category": "navigation" },
+            { "shortcut": "Double Shift", "keys": ["Shift", "Shift"], "description": "Search everywhere", "category": "navigation" },
+            { "shortcut": "Alt + F7", "keys": ["Alt", "F7"], "description": "Find usages", "category": "navigation" },
+            { "shortcut": "Ctrl + Alt + F7", "keys": ["Ctrl", "Alt", "F7"], "description": "Show usages", "category": "navigation" }
+        ]
+    },
+    {
+        "appName": "msedge.exe",
+        "appDescription": "Microsoft Edge",
+        "shortcuts":[
+            { "shortcut": "Ctrl + Shift + B", "keys": ["Ctrl", "Shift", "B"], "description": "Show or hide the favorites bar", "category": "favorites" },
+            { "shortcut": "Ctrl + D", "keys": ["Ctrl", "D"], "description": "Save the current tab as a favorite", "category": "favorites" },
+            { "shortcut": "Alt + D", "keys": ["Alt", "D"], "description": "Select the URL in the address bar to edit", "category": "navigation" },
+            { "shortcut": "Ctrl + E", "keys": ["Ctrl", "E"], "description": "Open a search query in the address bar", "category": "navigation" },
+            { "shortcut": "Ctrl + F", "keys": ["Ctrl", "F"], "description": "Open find on page", "category": "navigation" },
+            { "shortcut": "Ctrl + G", "keys": ["Ctrl", "G"], "description": "Jump to the next result for find on page", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + G", "keys": ["Ctrl", "Shift", "G"], "description": "Jump to the previous result for find on page", "category": "navigation" },
+            { "shortcut": "Ctrl + H", "keys": ["Ctrl", "H"], "description": "Open History", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + I", "keys": ["Ctrl", "Shift", "I"], "description": "Open Developer Tools", "category": "tools" },
+            { "shortcut": "Ctrl + L", "keys": ["Ctrl", "L"], "description": "Select the URL in the address bar to edit", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + L", "keys": ["Ctrl", "Shift", "L"], "description": "Paste and search or Paste and go (if it's a URL)", "category": "navigation" },
+            { "shortcut": "Ctrl + M", "keys": ["Ctrl", "M"], "description": "Mute the current tab (toggle)", "category": "tabs" },
+            { "shortcut": "Ctrl + N", "keys": ["Ctrl", "N"], "description": "Open a new window", "category": "windows" },
+            { "shortcut": "Ctrl + Shift + N", "keys": ["Ctrl", "Shift", "N"], "description": "Open a new InPrivate window", "category": "windows" },
+            { "shortcut": "Ctrl + Shift + O", "keys": ["Ctrl", "Shift", "O"], "description": "Open Favorites", "category": "favorites" },
+            { "shortcut": "Ctrl + P", "keys": ["Ctrl", "P"], "description": "Print the current page", "category": "general" },
+            { "shortcut": "Ctrl + R", "keys": ["Ctrl", "R"], "description": "Reload the current page", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + R", "keys": ["Ctrl", "Shift", "R"], "description": "Reload the current page, ignoring cached content", "category": "navigation" },
+            { "shortcut": "Ctrl + T", "keys": ["Ctrl", "T"], "description": "Open a new tab and switch to it", "category": "tabs" },
+            { "shortcut": "Ctrl + Shift + T", "keys": ["Ctrl", "Shift", "T"], "description": "Reopen the last closed tab, and switch to it", "category": "tabs" },
+            { "shortcut": "Ctrl + U", "keys": ["Ctrl", "U"], "description": "View source", "category": "tools" },
+            { "shortcut": "Ctrl + Shift + V", "keys": ["Ctrl", "Shift", "V"], "description": "Paste without formatting", "category": "editing" },
+            { "shortcut": "Ctrl + W", "keys": ["Ctrl", "W"], "description": "Close the current tab", "category": "tabs" },
+            { "shortcut": "Ctrl + Shift + W", "keys": ["Ctrl", "Shift", "W"], "description": "Close the current window", "category": "windows" },
+            { "shortcut": "Ctrl + Enter", "keys": ["Ctrl", "Enter"], "description": "Add www. to the beginning and .com to the end of text typed in the address bar", "category": "navigation" },
+            { "shortcut": "Ctrl + Tab", "keys": ["Ctrl", "Tab"], "description": "Switch to the next tab", "category": "tabs" }
+        ]
+    },
+    {
+        "appName": "chrome.exe",
+        "appDescription": "Google Chrome",
+        "shortcuts": [
+            { "shortcut": "Ctrl + T", "keys": ["Ctrl", "T"], "description": "Open a new tab and switch to it", "category": "tabs" },
+            { "shortcut": "Ctrl + N", "keys": ["Ctrl", "N"], "description": "Open a new window", "category": "windows" },
+            { "shortcut": "Ctrl + Shift + N", "keys": ["Ctrl", "Shift", "N"], "description": "Open a new Incognito window", "category": "windows" },
+            { "shortcut": "Ctrl + W", "keys": ["Ctrl", "W"], "description": "Close the current tab", "category": "tabs" },
+            { "shortcut": "Ctrl + Shift + T", "keys": ["Ctrl", "Shift", "T"], "description": "Reopen the last closed tab and switch to it", "category": "tabs" },
+            { "shortcut": "Ctrl + Tab", "keys": ["Ctrl", "Tab"], "description": "Switch to the next tab", "category": "tabs" },
+            { "shortcut": "Ctrl + Shift + Tab", "keys": ["Ctrl", "Shift", "Tab"], "description": "Switch to the previous tab", "category": "tabs" },
+            { "shortcut": "Ctrl + #[1-8]", "keys": ["Ctrl", "#[1-8]"], "description": "Switch to tab number 1-8", "category": "tabs" },
+            { "shortcut": "Ctrl + 9", "keys": ["Ctrl", "9"], "description": "Switch to the last tab", "category": "tabs" },
+            { "shortcut": "Alt + Left", "keys": ["Alt", "Left"], "description": "Go back one page in history", "category": "navigation" },
+            { "shortcut": "Alt + Right", "keys": ["Alt", "Right"], "description": "Go forward one page in history", "category": "navigation" },
+            { "shortcut": "Ctrl + R", "keys": ["Ctrl", "R"], "description": "Reload the current page", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + R", "keys": ["Ctrl", "Shift", "R"], "description": "Reload the current page, ignoring cached content", "category": "navigation" },
+            { "shortcut": "Ctrl + L", "keys": ["Ctrl", "L"], "description": "Highlight the URL/address bar", "category": "navigation" },
+            { "shortcut": "Alt + D", "keys": ["Alt", "D"], "description": "Highlight the URL/address bar", "category": "navigation" },
+            { "shortcut": "Ctrl + Enter", "keys": ["Ctrl", "Enter"], "description": "Add www. and .com to input in address bar and open", "category": "navigation" },
+            { "shortcut": "Ctrl + P", "keys": ["Ctrl", "P"], "description": "Print the current page", "category": "general" },
+            { "shortcut": "Ctrl + S", "keys": ["Ctrl", "S"], "description": "Save the current page", "category": "general" },
+            { "shortcut": "Ctrl + F", "keys": ["Ctrl", "F"], "description": "Open find bar", "category": "page" },
+            { "shortcut": "Ctrl + G", "keys": ["Ctrl", "G"], "description": "Find next match for find bar", "category": "page" },
+            { "shortcut": "Ctrl + Shift + G", "keys": ["Ctrl", "Shift", "G"], "description": "Find previous match for find bar", "category": "page" },
+            { "shortcut": "Ctrl + 0", "keys": ["Ctrl", "0"], "description": "Reset page zoom level", "category": "page" },
+            { "shortcut": "Ctrl + +", "keys": ["Ctrl", "+"], "description": "Zoom in", "category": "page" },
+            { "shortcut": "Ctrl + -", "keys": ["Ctrl", "-"], "description": "Zoom out", "category": "page" },
+            { "shortcut": "F11", "keys": ["F11"], "description": "Toggle full-screen mode", "category": "page" },
+            { "shortcut": "Ctrl + D", "keys": ["Ctrl", "D"], "description": "Save current webpage as a bookmark", "category": "bookmarks" },
+            { "shortcut": "Ctrl + Shift + B", "keys": ["Ctrl", "Shift", "B"], "description": "Show or hide the bookmarks bar", "category": "bookmarks" },
+            { "shortcut": "Ctrl + Shift + O", "keys": ["Ctrl", "Shift", "O"], "description": "Open the Bookmarks Manager", "category": "bookmarks" },
+            { "shortcut": "Ctrl + H", "keys": ["Ctrl", "H"], "description": "Open the History page", "category": "history" },
+            { "shortcut": "Ctrl + J", "keys": ["Ctrl", "J"], "description": "Open the Downloads page", "category": "downloads" },
+            { "shortcut": "Ctrl + Shift + Delete", "keys": ["Ctrl", "Shift", "Delete"], "description": "Open the Clear Browse Data options", "category": "history" },
+            { "shortcut": "F12", "keys": ["F12"], "description": "Open Developer Tools", "category": "tools" },
+            { "shortcut": "Ctrl + Shift + I", "keys": ["Ctrl", "Shift", "I"], "description": "Open Developer Tools", "category": "tools" },
+            { "shortcut": "Ctrl + U", "keys": ["Ctrl", "U"], "description": "View page source", "category": "tools" },
+            { "shortcut": "Shift + Esc", "keys": ["Shift", "Esc"], "description": "Open Chrome Task Manager", "category": "tools" }
+        ]
+    },
+    {
+        "appName": "explorer.exe",
+        "appDescription": "Windows File Explorer",
+        "shortcuts": [
+            { "shortcut": "Win + E", "keys": ["Win", "E"], "description": "Open File Explorer", "category": "general" },
+            { "shortcut": "Ctrl + N", "keys": ["Ctrl", "N"], "description": "Open a new File Explorer window (same path)", "category": "window" },
+            { "shortcut": "Ctrl + W", "keys": ["Ctrl", "W"], "description": "Close the current window", "category": "window" },
+            { "shortcut": "Alt + F4", "keys": ["Alt", "F4"], "description": "Close the current window", "category": "window" },
+            { "shortcut": "Ctrl + Shift + N", "keys": ["Ctrl", "Shift", "N"], "description": "Create a new folder", "category": "file/folder" },
+            { "shortcut": "F11", "keys": ["F11"], "description": "Maximize/minimize the active window", "category": "window" },
+            { "shortcut": "Alt + Left", "keys": ["Alt", "Left"], "description": "Navigate back", "category": "navigation" },
+            { "shortcut": "Backspace", "keys": ["Backspace"], "description": "Navigate back", "category": "navigation" },
+            { "shortcut": "Alt + Right", "keys": ["Alt", "Right"], "description": "Navigate forward", "category": "navigation" },
+            { "shortcut": "Alt + Up", "keys": ["Alt", "Up"], "description": "Navigate up one level", "category": "navigation" },
+            { "shortcut": "Alt + D", "keys": ["Alt", "D"], "description": "Select the address bar", "category": "navigation" },
+            { "shortcut": "Ctrl + L", "keys": ["Ctrl", "L"], "description": "Select the address bar", "category": "navigation" },
+            { "shortcut": "F4", "keys": ["F4"], "description": "Display the address bar list / Select address bar", "category": "navigation" },
+            { "shortcut": "Ctrl + F", "keys": ["Ctrl", "F"], "description": "Select the search box", "category": "navigation" },
+            { "shortcut": "F3", "keys": ["F3"], "description": "Select the search box", "category": "navigation" },
+            { "shortcut": "Home", "keys": ["Home"], "description": "Display the top item of the active window", "category": "navigation" },
+            { "shortcut": "End", "keys": ["End"], "description": "Display the bottom item of the active window", "category": "navigation" },
+            { "shortcut": "Ctrl + A", "keys": ["Ctrl", "A"], "description": "Select all items", "category": "selection" },
+            { "shortcut": "F2", "keys": ["F2"], "description": "Rename the selected item", "category": "file/folder" },
+            { "shortcut": "Ctrl + C", "keys": ["Ctrl", "C"], "description": "Copy the selected item", "category": "file/folder" },
+            { "shortcut": "Ctrl + X", "keys": ["Ctrl", "X"], "description": "Cut the selected item", "category": "file/folder" },
+            { "shortcut": "Ctrl + V", "keys": ["Ctrl", "V"], "description": "Paste the selected item", "category": "file/folder" },
+            { "shortcut": "Ctrl + Z", "keys": ["Ctrl", "Z"], "description": "Undo an action", "category": "general" },
+            { "shortcut": "Delete", "keys": ["Delete"], "description": "Delete the selected item (to Recycle Bin)", "category": "file/folder" },
+            { "shortcut": "Shift + Delete", "keys": ["Shift", "Delete"], "description": "Delete the selected item permanently", "category": "file/folder" },
+            { "shortcut": "Enter", "keys": ["Enter"], "description": "Open the selected item", "category": "file/folder" },
+            { "shortcut": "Alt + Enter", "keys": ["Alt", "Enter"], "description": "Open Properties for the selected item", "category": "file/folder" },
+            { "shortcut": "Alt + P", "keys": ["Alt", "P"], "description": "Toggle the Preview pane", "category": "view" },
+            { "shortcut": "Ctrl + Mouse Wheel", "keys": ["Ctrl", "MouseWheel"], "description": "Change file and folder icon size/view", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 1", "keys": ["Ctrl", "Shift", "1"], "description": "Change view to Extra large icons", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 2", "keys": ["Ctrl", "Shift", "2"], "description": "Change view to Large icons", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 3", "keys": ["Ctrl", "Shift", "3"], "description": "Change view to Medium icons", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 4", "keys": ["Ctrl", "Shift", "4"], "description": "Change view to Small icons", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 5", "keys": ["Ctrl", "Shift", "5"], "description": "Change view to List", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 6", "keys": ["Ctrl", "Shift", "6"], "description": "Change view to Details", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 7", "keys": ["Ctrl", "Shift", "7"], "description": "Change view to Tiles", "category": "view" },
+            { "shortcut": "Ctrl + Shift + 8", "keys": ["Ctrl", "Shift", "8"], "description": "Change view to Content", "category": "view" }
+        ]
+    },
+    {
+        "appName": "code.exe",
+        "appDescription": "Visual Studio Code",
+        "shortcuts": [
+            { "shortcut": "Ctrl + Shift + P", "keys": ["Ctrl", "Shift", "P"], "description": "Show Command Palette", "category": "general" },
+            { "shortcut": "F1", "keys": ["F1"], "description": "Show Command Palette", "category": "general" },
+            { "shortcut": "Ctrl + P", "keys": ["Ctrl", "P"], "description": "Quick Open, Go to File...", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + N", "keys": ["Ctrl", "Shift", "N"], "description": "New window/instance", "category": "general" },
+            { "shortcut": "Ctrl + ,", "keys": ["Ctrl", ","], "description": "User Settings", "category": "general" },
+            { "shortcut": "Ctrl + K, Ctrl + S", "keys": ["Ctrl", "K", "Ctrl", "S"], "description": "Keyboard Shortcuts", "category": "general" },
+            { "shortcut": "Ctrl + X", "keys": ["Ctrl", "X"], "description": "Cut line (empty selection)", "category": "editing" },
+            { "shortcut": "Ctrl + C", "keys": ["Ctrl", "C"], "description": "Copy line (empty selection)", "category": "editing" },
+            { "shortcut": "Alt + Up", "keys": ["Alt", "Up"], "description": "Move line up", "category": "editing" },
+            { "shortcut": "Alt + Down", "keys": ["Alt", "Down"], "description": "Move line down", "category": "editing" },
+            { "shortcut": "Shift + Alt + Up", "keys": ["Shift", "Alt", "Up"], "description": "Copy line up", "category": "editing" },
+            { "shortcut": "Shift + Alt + Down", "keys": ["Shift", "Alt", "Down"], "description": "Copy line down", "category": "editing" },
+            { "shortcut": "Ctrl + Shift + K", "keys": ["Ctrl", "Shift", "K"], "description": "Delete line", "category": "editing" },
+            { "shortcut": "Ctrl + Enter", "keys": ["Ctrl", "Enter"], "description": "Insert line below", "category": "editing" },
+            { "shortcut": "Ctrl + Shift + Enter", "keys": ["Ctrl", "Shift", "Enter"], "description": "Insert line above", "category": "editing" },
+            { "shortcut": "Ctrl + /", "keys": ["Ctrl", "/"], "description": "Toggle line comment", "category": "editing" },
+            { "shortcut": "Shift + Alt + A", "keys": ["Shift", "Alt", "A"], "description": "Toggle block comment", "category": "editing" },
+            { "shortcut": "Alt + Z", "keys": ["Alt", "Z"], "description": "Toggle word wrap", "category": "view" },
+            { "shortcut": "Ctrl + F", "keys": ["Ctrl", "F"], "description": "Find", "category": "search" },
+            { "shortcut": "Ctrl + H", "keys": ["Ctrl", "H"], "description": "Replace", "category": "search" },
+            { "shortcut": "F3", "keys": ["F3"], "description": "Find next", "category": "search" },
+            { "shortcut": "Shift + F3", "keys": ["Shift", "F3"], "description": "Find previous", "category": "search" },
+            { "shortcut": "Ctrl + D", "keys": ["Ctrl", "D"], "description": "Add selection to next Find match", "category": "multicursor" },
+            { "shortcut": "F12", "keys": ["F12"], "description": "Go to Definition", "category": "language" },
+            { "shortcut": "Alt + F12", "keys": ["Alt", "F12"], "description": "Peek Definition", "category": "language" },
+            { "shortcut": "Ctrl + .", "keys": ["Ctrl", "."], "description": "Quick Fix, Show contextual actions", "category": "language" },
+            { "shortcut": "Shift + F12", "keys": ["Shift", "F12"], "description": "Show References", "category": "language" },
+            { "shortcut": "F2", "keys": ["F2"], "description": "Rename Symbol", "category": "language" },
+            { "shortcut": "Shift + Alt + F", "keys": ["Shift", "Alt", "F"], "description": "Format document", "category": "language" },
+            { "shortcut": "Ctrl + W", "keys": ["Ctrl", "W"], "description": "Close editor", "category": "editor" },
+            { "shortcut": "Ctrl + \\", "keys": ["Ctrl", "\\"], "description": "Split editor", "category": "editor" },
+            { "shortcut": "Ctrl + S", "keys": ["Ctrl", "S"], "description": "Save", "category": "file" },
+            { "shortcut": "Ctrl + Shift + S", "keys": ["Ctrl", "Shift", "S"], "description": "Save As...", "category": "file" },
+            { "shortcut": "Ctrl + Shift + T", "keys": ["Ctrl", "Shift", "T"], "description": "Reopen closed editor", "category": "file" },
+            { "shortcut": "Ctrl + B", "keys": ["Ctrl", "B"], "description": "Toggle Sidebar visibility", "category": "view" },
+            { "shortcut": "Ctrl + Shift + E", "keys": ["Ctrl", "Shift", "E"], "description": "Show Explorer / Toggle focus", "category": "view" },
+            { "shortcut": "Ctrl + Shift + F", "keys": ["Ctrl", "Shift", "F"], "description": "Show Search", "category": "view" },
+            { "shortcut": "Ctrl + Shift + G", "keys": ["Ctrl", "Shift", "G"], "description": "Show Source Control", "category": "view" },
+            { "shortcut": "Ctrl + Shift + D", "keys": ["Ctrl", "Shift", "D"], "description": "Show Run", "category": "view" },
+            { "shortcut": "Ctrl + Shift + X", "keys": ["Ctrl", "Shift", "X"], "description": "Show Extensions", "category": "view" },
+            { "shortcut": "Ctrl + Shift + U", "keys": ["Ctrl", "Shift", "U"], "description": "Show Output panel", "category": "view" },
+            { "shortcut": "F9", "keys": ["F9"], "description": "Toggle breakpoint", "category": "debug" },
+            { "shortcut": "F5", "keys": ["F5"], "description": "Start/Continue Debugging", "category": "debug" },
+            { "shortcut": "Shift + F5", "keys": ["Shift", "F5"], "description": "Stop Debugging", "category": "debug" },
+            { "shortcut": "F11", "keys": ["F11"], "description": "Step into", "category": "debug" },
+            { "shortcut": "Shift + F11", "keys": ["Shift", "F11"], "description": "Step out", "category": "debug" },
+            { "shortcut": "F10", "keys": ["F10"], "description": "Step over", "category": "debug" },
+            { "shortcut": "Ctrl + `", "keys": ["Ctrl", "`"], "description": "Show integrated terminal", "category": "terminal" },
+            { "shortcut": "Ctrl + Shift + `", "keys": ["Ctrl", "Shift", "`"], "description": "Create new terminal", "category": "terminal" }
+        ]
+    },
+    {
+        "appName": "notepad++.exe",
+        "appDescription": "Notepad++",
+        "shortcuts": [
+            { "shortcut": "Ctrl + N", "keys": ["Ctrl", "N"], "description": "Create New Document", "category": "file" },
+            { "shortcut": "Ctrl + O", "keys": ["Ctrl", "O"], "description": "Open Document", "category": "file" },
+            { "shortcut": "Ctrl + S", "keys": ["Ctrl", "S"], "description": "Save Document", "category": "file" },
+            { "shortcut": "Ctrl + Alt + S", "keys": ["Ctrl", "Alt", "S"], "description": "Save As", "category": "file" },
+            { "shortcut": "Ctrl + Shift + S", "keys": ["Ctrl", "Shift", "S"], "description": "Save All", "category": "file" },
+            { "shortcut": "Ctrl + W", "keys": ["Ctrl", "W"], "description": "Close Document", "category": "file" },
+            { "shortcut": "Ctrl + P", "keys": ["Ctrl", "P"], "description": "Print Document", "category": "file" },
+            { "shortcut": "Ctrl + Tab", "keys": ["Ctrl", "Tab"], "description": "Next Document (Tab)", "category": "navigation" },
+            { "shortcut": "Ctrl + Shift + Tab", "keys": ["Ctrl", "Shift", "Tab"], "description": "Previous Document (Tab)", "category": "navigation" },
+            { "shortcut": "Ctrl + C", "keys": ["Ctrl", "C"], "description": "Copy", "category": "editing" },
+            { "shortcut": "Ctrl + X", "keys": ["Ctrl", "X"], "description": "Cut", "category": "editing" },
+            { "shortcut": "Ctrl + V", "keys": ["Ctrl", "V"], "description": "Paste", "category": "editing" },
+            { "shortcut": "Ctrl + Z", "keys": ["Ctrl", "Z"], "description": "Undo", "category": "editing" },
+            { "shortcut": "Ctrl + Y", "keys": ["Ctrl", "Y"], "description": "Redo", "category": "editing" },
+            { "shortcut": "Ctrl + A", "keys": ["Ctrl", "A"], "description": "Select All", "category": "editing" },
+            { "shortcut": "Ctrl + D", "keys": ["Ctrl", "D"], "description": "Duplicate Current Line", "category": "editing" },
+            { "shortcut": "Ctrl + L", "keys": ["Ctrl", "L"], "description": "Delete Current Line", "category": "editing" },
+            { "shortcut": "Ctrl + Shift + Up", "keys": ["Ctrl", "Shift", "Up"], "description": "Move Current Line Up", "category": "editing" },
+            { "shortcut": "Ctrl + Shift + Down", "keys": ["Ctrl", "Shift", "Down"], "description": "Move Current Line Down", "category": "editing" },
+            { "shortcut": "Ctrl + Q", "keys": ["Ctrl", "Q"], "description": "Toggle Block Comment", "category": "editing" },
+            { "shortcut": "Ctrl + Space", "keys": ["Ctrl", "Space"], "description": "Auto-completion", "category": "editing" },
+            { "shortcut": "Ctrl + F", "keys": ["Ctrl", "F"], "description": "Find Dialog", "category": "search" },
+            { "shortcut": "Ctrl + H", "keys": ["Ctrl", "H"], "description": "Replace Dialog", "category": "search" },
+            { "shortcut": "Ctrl + Shift + F", "keys": ["Ctrl", "Shift", "F"], "description": "Find in Files", "category": "search" },
+            { "shortcut": "F3", "keys": ["F3"], "description": "Find Next", "category": "search" },
+            { "shortcut": "Shift + F3", "keys": ["Shift", "F3"], "description": "Find Previous", "category": "search" },
+            { "shortcut": "Ctrl + G", "keys": ["Ctrl", "G"], "description": "Go To Dialog", "category": "navigation" },
+            { "shortcut": "Ctrl + B", "keys": ["Ctrl", "B"], "description": "Go to matching brace", "category": "navigation" },
+            { "shortcut": "F11", "keys": ["F11"], "description": "Toggle Full Screen Mode", "category": "view" },
+            { "shortcut": "Alt + 0", "keys": ["Alt", "0"], "description": "Fold All", "category": "view" },
+            { "shortcut": "Alt + Shift + 0", "keys": ["Alt", "Shift", "0"], "description": "Unfold All", "category": "view" },
+            { "shortcut": "Ctrl + Num+", "keys": ["Ctrl", "NumpadAdd"], "description": "Zoom In", "category": "view" },
+            { "shortcut": "Ctrl + Num-", "keys": ["Ctrl", "NumpadSubtract"], "description": "Zoom Out", "category": "view" },
+            { "shortcut": "Ctrl + Num/", "keys": ["Ctrl", "NumpadDivide"], "description": "Restore Default Zoom", "category": "view" },
+            { "shortcut": "Ctrl + Mouse Wheel", "keys": ["Ctrl", "MouseWheel"], "description": "Zoom In/Out", "category": "view" },
+            { "shortcut": "Ctrl + Shift + R", "keys": ["Ctrl", "Shift", "R"], "description": "Start/Stop Macro Recording", "category": "macro" },
+            { "shortcut": "Ctrl + Shift + P", "keys": ["Ctrl", "Shift", "P"], "description": "Playback Recorded Macro", "category": "macro" },
+            { "shortcut": "F5", "keys": ["F5"], "description": "Run Dialog", "category": "run" }
+        ]
+    }
 ]

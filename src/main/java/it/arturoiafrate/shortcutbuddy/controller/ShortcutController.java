@@ -210,13 +210,23 @@ public class ShortcutController implements IKeyObserver {
 
     private String formatKeyName(String rawKey) {
         if (StringUtils.isEmpty(rawKey)) return "";
-        if (rawKey.matches("F\\d+")) {
-            return rawKey.toUpperCase();
-        }
-        if (rawKey.length() <= 1) {
-            return rawKey.toUpperCase();
-        }
         return StringUtils.capitalize(rawKey.toLowerCase());
+    }
+
+    private Node createEmptyShortcutEntryNode() {
+        Label emptyLabel = new Label(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_RESULTS));
+        emptyLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.WARNING, Styles.TEXT_CAPTION);
+        emptyLabel.setWrapText(true);
+        emptyLabel.setTextAlignment(TextAlignment.CENTER);
+        emptyLabel.setAlignment(Pos.CENTER);
+        VBox finalContainer = new VBox(emptyLabel);
+        finalContainer.setSpacing(2);
+        finalContainer.setPadding(new Insets(10));
+        finalContainer.setMinHeight(50);
+        finalContainer.setAlignment(Pos.CENTER);
+        finalContainer.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
+        finalContainer.setMaxWidth(Double.MAX_VALUE);
+        return finalContainer;
     }
 
     private Node createShortcutEntryNode(Shortcut shortcut, boolean useSmallerText) {
@@ -285,13 +295,14 @@ public class ShortcutController implements IKeyObserver {
         List<Shortcut> filteredShortcuts = shortcuts.stream()
                 .filter(shortcut -> shortcut.description().toLowerCase().contains(filter.toLowerCase()))
                 .collect(Collectors.toList());
-
+        filteredShortcuts.addAll(shortcuts.stream()
+                .filter(shortcut -> !StringUtils.isEmpty(shortcut.category()) && shortcut.category().toLowerCase().contains(filter.toLowerCase()) && !filteredShortcuts.contains(shortcut))
+                .toList()
+        );
         updateShortcutsGrid(filteredShortcuts);
 
         if(filteredShortcuts.isEmpty()){
-            Label emptyLabel = new Label (bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.WARNING_NO_RESULTS));
-            emptyLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_ITALIC, Styles.WARNING, Styles.TEXT_CAPTION);
-            shortcutsGrid.add(emptyLabel, 0 ,0 );
+            shortcutsGrid.add(createEmptyShortcutEntryNode(), 0, 0);
         }
     }
 }
