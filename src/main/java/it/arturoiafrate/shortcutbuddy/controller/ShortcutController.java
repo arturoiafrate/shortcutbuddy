@@ -10,6 +10,7 @@ import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
@@ -19,6 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
 import org.apache.commons.lang3.StringUtils;
 
@@ -207,69 +209,76 @@ public class ShortcutController implements IKeyObserver {
     }
 
     private String formatKeyName(String rawKey) {
-        if (rawKey == null) return "";
-        // Esempio semplice: mette in maiuscolo la prima lettera, il resto minuscolo
-        // tranne per tasti funzione tipo F1, F2... o tasti speciali come "Space"
-        if (rawKey.matches("F\\d+")) { // F1, F2, ...
+        if (StringUtils.isEmpty(rawKey)) return "";
+        if (rawKey.matches("F\\d+")) {
             return rawKey.toUpperCase();
         }
         if (rawKey.length() <= 1) {
-            return rawKey.toUpperCase(); // Es: "n" -> "N"
+            return rawKey.toUpperCase();
         }
-        // Capitalizza parole come "Ctrl", "Alt", "Shift", "Space", "Enter", "Tab", "Esc"
-        return StringUtils.capitalize(rawKey.toLowerCase()); // Usa capitalize da commons-lang3
+        return StringUtils.capitalize(rawKey.toLowerCase());
     }
 
     private Node createShortcutEntryNode(Shortcut shortcut, boolean useSmallerText) {
-        Pane container;
         Label descriptionLabel = new Label(shortcut.description());
         descriptionLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_MUTED);
-        if (!useSmallerText) {
-            descriptionLabel.getStyleClass().add(Styles.TITLE_4);
-        }
         descriptionLabel.setWrapText(true);
-        if(shortcut.keys() != null && !shortcut.keys().isEmpty()){
+        descriptionLabel.setMaxWidth(Double.MAX_VALUE);
+        descriptionLabel.setTextAlignment(TextAlignment.CENTER);
+        descriptionLabel.setAlignment(Pos.CENTER);
+
+        Node shortcutRepresentationNode;
+        if (shortcut.keys() != null && !shortcut.keys().isEmpty()) {
             HBox keysContainer = new HBox();
             keysContainer.setSpacing(4);
             keysContainer.setAlignment(Pos.CENTER);
+
             for (String key : shortcut.keys()) {
                 Label keyLabel = new Label(formatKeyName(key));
-                keyLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
                 keyLabel.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 2px 6px; -fx-border-style: solid;");
+                keyLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
                 keysContainer.getChildren().add(keyLabel);
-                keysContainer.getChildren().add(new Label("+"));
             }
-            keysContainer.getChildren().removeLast();
-            if(keysContainer.getChildren().size() == 1){
-                container = new HBox(keysContainer, descriptionLabel);
-                ((HBox)container).setSpacing(20);
-                ((HBox)container).setAlignment(Pos.CENTER_LEFT);
-            } else {
-                container = new VBox(keysContainer, descriptionLabel);
-                ((VBox)container).setAlignment(Pos.BASELINE_CENTER);
-            }
-
+            shortcutRepresentationNode = keysContainer;
         } else {
+
             Label shortcutLabel = new Label(shortcut.shortcut());
             shortcutLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
-
+            shortcutLabel.setWrapText(true);
             if (!useSmallerText) {
                 shortcutLabel.getStyleClass().add(Styles.TITLE_4);
             }
-            shortcutLabel.setWrapText(true);
-            if(shortcutLabel.getText().length() > 30 || descriptionLabel.getText().length() > 30){
-                container = new VBox(shortcutLabel, descriptionLabel);
-                ((VBox)container).setAlignment(Pos.BASELINE_LEFT);
-            } else {
-                container = new HBox(shortcutLabel, descriptionLabel);
-                ((HBox)container).setSpacing(2);
-                ((HBox)container).setAlignment(Pos.BASELINE_LEFT);
-            }
+            shortcutRepresentationNode = shortcutLabel;
         }
-        container.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
-        container.setMaxWidth(Double.MAX_VALUE);
-        GridPane.setFillWidth(container, true);
-        return container;
+
+        VBox contentVBox = new VBox(shortcutRepresentationNode, descriptionLabel);
+        contentVBox.setAlignment(Pos.CENTER);
+
+        if (!useSmallerText) {
+            descriptionLabel.getStyleClass().add(Styles.TITLE_4);
+        }
+
+        Label categoryLabel = null;
+        if (!StringUtils.isEmpty(shortcut.category())) {
+            categoryLabel = new Label(shortcut.category().toLowerCase());
+            categoryLabel.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_ITALIC);
+            VBox.setMargin(categoryLabel, new Insets(0, 0, 3, 0));
+        }
+
+        VBox finalContainer = new VBox();
+        finalContainer.setSpacing(2);
+        finalContainer.setAlignment(Pos.CENTER);
+
+        if (categoryLabel != null) {
+            finalContainer.getChildren().add(categoryLabel);
+        }
+        finalContainer.getChildren().add(contentVBox);
+
+        finalContainer.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
+        finalContainer.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setFillWidth(finalContainer, true);
+
+        return finalContainer;
     }
 
     private void updateFilteredShortcuts(List<Shortcut> shortcuts, String filter) {

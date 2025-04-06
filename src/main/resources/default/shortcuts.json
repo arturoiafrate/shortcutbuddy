@@ -6,7 +6,8 @@
         {
             "shortcut": "F8",
             "keys" : ["F8"],
-            "description": "Step over"
+            "description": "Step over",
+            "category": "Debug"
         },
         {
             "shortcut": "F7",
