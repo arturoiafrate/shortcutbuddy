@@ -21,5 +21,13 @@
       "[NEW] Added a new setting to enable/disable the check for updates at startup. Default is disabled.",
       "[ENHANCEMENT] Changelog system now shows the last 3 versions."
     ]
+  },
+  {
+    "version": "0.6.2",
+    "date": "2025-04-13",
+    "notes": [
+      "[ENHANCEMENT] Now the bat script launcher close the console window after the app is started.",
+      "[FIX] Fixed the application stop, now unregister the native hook before stopping."
+    ]
   }
 ]

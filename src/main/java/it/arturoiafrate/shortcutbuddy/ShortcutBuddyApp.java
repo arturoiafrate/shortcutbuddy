@@ -2,6 +2,8 @@ package it.arturoiafrate.shortcutbuddy;
 
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
 import it.arturoiafrate.shortcutbuddy.model.constant.KeyOption;
@@ -84,6 +86,15 @@ public class ShortcutBuddyApp extends Application {
 
     @Override
     public void stop() throws Exception {
+        try {
+            if (GlobalScreen.isNativeHookRegistered()) {
+                GlobalScreen.unregisterNativeHook();
+            }
+        } catch (NativeHookException e) {
+            log.error("Error during JNativeHook unregister", e);
+        } catch (IllegalStateException e) {
+            log.warn("JNativeHook Illegal state: {}", e.getMessage(), e);
+        }
         if(trayManager != null) {
             trayManager.exitTray();
         }

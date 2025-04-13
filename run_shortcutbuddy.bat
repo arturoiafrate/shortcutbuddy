@@ -59,9 +59,7 @@ REM echo Add Modules: %REQUIRED_MODULES%
 REM echo Main Module/Class: %APP_MODULE_NAME%/%MAIN_CLASS%
 echo.
 
-REM Esegui come applicazione modulare usando --module-path e -m
-REM Il carattere ^ permette di andare a capo per leggibilit?
-java -Djava.library.path="%NATIVE_LIB_PATH%" ^
+start "ShortcutBuddy" javaw -Djava.library.path="%NATIVE_LIB_PATH%" ^
      --module-path %MODULE_PATH% ^
      --add-modules %REQUIRED_MODULES% ^
      -m %APP_MODULE_NAME%/%MAIN_CLASS%
@@ -71,15 +69,17 @@ if %errorlevel% neq 0 (
     echo.
     echo [ATTENZIONE] L'applicazione si e' chiusa con un codice di errore: %errorlevel%.
     echo             Controlla eventuali messaggi di errore sopra.
+    echo Premi un tasto per chiudere questa finestra...
+    pause > nul
 ) else (
     echo.
-    echo ShortcutBuddy terminato regolarmente.
+    echo ShortcutBuddy avviato.
 )
 
 REM --- Sezione Finale Script ---
 :EndScript
-echo.
-echo Premi un tasto per chiudere questa finestra...
-pause > nul
+'echo.
+'echo Premi un tasto per chiudere questa finestra...
+'pause > nul
 endlocal
-REM Non serve 'exit /b' qui perch? endlocal esce dallo scope dello script
+exit /b 0
