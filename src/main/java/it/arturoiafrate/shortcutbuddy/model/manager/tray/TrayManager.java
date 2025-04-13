@@ -2,43 +2,51 @@ package it.arturoiafrate.shortcutbuddy.model.manager.tray;
 
 import it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
+import it.arturoiafrate.shortcutbuddy.controller.dialog.DialogUtils;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
+import it.arturoiafrate.shortcutbuddy.model.manager.changelog.ChangelogService;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.Hyperlink;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
+import javax.swing.*;
 import java.awt.*;
 import java.text.MessageFormat;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 @Slf4j
 public class TrayManager {
     private final ResourceBundle bundle;
     private static HostServices appHostServices;
+    @Setter
     private Stage settingsStage;
+    @Setter
+    private Stage userShortcutsStage;
+    @Setter
     private ShortcutController shortcutController;
     private TrayIcon trayIcon;
+    private javafx.scene.image.Image appIcon;
+    private final ChangelogService changelogService;
 
     public TrayManager(ResourceBundle bundle, HostServices appHostServices) {
         this.bundle = bundle;
-        this.appHostServices = appHostServices;
-    }
-    public void setShortcutController(ShortcutController shortcutController) {
-        this.shortcutController = shortcutController;
-    }
-    public void setSettingsStage(Stage settingsStage) {
-        this.settingsStage = settingsStage;
+        TrayManager.appHostServices = appHostServices;
+        changelogService = new ChangelogService();
     }
 
     public void startTray(){
@@ -46,63 +54,156 @@ public class TrayManager {
             throw new RuntimeException("SystemTray not supported");
         }
         Image image = Toolkit.getDefaultToolkit().getImage(this.getClass().getResource("/images/logo_128.png"));
-        MenuItem settingsItem = new MenuItem(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.BUTTON_SETTINGS));
-        MenuItem aboutItem = new MenuItem(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.BUTTON_ABOUT));
-        MenuItem exitItem = new MenuItem(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.BUTTON_EXIT));
+        MenuItem settingsItem = new MenuItem(bundle.getString(Label.BUTTON_SETTINGS));
+        MenuItem aboutItem = new MenuItem(bundle.getString(Label.BUTTON_ABOUT));
+        MenuItem changelogItem = new MenuItem(bundle.getString(Label.BUTTON_CHANGELOG));
+        MenuItem exitItem = new MenuItem(bundle.getString(Label.BUTTON_EXIT));
+        MenuItem userShortcutsItem = new MenuItem(bundle.getString(Label.BUTTON_USERSHORTCUTS));
 
         settingsItem.addActionListener(e -> Platform.runLater(this::openSettingsWindow));
         aboutItem.addActionListener(e -> Platform.runLater(this::showAboutDialog));
-        exitItem.addActionListener(e -> {
-            SystemTray.getSystemTray().remove(trayIcon);
-            Platform.runLater(Platform::exit);
-        });
+        changelogItem.addActionListener(e -> Platform.runLater(this::showChangelogAction));
+        userShortcutsItem.addActionListener(e -> Platform.runLater(this::openUserShortcutsWindow));
+        exitItem.addActionListener(e -> exitTray());
 
         PopupMenu popup = new PopupMenu();
+        //TODO
+        //popup.add(userShortcutsItem);
         popup.add(settingsItem);
         popup.addSeparator();
+        popup.add(changelogItem);
         popup.add(aboutItem);
         popup.addSeparator();
         popup.add(exitItem);
 
-        trayIcon = new TrayIcon(image, bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.APP_TITLE), popup);
+        trayIcon = new TrayIcon(image, bundle.getString(Label.APP_TITLE), popup);
         trayIcon.setImageAutoSize(true);
 
         try {
             SystemTray.getSystemTray().add(trayIcon);
+            showNotification(bundle.getString(Label.NOTIFICATION_APPSTARTED_TITLE), bundle.getString(Label.NOTIFICATION_APPSTARTED_TEXT), TrayIcon.MessageType.NONE);
         } catch (AWTException e) {
             log.error("Error adding tray icon", e);
             throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
     }
 
+    public void exitTray(){
+        SystemTray.getSystemTray().remove(trayIcon);
+        trayIcon = null;
+        Platform.runLater(Platform::exit);
+    }
+
+    private javafx.scene.image.Image getApplicationIcon() {
+        if (appIcon == null) {
+            try {
+                appIcon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo_128.png")));
+            } catch (Exception e) {
+                log.error("Impossibile caricare l'icona dell'applicazione /images/logo_128.png", e);
+                // Restituisci null o un'icona di default
+            }
+        }
+        return appIcon;
+    }
+
+    public void showNotification(String caption, String text, TrayIcon.MessageType messageType) {
+        if(SettingsManager.getInstance().getSetting("enableNotification").value().equals("n") && !messageType.equals(TrayIcon.MessageType.ERROR)){
+            return;
+        }
+        SwingUtilities.invokeLater(() -> {
+            if (trayIcon != null) {
+                trayIcon.displayMessage(caption, text, messageType);
+            }
+        });
+    }
+
+    private void showChangelogAction() {
+        String title = MessageFormat.format(bundle.getString(Label.CHANGELOG_WINDOW_TITLE), AppInfo.getName(), AppInfo.getVersion());
+        var notes = changelogService.getNotesForVersion(AppInfo.getVersion());
+        var changelogTextArea = new javafx.scene.control.TextArea();
+        changelogTextArea.setEditable(false);
+        changelogTextArea.setWrapText(true);
+
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append(bundle.getString(Label.CHANGELOG_WINDOW_WHATSNEW)).append("\n\n");
+        if(notes == null || notes.isEmpty()){
+            contentBuilder.append("  ").append(bundle.getString(Label.CHANGELOG_WINDOW_NOCHANGELOG)).append("\n");
+        } else {
+            for (String note : notes) {
+                contentBuilder.append("• ").append(note.trim()).append("\n");
+            }
+        }
+        String releaseDate = changelogService.getReleaseDateForVersion(AppInfo.getVersion());
+        if(!StringUtils.isEmpty(releaseDate)){
+            contentBuilder.append("\n").append(MessageFormat.format(
+                    bundle.getString(Label.CHANGELOG_WINDOW_RELEASEDATE),
+                    changelogService.getReleaseDateForVersion(AppInfo.getVersion())
+            ));
+        }
+        changelogTextArea.setText(contentBuilder.toString());
+        changelogTextArea.setPrefRowCount(15);
+        changelogTextArea.setStyle("-fx-font-family: 'monospace';");
+        DialogUtils.showInfoDialog(title, changelogTextArea, Optional.of(this.getApplicationIcon()), Optional.empty());
+
+    }
+
     private void showAboutDialog() {
 
+        String appName = AppInfo.getName();
+        String title = MessageFormat.format(bundle.getString(Label.ABOUT_WINDOW_PREFIX), AppInfo.getName());
+        HBox content = new HBox(2);
+        content.setPadding(new Insets(10));
+        content.setAlignment(Pos.CENTER_LEFT);
+        content.getChildren().add(new javafx.scene.image.ImageView(Objects.requireNonNull(this.getClass().getResource("/images/logo_128.png")).toString()));
+        VBox aboutContent = new VBox(5);
+        aboutContent.setPadding(new Insets(10));
+        aboutContent.setAlignment(Pos.CENTER_LEFT);
         String messageContent = MessageFormat.format(
                 bundle.getString(Label.ABOUT_WINDOW_MESSAGE),
-                AppInfo.getName(),
+                appName,
                 AppInfo.getVersion(),
                 AppInfo.getDeveloper(),
                 AppInfo.getLicense());
-
-        Alert aboutAlert = new Alert(Alert.AlertType.INFORMATION);
-        aboutAlert.setTitle(MessageFormat.format(bundle.getString(Label.ABOUT_WINDOW_PREFIX), AppInfo.getName()));
-        aboutAlert.setHeaderText(null);
-        VBox content = new VBox(5);
-        content.setPadding(new Insets(10));
-        javafx.scene.control.Label aboutLabel = new javafx.scene.control.Label(messageContent);
-        content.getChildren().add(aboutLabel);
+        var aboutLabel = new javafx.scene.control.Label(messageContent);
+        aboutLabel.setWrapText(true);
+        aboutContent.getChildren().add(aboutLabel);
         Hyperlink githubLink = new Hyperlink(AppInfo.getGithubUrl());
         githubLink.setOnAction(e -> {
             if (appHostServices != null) {
                 appHostServices.showDocument(AppInfo.getGithubUrl());
             }
         });
-        content.getChildren().add(githubLink);
-        DialogPane dialogPane = aboutAlert.getDialogPane();
-        dialogPane.setContent(content);
-        aboutAlert.showAndWait();
+        aboutContent.getChildren().add(githubLink);
+        content.getChildren().add(aboutContent);
+        DialogUtils.showInfoDialog(title, content, Optional.of(this.getApplicationIcon()), Optional.empty());
     }
 
+    private void openUserShortcutsWindow(){
+        try {
+            if(userShortcutsStage != null && userShortcutsStage.isShowing()){
+                userShortcutsStage.toFront();
+                return;
+            }
+            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/userShortcuts-view.fxml"), bundle);
+            userShortcutsStage = new Stage();
+            userShortcutsStage.setTitle(bundle.getString(Label.USER_SHORTCUTS_TITLE));
+            userShortcutsStage.getIcons().add(this.getApplicationIcon());
+            Scene userShortcutsScene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
+            userShortcutsStage.setScene(userShortcutsScene);
+            userShortcutsStage.initModality(Modality.APPLICATION_MODAL);
+            userShortcutsStage.setOnCloseRequest( event -> {
+                shortcutController.setUserShortcutsShown(false);
+                userShortcutsStage = null;
+            });
+            shortcutController.setUserShortcutsShown(true);
+            userShortcutsStage.sizeToScene();
+            userShortcutsStage.showAndWait();
+        } catch (Exception e) {
+            log.error("Error while opening user shortcuts window", e);
+            userShortcutsStage = null;
+            throw new RuntimeException(e);
+        }
+    }
 
     private void openSettingsWindow(){
         try{
@@ -113,6 +214,7 @@ public class TrayManager {
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/settings-view.fxml"), bundle);
             settingsStage = new Stage();
             settingsStage.setTitle(bundle.getString(Label.SETTINGS_TITLE));
+            settingsStage.getIcons().add(this.getApplicationIcon());
             Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
             settingsStage.setScene(settingsScene);
             settingsStage.initModality(Modality.APPLICATION_MODAL);

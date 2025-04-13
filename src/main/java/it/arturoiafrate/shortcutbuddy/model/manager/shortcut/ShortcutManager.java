@@ -52,12 +52,13 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         loadUserDefinedShortcuts();
     }
 
-    public void loadUserDefinedShortcuts() {
+    public List<AppShortcuts> loadUserDefinedShortcuts() {
         final String filename = "usershortcuts.json";
         userDefinedShortcuts = loadIfFileExists(filename, new TypeToken<List<AppShortcuts>>() {}.getType());
         if (userDefinedShortcuts == null) {
             userDefinedShortcuts = new ArrayList<>();
         }
+        return userDefinedShortcuts;
     }
 
     public List<Shortcut> getShortcutsForApp(String appName) {

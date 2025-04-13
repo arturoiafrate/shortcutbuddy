@@ -4,11 +4,11 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.*;
 import java.util.Collections;
 import java.util.Objects;
@@ -50,10 +50,34 @@ public abstract class AbstractManager {
     }
 
     protected <T> T loadFromFile(String fileName, Type type, boolean getfromResource) {
+        log.info("Loading file {} from resources: {}", fileName, getfromResource);
+        File file;
         try {
-            File file;
             if(getfromResource) {
-                file = new File(this.getClass().getResource(fileName).toURI());
+                URL resource = this.getClass().getResource(fileName);
+                if (resource == null) {
+                    log.error("Resource not found: {}", fileName);
+                    throw new RuntimeException("Resource not found: " + fileName);
+                }
+                if("jar".equals(resource.getProtocol())){
+                    try (InputStream inputStream = this.getClass().getResourceAsStream(fileName)) {
+                        if (inputStream == null) {
+                            log.error("Resource not found in JAR: {}", fileName);
+                            throw new RuntimeException("Resource not found in JAR: " + fileName);
+                        }
+                        file = File.createTempFile("temp", null);
+                        file.deleteOnExit();
+                        try (OutputStream outputStream = new FileOutputStream(file)) {
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+                            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                                outputStream.write(buffer, 0, bytesRead);
+                            }
+                        }
+                    }
+                } else {
+                    file = new File(resource.toURI());
+                }
             } else {
                 file = new File(getFilePath(fileName));
             }

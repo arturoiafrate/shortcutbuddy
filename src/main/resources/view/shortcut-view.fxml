@@ -26,10 +26,11 @@
         <VBox.margin>
             <Insets bottom="5.0" /> </VBox.margin>
     </HBox>
-
-    <TextField fx:id="searchBox" promptText="%app.textboxPrompt" VBox.vgrow="NEVER" />
+    <Label fx:id="exitSearchModeLabel" visible="false" />
+    <TextField fx:id="searchBox" VBox.vgrow="NEVER" />
+    <Label fx:id="navigationTooltipLabel" text="%app.navigationTooltip" />
     <Label fx:id="messageLabel" visible="false" />
-    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+    <ScrollPane fx:id="scrollPane" fitToWidth="true" VBox.vgrow="ALWAYS">
         <content>
             <GridPane fx:id="shortcutsGrid" hgap="10.0" vgap="5.0">
                 <columnConstraints>

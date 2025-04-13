@@ -10,6 +10,8 @@ module it.arturoiafrate.shortcutbuddy {
     requires java.desktop;
     requires static lombok;
     requires org.slf4j;
+    requires org.kordamp.ikonli.javafx;
+    requires org.kordamp.ikonli.feather;
 
 
     opens it.arturoiafrate.shortcutbuddy to javafx.fxml;

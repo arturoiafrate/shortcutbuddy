@@ -17,6 +17,8 @@ import java.util.*;
 
 import it.arturoiafrate.shortcutbuddy.model.bean.Setting;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.feather.Feather;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 public class SettingsController {
 
@@ -38,19 +40,24 @@ public class SettingsController {
         settingsGrid.getColumnConstraints().clear();
         settingFields.clear();
 
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(15);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(25);
-        settingsGrid.getColumnConstraints().addAll(col1, col2);
-
-        // Popola la griglia
         for (int i = 0; i < settingsList.size(); i++) {
             Setting setting = settingsList.get(i);
             if(!setting.isHide()){
-                Label keyLabel = new Label(setting.key() + ":");
+                Label keyLabel = new Label(resources.getString("settings.setting."+setting.key()) + ":");
                 keyLabel.getStyleClass().addAll(Styles.ACCENT, Styles.TEXT_BOLD);
                 keyLabel.setAlignment(Pos.CENTER_LEFT);
+                keyLabel.setWrapText(true);
+
+                FontIcon infoIcon = new FontIcon(Feather.INFO);
+                infoIcon.setIconSize(14);
+                infoIcon.getStyleClass().add(Styles.TEXT_SUBTLE);
+                keyLabel.setGraphic(infoIcon);
+                keyLabel.setContentDisplay(ContentDisplay.RIGHT);
+                keyLabel.setGraphicTextGap(5);
+                Tooltip tooltip = new Tooltip(resources.getString("settings.setting."+setting.key()+".tooltip"));
+                tooltip.setWrapText(true);
+                tooltip.setMaxWidth(300);
+                Tooltip.install(infoIcon, tooltip);
 
                 Control valueField;
                 if (setting.options() == null) {
@@ -97,7 +104,7 @@ public class SettingsController {
             } else if (control instanceof ToggleSwitch toggleSwitch) {
                 newValue=toggleSwitch.isSelected() ? "y" : "n";
             }
-            newSettings.add(new Setting(currentSetting.key(), newValue, currentSetting.readonly(), currentSetting.options(), currentSetting.isHide()));
+            newSettings.add(new Setting(currentSetting.key(), newValue, currentSetting.readonly(), currentSetting.options(), currentSetting.isHide(), currentSetting.order()));
         }
         boolean isSaved = SettingsManager.getInstance().save(newSettings);
         Alert alert = isSaved ? new Alert(Alert.AlertType.INFORMATION) : new Alert(Alert.AlertType.ERROR);

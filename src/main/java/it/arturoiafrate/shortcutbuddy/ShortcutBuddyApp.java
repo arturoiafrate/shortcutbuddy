@@ -4,13 +4,16 @@ import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
+import it.arturoiafrate.shortcutbuddy.model.constant.KeyOption;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
 import it.arturoiafrate.shortcutbuddy.model.enumerator.Languages;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
+import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.tray.TrayManager;
+import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
 import javafx.application.Application;
 import javafx.application.HostServices;
 import javafx.application.Platform;
@@ -24,11 +27,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -38,7 +43,9 @@ public class ShortcutBuddyApp extends Application {
     private Stage primaryStage;
     private Stage splashStage;
     private Stage settingsStage;
+    private Stage userShortcutsStage;
     private KeyListener keyListener;
+    private KeyEmulator keyEmulator;
     private TrayIcon trayIcon;
     private ShortcutController shortcutController;
     private ForegroundAppInterceptor foregroundAppInterceptor;
@@ -63,7 +70,21 @@ public class ShortcutBuddyApp extends Application {
             log.error("System tray is not supported on this OS");
             throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
         }
+        try{
+            javafx.scene.image.Image appIcon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo_128.png")));
+            primaryStage.getIcons().add(appIcon);
+        } catch (Exception e) {
+            log.error("Error loading application icon", e);
+        }
         showSplashScreen();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if(trayManager != null) {
+            trayManager.exitTray();
+        }
+        super.stop();
     }
 
     private void showSplashScreen() {
@@ -111,7 +132,10 @@ public class ShortcutBuddyApp extends Application {
                 log.info("Initializing foreground app interceptor...");
                 foregroundAppInterceptor = new ForegroundAppInterceptor();
                 log.info("Foreground app interceptor initialized");
-                updateProgress(25, 100);
+                updateProgress(22, 100);
+                keyEmulator = new KeyEmulator();
+                log.info("Key emulator initialized");
+                updateProgress(30, 100);
                 log.info("Initializing stages...");
                 initPrimaryStage();
                 log.info("Primary stage initialized");
@@ -124,6 +148,11 @@ public class ShortcutBuddyApp extends Application {
                 startTrayIcon();
                 log.info("Tray icon started");
                 updateProgress(100, 100);
+                if(SettingsManager.getInstance().isAppVersionUpdated()){
+                    Platform.runLater(() -> {
+                        trayManager.showNotification(bundle.getString(Label.NOTIFICATION_APPUPDATE_TITLE), MessageFormat.format(bundle.getString(Label.NOTIFICATION_APPUPDATE_TEXT), AppInfo.getVersion()), TrayIcon.MessageType.NONE);
+                    });
+                }
                 return null;
             }
         };
@@ -140,6 +169,7 @@ public class ShortcutBuddyApp extends Application {
         Platform.runLater(() -> {
             trayManager.setSettingsStage(settingsStage);
             trayManager.setShortcutController(shortcutController);
+            trayManager.setUserShortcutsStage(userShortcutsStage);
             trayManager.startTray();
         });
     }
@@ -162,11 +192,10 @@ public class ShortcutBuddyApp extends Application {
             try {
                 Scene scene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
                 primaryStage.setScene(scene);
-                keyListener.subscribe(NativeKeyEvent.VC_CONTROL, fxmlLoader.getController());
-                keyListener.subscribe(NativeKeyEvent.VC_PERIOD, fxmlLoader.getController());
-                keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
+                subscribeKeyEvents(fxmlLoader);
                 shortcutController = fxmlLoader.getController();
                 shortcutController.setForegroundAppInterceptor(foregroundAppInterceptor);
+                shortcutController.setKeyEmulator(keyEmulator);
                 shortcutController.setBundle(bundle);
                 shortcutController.setStage(primaryStage);
             } catch (IOException e) {
@@ -174,6 +203,27 @@ public class ShortcutBuddyApp extends Application {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void subscribeKeyEvents(FXMLLoader fxmlLoader){
+        keyListener.subscribe(NativeKeyEvent.VC_CONTROL, fxmlLoader.getController());
+        keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
+        int keyCode = NativeKeyEvent.VC_PERIOD;// Default value: .
+        if(KeyOption.SPACE.equals(SettingsManager.getInstance().getSetting("searchKey").value())) {
+            keyCode = NativeKeyEvent.VC_SPACE;
+        } else if(KeyOption.MINUS.equals(SettingsManager.getInstance().getSetting("searchKey").value())) {
+            keyCode = NativeKeyEvent.VC_MINUS;
+        }
+        else if(KeyOption.P.equals(SettingsManager.getInstance().getSetting("searchKey").value())) {
+            keyCode = NativeKeyEvent.VC_P;
+        }
+        keyListener.subscribe(keyCode, fxmlLoader.getController());
+        keyListener.subscribe(NativeKeyEvent.VC_DOWN, fxmlLoader.getController());
+        keyListener.subscribe(NativeKeyEvent.VC_UP, fxmlLoader.getController());
+        keyListener.subscribe(NativeKeyEvent.VC_LEFT, fxmlLoader.getController());
+        keyListener.subscribe(NativeKeyEvent.VC_RIGHT, fxmlLoader.getController());
+        keyListener.subscribe(NativeKeyEvent.VC_ENTER, fxmlLoader.getController());
+
     }
 
     public static void main(String[] args) {

@@ -1,0 +1,15 @@
+[
+  {
+    "version": "0.6.0",
+    "date": "2025-04-13",
+    "notes": [
+      "[NEW] Added notification system and a new setting to enable/disable it. Check the settings page.",
+      "[NEW] Added a new setting to personalize the 'search' shortcut. Check the settings page.",
+      "[NEW] Added keyboard navigation (with arrow keys) in the shortcut grid.",
+      "[ENHANCEMENT] Added the app icon in the app window title.",
+      "[NEW] Added support for Eclipse IDE.",
+      "[NEW] Added changelog system and window.",
+      "[ENHANCEMENT] Improved settings page layout and tooltips."
+    ]
+  }
+]

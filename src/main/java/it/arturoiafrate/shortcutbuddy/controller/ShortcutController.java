@@ -2,10 +2,14 @@ package it.arturoiafrate.shortcutbuddy.controller;
 
 import atlantafx.base.theme.Styles;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import it.arturoiafrate.shortcutbuddy.controller.dialog.InlineCSS;
+import it.arturoiafrate.shortcutbuddy.controller.util.GridNavigator;
 import it.arturoiafrate.shortcutbuddy.model.bean.Shortcut;
+import it.arturoiafrate.shortcutbuddy.model.constant.KeyOption;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.IKeyObserver;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyOperation;
+import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import javafx.application.Platform;
@@ -22,83 +26,133 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class ShortcutController implements IKeyObserver {
 
-    @FXML
-    private TextField searchBox;
-
-    @FXML
-    private Label messageLabel;
-
-    @FXML
-    private GridPane shortcutsGrid;
-
-    @FXML
-    private ImageView appIconImageView;
-
-    @FXML
-    private Label appNameLabel;
-
-    @FXML
-    private ScrollPane scrollPane;
+    @FXML private TextField searchBox;
+    @FXML private Label messageLabel;
+    @FXML private GridPane shortcutsGrid;
+    @FXML private ImageView appIconImageView;
+    @FXML private Label appNameLabel;
+    @FXML private Label exitSearchModeLabel;
+    @FXML private Label navigationTooltipLabel;
+    @FXML private ScrollPane scrollPane;
 
     private static final int VISIBLE_ROWS = 10;
     private static final double ESTIMATED_ROW_HEIGHT = 28.0;
 
+    @Setter
     private ForegroundAppInterceptor foregroundAppInterceptor;
+    @Setter
+    private KeyEmulator keyEmulator;
+    @Setter
     private Stage stage;
     private boolean blockView = false;
+    @Setter
     private boolean isSettingsShown = false;
+    @Setter
+    private boolean isUserShortcutsShown = false;
     private ResourceBundle bundle;
-
+    private GridNavigator gridNavigator;
+    private List<Shortcut> currentDisplayedShortcuts;
 
     @FXML
     public void initialize(){
         appNameLabel.getStyleClass().addAll(Styles.ACCENT, Styles.TEXT_BOLD, Styles.TEXT_ITALIC, Styles.TITLE_3);
         messageLabel.getStyleClass().addAll(Styles.WARNING, Styles.TEXT_BOLD);
         searchBox.getStyleClass().addAll(Styles.LARGE, Styles.ROUNDED);
+        exitSearchModeLabel.setVisible(false);
+        navigationTooltipLabel.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_ITALIC, Styles.ACCENT);
+        exitSearchModeLabel.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.DANGER);
+        gridNavigator = new GridNavigator(shortcutsGrid, scrollPane, InlineCSS.SHORTCUT_BORDER, InlineCSS.SELECTED_SHORTCUT_BORDER);
     }
 
 
     @Override
     public void update(int keyCode, KeyOperation mode) {
-        if(isSettingsShown) return;
+        if(isSettingsShown || isUserShortcutsShown) return;
         switch (keyCode) {
             case NativeKeyEvent.VC_CONTROL:
                 manageCtrlKey(mode);
                 break;
             case NativeKeyEvent.VC_PERIOD:
-                managePeriodKey(mode);
+                if(KeyOption.DOT.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                    manageSearch(mode);
+                }
+                break;
+            case NativeKeyEvent.VC_SPACE:
+                if(KeyOption.SPACE.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                    manageSearch(mode);
+                }
+                break;
+            case NativeKeyEvent.VC_MINUS:
+                if(KeyOption.MINUS.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                    manageSearch(mode);
+                }
+                break;
+            case NativeKeyEvent.VC_P:
+                if(KeyOption.P.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                    manageSearch(mode);
+                }
                 break;
             case NativeKeyEvent.VC_ESCAPE:
                 manageEscKey(mode);
+                break;
+            case NativeKeyEvent.VC_DOWN, NativeKeyEvent.VC_UP, NativeKeyEvent.VC_LEFT, NativeKeyEvent.VC_RIGHT:
+                manageNavigation(keyCode, mode);
+                break;
+            case NativeKeyEvent.VC_ENTER:
+                manageEnterKey(mode);
                 break;
             default:
                 break;
         }
     }
 
-    public void setSettingsShown(boolean settingsShown) {
-        isSettingsShown = settingsShown;
-    }
-
-    public void setForegroundAppInterceptor(ForegroundAppInterceptor foregroundAppInterceptor) {
-        this.foregroundAppInterceptor = foregroundAppInterceptor;
-    }
-
     public void setBundle(ResourceBundle bundle) {
         this.bundle = bundle;
+        String promptText = MessageFormat.format(
+                bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.TEXTBOX_PROMPT),
+                SettingsManager.getInstance().getSetting("searchKey").value()
+        );
+        searchBox.setPromptText(promptText);
     }
 
-    public void setStage(Stage stage) {
-        this.stage = stage;
+    private void manageEnterKey(KeyOperation mode) {
+        if(mode == KeyOperation.KEY_PRESS && blockView && stage.isShowing()){
+            if (gridNavigator == null || currentDisplayedShortcuts == null) return;
+            Optional<Shortcut> selectedShortcut = gridNavigator.getSelectedShortcut(currentDisplayedShortcuts);
+            if(selectedShortcut.isPresent() && selectedShortcut.get().keys() != null && !selectedShortcut.get().keys().isEmpty()){
+                List<String> keysToPress = selectedShortcut.get().keys();
+                Platform.runLater(() -> {
+                    manageEscKey(mode);
+                });
+                keyEmulator.emulateKeysAsync(keysToPress, 500);
+            }
+        }
+    }
+
+    private void manageNavigation(int keyCode, KeyOperation mode) {
+        blockView = true;
+        Platform.runLater(() -> {
+            exitSearchModeLabel.setText(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.LABEL_EXIT_SEARCH));
+            exitSearchModeLabel.setVisible(true);
+            if(List.of(NativeKeyEvent.VC_UP, NativeKeyEvent.VC_DOWN, NativeKeyEvent.VC_LEFT, NativeKeyEvent.VC_RIGHT).contains(keyCode)
+                    && mode.equals(KeyOperation.KEY_PRESS)){
+                gridNavigator.navigate(keyCode);
+            }
+        });
     }
 
     private void manageCtrlKey(KeyOperation mode) {
@@ -135,14 +189,27 @@ public class ShortcutController implements IKeyObserver {
     private void manageEscKey(KeyOperation mode) {
         blockView = false;
         Platform.runLater(() -> {
+            exitSearchModeLabel.setVisible(false);
             searchBox.clear();
             stage.hide();
         });
     }
-    private void managePeriodKey(KeyOperation mode) {
-        if(mode == KeyOperation.KEY_PRESS && !blockView && stage.isShowing()){
-            blockView = true;
-            Platform.runLater(() -> searchBox.requestFocus());
+    private void manageSearch(KeyOperation mode) {
+        if(mode == KeyOperation.KEY_PRESS && stage.isShowing()){
+            if(!blockView){
+                blockView = true;
+                Platform.runLater(() -> {
+                    exitSearchModeLabel.setText(bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.LABEL_EXIT_SEARCH));
+                    exitSearchModeLabel.setVisible(true);
+                    searchBox.requestFocus();
+                });
+            } else if(gridNavigator != null && gridNavigator.isSomethingSelected()){
+                Platform.runLater(() -> {
+                    searchBox.setText(StringUtils.EMPTY);
+                    gridNavigator.resetSelection();
+                    searchBox.requestFocus();
+                });
+            }
         }
     }
     private void setHeader(String appName, String appDescription) {
@@ -206,6 +273,10 @@ public class ShortcutController implements IKeyObserver {
             Node shortcutEntryNode = createShortcutEntryNode(shortcuts.get(i), numColumns == 3);
             shortcutsGrid.add(shortcutEntryNode, i % numColumns, i / numColumns);
         }
+        if (gridNavigator != null) {
+            Platform.runLater(() -> gridNavigator.setGridData(itemCount, numColumns));
+        }
+        this.currentDisplayedShortcuts = shortcuts;
     }
 
     private String formatKeyName(String rawKey) {
@@ -245,7 +316,7 @@ public class ShortcutController implements IKeyObserver {
 
             for (String key : shortcut.keys()) {
                 Label keyLabel = new Label(formatKeyName(key));
-                keyLabel.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 2px 6px; -fx-border-style: solid;");
+                keyLabel.setStyle(InlineCSS.SHORTCUT_BORDER);
                 keyLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
                 keysContainer.getChildren().add(keyLabel);
             }

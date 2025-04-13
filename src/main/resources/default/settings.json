@@ -2,23 +2,41 @@
   {
     "key": "width",
     "value": "640",
+    "order": 1,
     "readonly": false
   },
   {
     "key": "height",
     "value": "480",
+    "order": 2,
     "readonly": false
   },
   {
     "key": "theme",
     "value": "light",
+    "order": 3,
     "readonly": false,
     "options": ["light", "dark"]
   },
   {
     "key": "language",
     "value": "english",
+    "order": 4,
     "readonly": false,
     "options": ["english"]
+  },
+  {
+    "key": "searchKey",
+    "value": ".",
+    "order": 5,
+    "readonly": false,
+    "options": [".", "space", "-", "P"]
+  },
+  {
+    "key": "enableNotification",
+    "value": "y",
+    "order": 6,
+    "readonly": false,
+    "options": ["y", "n"]
   }
 ]
