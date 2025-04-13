@@ -80,6 +80,11 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
                 .findFirst().orElse(null);
     }
 
+    public boolean isEnabled(String key) {
+        Setting setting = getSetting(key);
+        return setting != null && "y".equals(setting.value());
+    }
+
     public List<Setting> getSettingsAll(){
         return settings;
     }

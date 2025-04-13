@@ -38,5 +38,12 @@
     "order": 6,
     "readonly": false,
     "options": ["y", "n"]
+  },
+  {
+    "key": "checkForUpdates",
+    "value": "n",
+    "order": 7,
+    "readonly": false,
+    "options": ["y", "n"]
   }
 ]

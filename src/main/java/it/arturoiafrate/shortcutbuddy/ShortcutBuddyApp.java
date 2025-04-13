@@ -13,6 +13,8 @@ import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.tray.TrayManager;
+import it.arturoiafrate.shortcutbuddy.service.INotificationService;
+import it.arturoiafrate.shortcutbuddy.service.impl.UpdateCheckerService;
 import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
 import javafx.application.Application;
 import javafx.application.HostServices;
@@ -27,7 +29,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -51,6 +52,8 @@ public class ShortcutBuddyApp extends Application {
     private ForegroundAppInterceptor foregroundAppInterceptor;
     private ResourceBundle bundle;
     private TrayManager trayManager;
+    private INotificationService notificationService;
+    private UpdateCheckerService updateCheckerService;
     private static HostServices appHostServices;
 
     @Override
@@ -150,8 +153,11 @@ public class ShortcutBuddyApp extends Application {
                 updateProgress(100, 100);
                 if(SettingsManager.getInstance().isAppVersionUpdated()){
                     Platform.runLater(() -> {
-                        trayManager.showNotification(bundle.getString(Label.NOTIFICATION_APPUPDATE_TITLE), MessageFormat.format(bundle.getString(Label.NOTIFICATION_APPUPDATE_TEXT), AppInfo.getVersion()), TrayIcon.MessageType.NONE);
+                        notificationService.showNotification(bundle.getString(Label.NOTIFICATION_APPUPDATE_TITLE), MessageFormat.format(bundle.getString(Label.NOTIFICATION_APPUPDATE_TEXT), AppInfo.getVersion()), TrayIcon.MessageType.NONE);
                     });
+                }
+                if(SettingsManager.getInstance().isEnabled("checkForUpdates")) {
+                    updateCheckerService.checkForUpdatesAsync(false);
                 }
                 return null;
             }
@@ -166,6 +172,9 @@ public class ShortcutBuddyApp extends Application {
 
     private void startTrayIcon(){
         trayManager = new TrayManager(bundle, appHostServices);
+        notificationService = trayManager;
+        updateCheckerService = new UpdateCheckerService(trayManager, bundle, appHostServices);
+        trayManager.setUpdateCheckerService(updateCheckerService);
         Platform.runLater(() -> {
             trayManager.setSettingsStage(settingsStage);
             trayManager.setShortcutController(shortcutController);

@@ -27,7 +27,7 @@ set NATIVE_DIR=native
 set APP_MODULE_NAME=it.arturoiafrate.shortcutbuddy
 set MAIN_CLASS=it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp
 REM !! Aggiorna questa lista basandoti sui 'requires' del tuo module-info.java !!
-set REQUIRED_MODULES=javafx.controls,javafx.fxml,javafx.graphics,java.desktop,com.github.kwhat.jnativehook,com.sun.jna,com.sun.jna.platform,org.apache.commons.io,com.google.gson,org.apache.commons.lang3,atlantafx.base,%APP_MODULE_NAME%
+set REQUIRED_MODULES=javafx.controls,javafx.fxml,javafx.graphics,java.desktop,com.github.kwhat.jnativehook,com.sun.jna,com.sun.jna.platform,org.apache.commons.io,com.google.gson,org.apache.commons.lang3,atlantafx.base,java.desktop,lombok,org.slf4j,org.kordamp.ikonli.javafx,org.kordamp.ikonli.feather,java.net.http,%APP_MODULE_NAME%
 REM --- Fine Configurazione ---
 
 set BASE_DIR=%~dp0

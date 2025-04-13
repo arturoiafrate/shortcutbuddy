@@ -12,6 +12,7 @@ module it.arturoiafrate.shortcutbuddy {
     requires org.slf4j;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.feather;
+    requires java.net.http;
 
 
     opens it.arturoiafrate.shortcutbuddy to javafx.fxml;

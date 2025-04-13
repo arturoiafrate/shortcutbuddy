@@ -36,4 +36,11 @@ public class Label {
     public static final String CHANGELOG_WINDOW_WHATSNEW = "changelog.window.whatsnew";
     public static final String CHANGELOG_WINDOW_RELEASEDATE = "changelog.window.releasedate";
     public static final String CHANGELOG_WINDOW_NOCHANGELOG = "changelog.window.nochangelog";
+    public static final String CHANGELOG_WINDOW_LASTRELEASES = "changelog.window.lastreleases";
+    public static final String CHANGELOG_WINDOW_GENERICRELEASE = "changelog.window.genericrelease";
+    public static final String SETTINGS_SETTING_CHECKFORUPDATES = "settings.setting.checkForUpdates";
+    public static final String NOTIFICATION_APPUPDATE_FETCH_ERROR_GENERIC = "notification.appUpdate.fetch.error.generic";
+    public static final String NOTIFICATION_APPUPDATE_FETCH_TITLE = "notification.appUpdate.fetch";
+    public static final String NOTIFICATION_APPUPDATE_FETCH_UPTODATE = "notification.appUpdate.fetch.upToDate";
+    public static final String NOTIFICATION_APPUPDATE_FETCH_LOCALWARNING = "notification.appUpdate.fetch.localWarning";
 }

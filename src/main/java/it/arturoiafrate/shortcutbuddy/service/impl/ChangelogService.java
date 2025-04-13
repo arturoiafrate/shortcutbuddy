@@ -1,4 +1,4 @@
-package it.arturoiafrate.shortcutbuddy.model.manager.changelog;
+package it.arturoiafrate.shortcutbuddy.service.impl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.ReleaseInfo;
@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +17,7 @@ import java.util.Optional;
 public class ChangelogService {
 
     private static final String CHANGELOG_PATH = "/changelog.json";
-    private List<ReleaseInfo> releaseInfoList = null; // Cache
+    private List<ReleaseInfo> releaseInfoList = null;
 
     private void loadChangelog() {
         if (releaseInfoList != null) return;
@@ -58,5 +59,21 @@ public class ChangelogService {
         return getReleaseInfo(version)
                 .map(ReleaseInfo::date)
                 .orElse(null);
+    }
+
+    public List<ReleaseInfo> getLastReleases(int nReleases, String versionToExclude) {
+        loadChangelog();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return releaseInfoList.stream()
+                .filter(release -> !release.version().equals(versionToExclude))
+                .sorted((r1, r2) -> {
+                    try {
+                        return dateFormat.parse(r2.date()).compareTo(dateFormat.parse(r1.date()));
+                    } catch (Exception e) {
+                        log.error("Error parsing date", e);
+                        return 0;
+                    }
+                }).limit(nReleases)
+                .toList();
     }
 }

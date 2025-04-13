@@ -11,5 +11,15 @@
       "[NEW] Added changelog system and window.",
       "[ENHANCEMENT] Improved settings page layout and tooltips."
     ]
+  },
+  {
+    "version": "0.6.1",
+    "date": "2025-04-13",
+    "notes": [
+      "[FIX] Fixed bat script launcher for Windows.",
+      "[NEW] Added check for updates feature.",
+      "[NEW] Added a new setting to enable/disable the check for updates at startup. Default is disabled.",
+      "[ENHANCEMENT] Changelog system now shows the last 3 versions."
+    ]
   }
 ]
