@@ -9,7 +9,8 @@ It's a Windows application only, it will not work on Linux or MacOS.
 - Start the application, it will leave a tray icon in the system tray.
 - Hold the `Ctrl` key and ShortcutBuddy will intercept the foreground window and show a popup with the available shortcuts for that application.
 - Release the `Ctrl` key and the popup will disappear.
-- Hold the `Ctrl` key and press the `.` key to start typing. The shortcuts will be filtered based on the text you type. Press `Esc` key to close the popup.
+- Hold the `Ctrl` key and press the `.` key to start typing. The shortcuts will be filtered based on the text you type (description or category). Press `Esc` key to close the popup. You can change the `.` key to any other key in the settings.
+- Navigate through the shortcuts using the arrow keys. Press `Enter` to execute the shortcut.
 
 ## How to add your own shortcuts
 At the application first run, ShortcutBuddy will create a folder in the user's home directory called `.shortcutbuddy`. Inside this folder, you can create a file called `usershortcuts.json` where you can add your own shortcuts.
@@ -27,12 +28,19 @@ The `usershortcuts.json` file should be in the following format:
     "shortcuts": [
       {
         "shortcut": "Ctrl+Shift+N",
-        "description": "Find file"
+        "keys": ["Ctrl", "Shift", "N"],
+        "description": "Find file",
+        "category": "navigation"
       }
     ]
   }
 ]
 ```
+"keys" or "shortcut" are complementary mandatory fields, you can use either one of them. The "keys" field is an array of strings, each string is a key name. The "shortcut" field is a string with the shortcut keys separated by "+" sign.
+If you use the "shortcut" field you will not be able to simulate the shortcut from the application, but you can use it to show the shortcut in the popup.
+The "description" field is a string with the shortcut description.
+The "category" field is a string with the shortcut category.
+
 
 ## How to build the project
 To build the project, you need to have Java 21 or higher installed on your machine. You can download the latest version of Java from the [official website](https://www.oracle.com/java/technologies/javase-jdk21-downloads.html).
@@ -80,9 +88,22 @@ shortcutbuddy
 This is an application provided for free, all features in this app is provided "as is", with no guarantee of completeness, accuracy, timeliness or of the results obtained from the use of this feature.
 The copyrighted materials on this app may be used for informational purposes only. All the copyrighted materials are the property of their respective owners. The use of copyrighted materials is not intended to infringe on the rights of the copyright holders.
 The application is not affiliated with any of the applications listed in the default shortcuts. The application is not responsible for any damage caused by the use of this application. Use at your own risk.
+The application icons inside the shortcut list are the property of their respective owners.
 
 ### License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ### Contributing
 If you want to contribute to this project, feel free to open an issue or a pull request. Any contributions are welcome!
+
+### Attribution
+This project uses the following libraries:
+- [JavaFX](https://openjfx.io/)
+- [atlantafx](https://github.com/mkpaz/atlantafx)
+- [Ikonli Feather Pack](https://kordamp.org/ikonli/)
+- [Google Gson](https://github.com/google/gson)
+- [Apache Commons](https://commons.apache.org/)
+- [JNativeHook](https://github.com/kwhat/jnativehook)
+- [JNA](https://github.com/java-native-access/jna)
+- [Lombok](https://projectlombok.org/)
+- [SLF4J](http://www.slf4j.org/)
