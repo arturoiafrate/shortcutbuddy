@@ -25,6 +25,7 @@ At the moment the application does not have a GUI to manage the user defined sho
   - `id`: The application id (integer, primary key, autoincrement).
   - `name`: The application name (text).
   - `description`: The application description (text).
+  - `usage_count`: The application usage count (integer).
   - `user_defined`: The user defined flag (integer). This is set to 1 if the application is user defined, 0 otherwise.
 - `shortcuts`: This table contains the list of shortcuts. It has the following columns:
   - `shortcut_id`: The shortcut id (integer, primary key, autoincrement).
@@ -75,7 +76,7 @@ shortcutbuddy
 ## Roadmap
 - [ ] Add a GUI to manage shortcuts.
 - [ ] Sort the shortcuts by the usage frequency.
-- [ ] Preload the shortcuts for the most used applications.
+- [x] Preload the shortcuts for the most used applications.
 - [ ] Add a clipboard manager.
 
 
