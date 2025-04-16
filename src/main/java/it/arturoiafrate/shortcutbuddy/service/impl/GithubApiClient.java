@@ -1,5 +1,7 @@
 package it.arturoiafrate.shortcutbuddy.service.impl; // O tuo package
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -9,11 +11,13 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture; // Per chiamate asincrone
 
 @Slf4j
+@Singleton
 public class GithubApiClient {
 
     private static final String GITHUB_API_BASE = "https://api.github.com/repos/arturoiafrate/ShortcutBuddy";
     private final HttpClient httpClient;
 
+    @Inject
     public GithubApiClient() {
         this.httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)

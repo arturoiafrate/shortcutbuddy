@@ -1,6 +1,24 @@
 package it.arturoiafrate.shortcutbuddy.model.bean;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
-public record Shortcut(String shortcut, String description, List<String> keys, String category) {
+@Getter
+@Setter
+public class Shortcut {
+    private long id;
+    private long appId;
+    private String description;
+    private List<String> keys;
+    private String category;
+
+    public Shortcut(long id, long appId, String description, List<String> keys, String category){
+        this.id = id;
+        this.appId = appId;
+        this.description = description;
+        this.keys = keys;
+        this.category = category;
+    }
 }

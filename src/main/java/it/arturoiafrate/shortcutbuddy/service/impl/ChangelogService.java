@@ -2,6 +2,8 @@ package it.arturoiafrate.shortcutbuddy.service.impl;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.ReleaseInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j; // Usa il tuo logger
 
 import java.io.InputStream;
@@ -14,10 +16,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@Singleton
 public class ChangelogService {
 
     private static final String CHANGELOG_PATH = "/changelog.json";
     private List<ReleaseInfo> releaseInfoList = null;
+
+    @Inject
+    public ChangelogService() {}
 
     private void loadChangelog() {
         if (releaseInfoList != null) return;

@@ -29,5 +29,18 @@
       "[ENHANCEMENT] Now the bat script launcher close the console window after the app is started.",
       "[FIX] Fixed the application stop, now unregister the native hook before stopping."
     ]
+  },
+  {
+    "version": "0.7.0",
+    "date": "2025-04-16",
+    "notes": [
+      "[FIX] Upgraded JavaFX from 20 to 20.0.2 to fix CVE issues.",
+      "[ENHANCEMENT] Replacing shortcuts.json file with SQLite database. User defined shortcuts are temporally removed.",
+      "[NEW] Added a cache system to store the last used app shortcuts. Check the settings page to set the cache size.",
+      "[NEW] Added preload system to load the last used app shortcuts at startup. Check the settings page to set the preload size.",
+      "[ENHANCEMENT] Replacing singleton pattern with dependency injection.",
+      "[NEW] Added support for MS Teams, MS Word, MS Excel, MS PowerPoint, MS Outlook, Firefox.",
+      "[ENCHANCEMENT] Replaced timer with a scheduled executor service to improve performance."
+    ]
   }
 ]

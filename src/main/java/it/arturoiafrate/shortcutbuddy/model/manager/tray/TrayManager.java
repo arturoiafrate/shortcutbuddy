@@ -1,15 +1,18 @@
 package it.arturoiafrate.shortcutbuddy.model.manager.tray;
 
 import it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp;
+import it.arturoiafrate.shortcutbuddy.controller.SettingsController;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
 import it.arturoiafrate.shortcutbuddy.controller.dialog.DialogUtils;
-import it.arturoiafrate.shortcutbuddy.model.bean.ReleaseInfo;
+import it.arturoiafrate.shortcutbuddy.controller.factory.ControllerFactory;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
 import it.arturoiafrate.shortcutbuddy.service.impl.ChangelogService;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.service.INotificationService;
 import it.arturoiafrate.shortcutbuddy.service.IUpdateCheckerService;
 import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -24,7 +27,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +37,7 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 @Slf4j
+@Singleton
 public class TrayManager implements INotificationService {
     private final ResourceBundle bundle;
     private static HostServices appHostServices;
@@ -49,11 +52,15 @@ public class TrayManager implements INotificationService {
     private TrayIcon trayIcon;
     private javafx.scene.image.Image appIcon;
     private final ChangelogService changelogService;
-
-    public TrayManager(ResourceBundle bundle, HostServices appHostServices) {
-        this.bundle = bundle;
+    private final SettingsManager settingsManager;
+    private final ControllerFactory controllerFactory;
+    @Inject
+    public TrayManager(ControllerFactory controllerFactory, ResourceBundle bundle, HostServices appHostServices, SettingsManager settingsManager, ChangelogService changelogService) {
         TrayManager.appHostServices = appHostServices;
-        changelogService = new ChangelogService();
+        this.controllerFactory = controllerFactory;
+        this.settingsManager = settingsManager;
+        this.bundle = bundle;
+        this.changelogService = changelogService;
     }
 
     public void startTray(){
@@ -127,7 +134,7 @@ public class TrayManager implements INotificationService {
 
     @Override
     public void showNotification(String caption, String text, TrayIcon.MessageType messageType) {
-        if(!SettingsManager.getInstance().isEnabled("enableNotification") && !messageType.equals(TrayIcon.MessageType.ERROR)){
+        if(!settingsManager.isEnabled("enableNotification") && !messageType.equals(TrayIcon.MessageType.ERROR)){
             return;
         }
         SwingUtilities.invokeLater(() -> {
@@ -230,10 +237,11 @@ public class TrayManager implements INotificationService {
                 return;
             }
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/userShortcuts-view.fxml"), bundle);
+            fxmlLoader.setControllerFactory(controllerFactory);
             userShortcutsStage = new Stage();
             userShortcutsStage.setTitle(bundle.getString(Label.USER_SHORTCUTS_TITLE));
             userShortcutsStage.getIcons().add(this.getApplicationIcon());
-            Scene userShortcutsScene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
+            Scene userShortcutsScene = new Scene(fxmlLoader.load(), Integer.parseInt(settingsManager.getSetting("width").value()), Integer.parseInt(settingsManager.getSetting("height").value()));
             userShortcutsStage.setScene(userShortcutsScene);
             userShortcutsStage.initModality(Modality.APPLICATION_MODAL);
             userShortcutsStage.setOnCloseRequest( event -> {
@@ -257,10 +265,11 @@ public class TrayManager implements INotificationService {
                 return;
             }
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/settings-view.fxml"), bundle);
+            fxmlLoader.setControllerFactory(controllerFactory);
             settingsStage = new Stage();
             settingsStage.setTitle(bundle.getString(Label.SETTINGS_TITLE));
             settingsStage.getIcons().add(this.getApplicationIcon());
-            Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
+            Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(settingsManager.getSetting("width").value()), Integer.parseInt(settingsManager.getSetting("height").value()));
             settingsStage.setScene(settingsScene);
             settingsStage.initModality(Modality.APPLICATION_MODAL);
             settingsStage.setOnCloseRequest(event -> {

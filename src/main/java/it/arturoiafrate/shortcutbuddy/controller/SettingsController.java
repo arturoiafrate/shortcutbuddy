@@ -3,6 +3,7 @@ package it.arturoiafrate.shortcutbuddy.controller;
 import atlantafx.base.controls.ToggleSwitch;
 import atlantafx.base.theme.Styles;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
+import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -28,9 +29,17 @@ public class SettingsController {
     private final Map<String, Control> settingFields = new HashMap<>();
     private List<Setting> currentSettings;
 
+    @Inject
+    SettingsManager settingsManager;
+
+    @Inject
+    public SettingsController(){
+
+    }
+
     @FXML
     public void initialize() {
-        this.currentSettings = SettingsManager.getInstance().getSettingsAll();
+        this.currentSettings = settingsManager.getSettingsAll();
         Platform.runLater(() -> setSettingsData(currentSettings));
     }
 
@@ -95,7 +104,7 @@ public class SettingsController {
         for (Map.Entry<String, Control> entry : settingFields.entrySet()) {
             String key = entry.getKey();
             Control control = entry.getValue();
-            Setting currentSetting = SettingsManager.getInstance().getSetting(key);
+            Setting currentSetting = settingsManager.getSetting(key);
             String newValue = "";
             if (control instanceof TextField textField) {
                 newValue =textField.getText();
@@ -106,7 +115,7 @@ public class SettingsController {
             }
             newSettings.add(new Setting(currentSetting.key(), newValue, currentSetting.readonly(), currentSetting.options(), currentSetting.isHide(), currentSetting.order()));
         }
-        boolean isSaved = SettingsManager.getInstance().save(newSettings);
+        boolean isSaved = settingsManager.save(newSettings);
         Alert alert = isSaved ? new Alert(Alert.AlertType.INFORMATION) : new Alert(Alert.AlertType.ERROR);
         String title = isSaved ? resources.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.SETTINGS_SAVE_SUCCESS_TITLE) : resources.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.SETTINGS_SAVE_ERROR_TITLE);
         String message = isSaved ? resources.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.SETTINGS_SAVE_SUCCESS_TEXT) : resources.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.SETTINGS_SAVE_ERROR_TEXT);

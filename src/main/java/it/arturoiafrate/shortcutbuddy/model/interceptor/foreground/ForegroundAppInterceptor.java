@@ -3,9 +3,18 @@ package it.arturoiafrate.shortcutbuddy.model.interceptor.foreground;
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.*;
 import com.sun.jna.ptr.IntByReference;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javafx.geometry.Rectangle2D;
 
+
+@Singleton
 public class ForegroundAppInterceptor {
+
+    @Inject
+    public ForegroundAppInterceptor(){
+
+    }
 
     public String getForegroundAppTitle() {
         char[] buffer = new char[1024*2];

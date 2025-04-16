@@ -1,91 +1,79 @@
 package it.arturoiafrate.shortcutbuddy.model.manager.shortcut;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.AppShortcuts;
 import it.arturoiafrate.shortcutbuddy.model.bean.Shortcut;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.ShortcutRepository;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
+@Slf4j
+@Singleton
 public class ShortcutManager extends AbstractManager implements IFileSystemManager {
-    private static ShortcutManager instance;
-    private List<AppShortcuts> appShortcuts;
-    private List<AppShortcuts> userDefinedShortcuts;
+    private final SettingsManager settingsManager;
+    private final ShortcutRepository shortcutRepository;
+    private final Cache<String, AppShortcuts> appShortcutsCache;
+    private final ConcurrentMap<String, AtomicInteger> appUsageIncrements;
 
-    private ShortcutManager() {
-        appShortcuts = new ArrayList<>();
-        userDefinedShortcuts = new ArrayList<>();
+    @Inject
+    public ShortcutManager(SettingsManager settingsManager, ShortcutRepository shortcutRepository) {
+        this.settingsManager = settingsManager;
+        this.shortcutRepository = shortcutRepository;
+        int cacheSize = Integer.parseInt(this.settingsManager.getSetting("cacheSize").value());
+        this.appUsageIncrements = new ConcurrentHashMap<>();
+        this.appShortcutsCache = Caffeine.newBuilder().maximumSize(cacheSize).recordStats().build();
+        log.info("Cache size: {}", cacheSize);
     }
 
-    public static ShortcutManager getInstance() {
-        if (instance == null) {
-            instance = new ShortcutManager();
-        }
-        return instance;
-    }
     @Override
     public void load() {
-        final String filename = "shortcuts.json";
-        appShortcuts = loadFromFile(filename, new TypeToken<List<AppShortcuts>>() {}.getType(), false);
-        if (appShortcuts == null) {
-            appShortcuts = new ArrayList<>();
+        String preloadAppsSettings = this.settingsManager.getSetting("preloadAppsNumber").value();
+        if(!"disabled".equals(preloadAppsSettings)){
+            var mostUsedApps = shortcutRepository.findMostUsedApps(Integer.parseInt(preloadAppsSettings));
+            appShortcutsCache.putAll(mostUsedApps.stream()
+                    .collect(Collectors.toMap(appShortcuts -> appShortcuts.getAppName().toLowerCase(), appShortcuts -> appShortcuts)));
         }
-        if(SettingsManager.getInstance().isAppVersionUpdated()){
-            List<AppShortcuts> resourceAppShortcuts = loadFromFile("/default/" + filename, new TypeToken<List<AppShortcuts>>() {}.getType(), true);
-            for(AppShortcuts resourceAppShortcut : resourceAppShortcuts) {
-                Optional<AppShortcuts> appShortcut = appShortcuts.stream()
-                        .filter(appShortcuts -> appShortcuts.appName().equals(resourceAppShortcut.appName()))
-                        .findFirst();
-                if (appShortcut.isPresent()) {
-                    if(resourceAppShortcut.shortcuts() != appShortcut.get().shortcuts()) {
-                        appShortcuts.remove(appShortcut.get());
-                        appShortcuts.add(resourceAppShortcut);
-                    }
-                } else {
-                    appShortcuts.add(resourceAppShortcut);
-                }
-            }
-        }
-        loadUserDefinedShortcuts();
     }
 
-    public List<AppShortcuts> loadUserDefinedShortcuts() {
-        final String filename = "usershortcuts.json";
-        userDefinedShortcuts = loadIfFileExists(filename, new TypeToken<List<AppShortcuts>>() {}.getType());
-        if (userDefinedShortcuts == null) {
-            userDefinedShortcuts = new ArrayList<>();
-        }
-        return userDefinedShortcuts;
-    }
 
     public List<Shortcut> getShortcutsForApp(String appName) {
-        Optional<AppShortcuts> singleAppShortcut =  appShortcuts.stream()
-                .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
-                .findFirst();
-        if(singleAppShortcut.isPresent()){
-            return singleAppShortcut.get().shortcuts();
+        var singleAppShortcut = Optional.ofNullable(appShortcutsCache.get(appName.toLowerCase(), this::getAppShortcutsFromRepository));
+        if(singleAppShortcut.isPresent()) {
+            appUsageIncrements.computeIfAbsent(appName.toLowerCase(), k -> new AtomicInteger(0)).incrementAndGet();
         }
-        singleAppShortcut = userDefinedShortcuts.stream()
-                .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
-                .findFirst();
-        return singleAppShortcut.isPresent() ? singleAppShortcut.get().shortcuts() : Collections.emptyList();
+        return singleAppShortcut.isPresent() ? singleAppShortcut.get().getShortcuts() : Collections.emptyList();
+    }
+
+    private AppShortcuts getAppShortcutsFromRepository(String appName) {
+        return shortcutRepository.findAppShortcutsByName(appName.toLowerCase());
     }
 
     public String getAppDescription(String appName) {
-        Optional<String> appDescription = appShortcuts.stream()
-                .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
-                .map(AppShortcuts::appDescription)
-                .findFirst();
-        if(appDescription.isPresent() && StringUtils.isEmpty(appDescription.get())){
-            appDescription = userDefinedShortcuts.stream()
-                    .filter(appShortcuts -> appShortcuts.appName().toLowerCase().contains(appName.toLowerCase()))
-                    .map(AppShortcuts::appDescription)
-                    .findFirst();
+        var singleAppShortcut = Optional.ofNullable(appShortcutsCache.get(appName.toLowerCase(), this::getAppShortcutsFromRepository));
+        return singleAppShortcut.isPresent() ? singleAppShortcut.get().getAppDescription() : "";
+    }
+
+    public void flushUsageCount(){
+        Map<String, AtomicInteger> countsToFlush = new HashMap<>(appUsageIncrements);
+        appUsageIncrements.clear();
+
+        if (countsToFlush.isEmpty()) {
+            return;
         }
-        return appDescription.orElse("");
+        shortcutRepository.batchIncrementUsageCount(countsToFlush);
     }
 
 }

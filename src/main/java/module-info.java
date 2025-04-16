@@ -9,10 +9,21 @@ module it.arturoiafrate.shortcutbuddy {
     requires atlantafx.base;
     requires java.desktop;
     requires static lombok;
-    requires org.slf4j;
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.feather;
     requires java.net.http;
+    requires org.xerial.sqlitejdbc;
+    requires flyway.core;
+    requires org.slf4j;
+    requires jakarta.inject;
+    requires dagger;
+    requires javax.inject;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.databind;
+    requires com.google.errorprone.annotations;
+    requires java.compiler;
+    requires com.github.benmanes.caffeine;
 
 
     opens it.arturoiafrate.shortcutbuddy to javafx.fxml;
@@ -20,4 +31,7 @@ module it.arturoiafrate.shortcutbuddy {
     exports it.arturoiafrate.shortcutbuddy.controller;
     opens it.arturoiafrate.shortcutbuddy.controller to javafx.fxml;
     opens it.arturoiafrate.shortcutbuddy.model.bean to com.google.gson;
+    opens db.migration;
+    exports it.arturoiafrate.shortcutbuddy.controller.factory;
+    opens it.arturoiafrate.shortcutbuddy.controller.factory to javafx.fxml;
 }

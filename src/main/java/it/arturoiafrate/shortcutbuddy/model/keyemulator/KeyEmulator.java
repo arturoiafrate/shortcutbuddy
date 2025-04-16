@@ -1,5 +1,7 @@
 package it.arturoiafrate.shortcutbuddy.model.keyemulator;
 
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
@@ -10,9 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@Singleton
 public class KeyEmulator {
 
     private static final Map<String, Integer> KEY_MAP = createKeyMap();
+
+    @Inject
+    public KeyEmulator(){
+    }
 
     public void emulateKeysAsync(List<String> keysToPress, long delayMillis) {
         if (keysToPress == null || keysToPress.isEmpty()) {

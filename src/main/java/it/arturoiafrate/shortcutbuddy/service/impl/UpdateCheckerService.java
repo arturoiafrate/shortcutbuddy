@@ -1,11 +1,14 @@
 package it.arturoiafrate.shortcutbuddy.service.impl;
 
 import com.google.gson.Gson;
+import it.arturoiafrate.shortcutbuddy.config.qualifier.ApplicationTrayNotificationService;
 import it.arturoiafrate.shortcutbuddy.model.bean.GithubUpdateInfo;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
 import it.arturoiafrate.shortcutbuddy.service.INotificationService;
 import it.arturoiafrate.shortcutbuddy.service.IUpdateCheckerService;
 import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javafx.application.HostServices;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 @Slf4j
+@Singleton
 public class UpdateCheckerService implements IUpdateCheckerService {
 
     private final GithubApiClient apiClient;
@@ -24,8 +28,9 @@ public class UpdateCheckerService implements IUpdateCheckerService {
     private final HostServices appHostServices;
     private final Gson gson;
 
-    public UpdateCheckerService(INotificationService notificationService, ResourceBundle bundle, HostServices appHostServices) {
-        this.apiClient = new GithubApiClient();
+    @Inject
+    public UpdateCheckerService(GithubApiClient githubApiClient, @ApplicationTrayNotificationService INotificationService notificationService, ResourceBundle bundle, HostServices appHostServices) {
+        this.apiClient = githubApiClient;
         this.notificationService = notificationService;
         this.appHostServices = appHostServices;
         this.bundle = bundle;
@@ -76,10 +81,16 @@ public class UpdateCheckerService implements IUpdateCheckerService {
         int comparison = compareVersions(currentVersion, latestVersion);
 
         if (comparison < 0) {
+
             log.info("New app version available: {}", latestRelease.tag_name());
-            String caption = AppInfo.getName() + " - Aggiornamento Disponibile";//TODO localization
-            String text = "È disponibile la versione " + latestRelease.tag_name() + ".\nChangelog:\n"
-            +latestRelease.body() + "\nVai su GitHub per il download.\n";
+            String caption = MessageFormat.format(
+                    bundle.getString(Label.NOTIFICATION_APPUPDATE_AVAILABLE_TITLE),
+                            AppInfo.getName());
+            String text = MessageFormat.format(
+                    bundle.getString(Label.NOTIFICATION_APPUPDATE_AVAILABLE_TEXT),
+                    latestRelease.tag_name(),
+                    latestRelease.body()
+            );
             Platform.runLater(() -> {
                 if (notificationService != null) {
                     notificationService.showDialog(caption, text, actionEvent -> {

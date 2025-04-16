@@ -5,14 +5,16 @@ import atlantafx.base.theme.PrimerLight;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import it.arturoiafrate.shortcutbuddy.config.ApplicationComponent;
+import it.arturoiafrate.shortcutbuddy.config.DaggerApplicationComponent;
+import it.arturoiafrate.shortcutbuddy.config.module.FxModule;
+import it.arturoiafrate.shortcutbuddy.config.module.NotificationModule;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
 import it.arturoiafrate.shortcutbuddy.model.constant.KeyOption;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
 import it.arturoiafrate.shortcutbuddy.model.enumerator.Languages;
-import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
 import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
-import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.tray.TrayManager;
 import it.arturoiafrate.shortcutbuddy.service.INotificationService;
@@ -40,6 +42,10 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ShortcutBuddyApp extends Application {
@@ -49,13 +55,14 @@ public class ShortcutBuddyApp extends Application {
     private Stage userShortcutsStage;
     private KeyListener keyListener;
     private KeyEmulator keyEmulator;
-    private TrayIcon trayIcon;
     private ShortcutController shortcutController;
-    private ForegroundAppInterceptor foregroundAppInterceptor;
     private ResourceBundle bundle;
     private TrayManager trayManager;
     private INotificationService notificationService;
     private UpdateCheckerService updateCheckerService;
+    private ApplicationComponent applicationComponent;
+    private ShortcutManager shortcutManager;
+    private ScheduledExecutorService backgroundScheduler;
     private static HostServices appHostServices;
 
     @Override
@@ -67,6 +74,7 @@ public class ShortcutBuddyApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         this.appHostServices = getHostServices();
+        bundle = ResourceBundle.getBundle("i18n/messages", Languages.getLocale("english"));//Default
         this.primaryStage = primaryStage;
         this.primaryStage.initStyle(StageStyle.UNDECORATED);
         this.primaryStage.hide();
@@ -82,21 +90,20 @@ public class ShortcutBuddyApp extends Application {
             log.error("Error loading application icon", e);
         }
         showSplashScreen();
+        startBackgroundTasks();
     }
 
     @Override
     public void stop() throws Exception {
-        try {
-            if (GlobalScreen.isNativeHookRegistered()) {
-                GlobalScreen.unregisterNativeHook();
-            }
-        } catch (NativeHookException e) {
-            log.error("Error during JNativeHook unregister", e);
-        } catch (IllegalStateException e) {
-            log.warn("JNativeHook Illegal state: {}", e.getMessage(), e);
+        shutdownScheduler();
+        if(keyListener != null) {
+            keyListener.shutdown();
         }
         if(trayManager != null) {
             trayManager.exitTray();
+        }
+        if(shortcutManager != null) {
+            shortcutManager.flushUsageCount();
         }
         super.stop();
     }
@@ -134,40 +141,40 @@ public class ShortcutBuddyApp extends Application {
             @Override
             protected Void call() throws Exception {
                 log.info("Loading application...");
+                applicationComponent = DaggerApplicationComponent.builder()
+                        .fxModule(new FxModule(bundle, appHostServices))
+                        .notificationModule(new NotificationModule())
+                        .build();
+                applicationComponent.getShortcutRepository().touch();
                 updateProgress(0, 100);
                 log.info("Loading settings...");
-                SettingsManager.getInstance().load();
+                applicationComponent.getSettingsManager().load();
                 log.info("Settings loaded");
                 updateProgress(10, 100);
                 log.info("Initializing KeyListener...");
-                keyListener = new KeyListener();
+                keyListener = applicationComponent.getKeyListener();
                 log.info("KeyListener initialized");
                 updateProgress(15, 100);
-                log.info("Initializing foreground app interceptor...");
-                foregroundAppInterceptor = new ForegroundAppInterceptor();
-                log.info("Foreground app interceptor initialized");
-                updateProgress(22, 100);
-                keyEmulator = new KeyEmulator();
-                log.info("Key emulator initialized");
                 updateProgress(30, 100);
                 log.info("Initializing stages...");
                 initPrimaryStage();
                 log.info("Primary stage initialized");
                 updateProgress(50, 100);
                 log.info("Loading shortcuts...");
-                ShortcutManager.getInstance().load();
+                applicationComponent.getShortcutManager().load();
                 log.info("Shortcuts loaded");
                 updateProgress(75, 100);
                 log.info("Starting the tray icon...");
                 startTrayIcon();
+                shortcutManager = applicationComponent.getShortcutManager();
                 log.info("Tray icon started");
                 updateProgress(100, 100);
-                if(SettingsManager.getInstance().isAppVersionUpdated()){
+                if(applicationComponent.getSettingsManager().isAppVersionUpdated()){
                     Platform.runLater(() -> {
                         notificationService.showNotification(bundle.getString(Label.NOTIFICATION_APPUPDATE_TITLE), MessageFormat.format(bundle.getString(Label.NOTIFICATION_APPUPDATE_TEXT), AppInfo.getVersion()), TrayIcon.MessageType.NONE);
                     });
                 }
-                if(SettingsManager.getInstance().isEnabled("checkForUpdates")) {
+                if(applicationComponent.getSettingsManager().isEnabled("checkForUpdates")) {
                     updateCheckerService.checkForUpdatesAsync(false);
                 }
                 return null;
@@ -182,9 +189,9 @@ public class ShortcutBuddyApp extends Application {
     }
 
     private void startTrayIcon(){
-        trayManager = new TrayManager(bundle, appHostServices);
-        notificationService = trayManager;
-        updateCheckerService = new UpdateCheckerService(trayManager, bundle, appHostServices);
+        trayManager = applicationComponent.getTrayManager();
+        notificationService = applicationComponent.getApplicationTrayNotificationService();
+        updateCheckerService = applicationComponent.getUpdateCheckerService();
         trayManager.setUpdateCheckerService(updateCheckerService);
         Platform.runLater(() -> {
             trayManager.setSettingsStage(settingsStage);
@@ -196,7 +203,7 @@ public class ShortcutBuddyApp extends Application {
 
     private void initPrimaryStage() {
         Platform.runLater(() -> {
-            String chosenTheme = SettingsManager.getInstance().getSetting("theme").value();
+            String chosenTheme = applicationComponent.getSettingsManager().getSetting("theme").value();
             if(!StringUtils.isEmpty(chosenTheme)){
                 if(chosenTheme.equals("dark")){
                     Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
@@ -204,18 +211,18 @@ public class ShortcutBuddyApp extends Application {
                     Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
                 }
             }
-            String chosenLanguage = SettingsManager.getInstance().getSetting("language").value();
+            String chosenLanguage = applicationComponent.getSettingsManager().getSetting("language").value();
             Locale locale = Languages.getLocale(chosenLanguage);
             bundle = ResourceBundle.getBundle("i18n/messages", locale);
             primaryStage.setTitle(bundle.getString(Label.APP_TITLE));
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcut-view.fxml"), bundle);
+            fxmlLoader.setControllerFactory(applicationComponent.getControllerFactory());
             try {
-                Scene scene = new Scene(fxmlLoader.load(), Integer.parseInt(SettingsManager.getInstance().getSetting("width").value()), Integer.parseInt(SettingsManager.getInstance().getSetting("height").value()));
+                Scene scene = new Scene(fxmlLoader.load(), Integer.parseInt(applicationComponent.getSettingsManager().getSetting("width").value()), Integer.parseInt(applicationComponent.getSettingsManager().getSetting("height").value()));
                 primaryStage.setScene(scene);
                 subscribeKeyEvents(fxmlLoader);
                 shortcutController = fxmlLoader.getController();
-                shortcutController.setForegroundAppInterceptor(foregroundAppInterceptor);
-                shortcutController.setKeyEmulator(keyEmulator);
+                applicationComponent.inject(shortcutController);
                 shortcutController.setBundle(bundle);
                 shortcutController.setStage(primaryStage);
             } catch (IOException e) {
@@ -229,12 +236,12 @@ public class ShortcutBuddyApp extends Application {
         keyListener.subscribe(NativeKeyEvent.VC_CONTROL, fxmlLoader.getController());
         keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
         int keyCode = NativeKeyEvent.VC_PERIOD;// Default value: .
-        if(KeyOption.SPACE.equals(SettingsManager.getInstance().getSetting("searchKey").value())) {
+        if(KeyOption.SPACE.equals(applicationComponent.getSettingsManager().getSetting("searchKey").value())) {
             keyCode = NativeKeyEvent.VC_SPACE;
-        } else if(KeyOption.MINUS.equals(SettingsManager.getInstance().getSetting("searchKey").value())) {
+        } else if(KeyOption.MINUS.equals(applicationComponent.getSettingsManager().getSetting("searchKey").value())) {
             keyCode = NativeKeyEvent.VC_MINUS;
         }
-        else if(KeyOption.P.equals(SettingsManager.getInstance().getSetting("searchKey").value())) {
+        else if(KeyOption.P.equals(applicationComponent.getSettingsManager().getSetting("searchKey").value())) {
             keyCode = NativeKeyEvent.VC_P;
         }
         keyListener.subscribe(keyCode, fxmlLoader.getController());
@@ -244,6 +251,46 @@ public class ShortcutBuddyApp extends Application {
         keyListener.subscribe(NativeKeyEvent.VC_RIGHT, fxmlLoader.getController());
         keyListener.subscribe(NativeKeyEvent.VC_ENTER, fxmlLoader.getController());
 
+    }
+
+    private void startBackgroundTasks(){
+        ThreadFactory daemonThreadFactory = runnable -> {
+            Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+            thread.setName("ShortcutBuddy-UsageFlushThread");
+            thread.setDaemon(true);
+            return thread;
+        };
+        backgroundScheduler = Executors.newSingleThreadScheduledExecutor(daemonThreadFactory);
+        Runnable flushTask = () -> {
+            log.info("Flushing background tasks");
+            try {
+                if(shortcutManager != null) {
+                    shortcutManager.flushUsageCount();
+                }
+            } catch (Exception e) {
+                log.error("Error flushing usage count", e);
+            }
+        };
+        backgroundScheduler.scheduleAtFixedRate(flushTask, 15, 15, TimeUnit.MINUTES);
+        log.info("Background tasks scheduled every 15 minutes");
+    }
+
+    private void shutdownScheduler() {
+        if (backgroundScheduler != null && !backgroundScheduler.isShutdown()) {
+            backgroundScheduler.shutdown();
+            try {
+                if (!backgroundScheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                    log.warn("The background scheduler did not terminate in the specified time.");
+                    backgroundScheduler.shutdownNow();
+                } else {
+                    log.info("Background scheduler successfully terminated.");
+                }
+            } catch (InterruptedException e) {
+                log.warn("Background scheduler interrupted during shutdown.", e);
+                backgroundScheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     public static void main(String[] args) {

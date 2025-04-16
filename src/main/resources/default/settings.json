@@ -45,5 +45,19 @@
     "order": 7,
     "readonly": false,
     "options": ["y", "n"]
+  },
+  {
+    "key": "cacheSize",
+    "value": "20",
+    "order": 5,
+    "readonly": false,
+    "options": ["10", "20", "30", "50"]
+  },
+  {
+    "key": "preloadAppsNumber",
+    "value": "5",
+    "order": 6,
+    "readonly": false,
+    "options": ["disabled", "5", "10", "20"]
   }
 ]

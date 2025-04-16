@@ -43,4 +43,6 @@ public class Label {
     public static final String NOTIFICATION_APPUPDATE_FETCH_TITLE = "notification.appUpdate.fetch";
     public static final String NOTIFICATION_APPUPDATE_FETCH_UPTODATE = "notification.appUpdate.fetch.upToDate";
     public static final String NOTIFICATION_APPUPDATE_FETCH_LOCALWARNING = "notification.appUpdate.fetch.localWarning";
+    public static final String NOTIFICATION_APPUPDATE_AVAILABLE_TITLE = "notification.appUpdate.available.title";
+    public static final String NOTIFICATION_APPUPDATE_AVAILABLE_TEXT = "notification.appUpdate.available.text";
 }

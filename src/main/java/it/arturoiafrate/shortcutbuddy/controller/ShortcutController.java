@@ -12,6 +12,7 @@ import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyOperation
 import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
+import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -49,13 +50,18 @@ public class ShortcutController implements IKeyObserver {
     @FXML private Label navigationTooltipLabel;
     @FXML private ScrollPane scrollPane;
 
+    @Inject
+    SettingsManager settingsManager;
+    @Inject
+    ShortcutManager shortcutManager;
+    @Inject
+    ForegroundAppInterceptor foregroundAppInterceptor;
+    @Inject
+    KeyEmulator keyEmulator;
+
     private static final int VISIBLE_ROWS = 10;
     private static final double ESTIMATED_ROW_HEIGHT = 28.0;
 
-    @Setter
-    private ForegroundAppInterceptor foregroundAppInterceptor;
-    @Setter
-    private KeyEmulator keyEmulator;
     @Setter
     private Stage stage;
     private boolean blockView = false;
@@ -66,6 +72,10 @@ public class ShortcutController implements IKeyObserver {
     private ResourceBundle bundle;
     private GridNavigator gridNavigator;
     private List<Shortcut> currentDisplayedShortcuts;
+
+    @Inject
+    public ShortcutController() {
+    }
 
     @FXML
     public void initialize(){
@@ -87,22 +97,22 @@ public class ShortcutController implements IKeyObserver {
                 manageCtrlKey(mode);
                 break;
             case NativeKeyEvent.VC_PERIOD:
-                if(KeyOption.DOT.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                if(KeyOption.DOT.equals(settingsManager.getSetting("searchKey").value())){
                     manageSearch(mode);
                 }
                 break;
             case NativeKeyEvent.VC_SPACE:
-                if(KeyOption.SPACE.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                if(KeyOption.SPACE.equals(settingsManager.getSetting("searchKey").value())){
                     manageSearch(mode);
                 }
                 break;
             case NativeKeyEvent.VC_MINUS:
-                if(KeyOption.MINUS.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                if(KeyOption.MINUS.equals(settingsManager.getSetting("searchKey").value())){
                     manageSearch(mode);
                 }
                 break;
             case NativeKeyEvent.VC_P:
-                if(KeyOption.P.equals(SettingsManager.getInstance().getSetting("searchKey").value())){
+                if(KeyOption.P.equals(settingsManager.getSetting("searchKey").value())){
                     manageSearch(mode);
                 }
                 break;
@@ -124,7 +134,7 @@ public class ShortcutController implements IKeyObserver {
         this.bundle = bundle;
         String promptText = MessageFormat.format(
                 bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.TEXTBOX_PROMPT),
-                SettingsManager.getInstance().getSetting("searchKey").value()
+                settingsManager.getSetting("searchKey").value()
         );
         searchBox.setPromptText(promptText);
     }
@@ -133,8 +143,8 @@ public class ShortcutController implements IKeyObserver {
         if(mode == KeyOperation.KEY_PRESS && blockView && stage.isShowing()){
             if (gridNavigator == null || currentDisplayedShortcuts == null) return;
             Optional<Shortcut> selectedShortcut = gridNavigator.getSelectedShortcut(currentDisplayedShortcuts);
-            if(selectedShortcut.isPresent() && selectedShortcut.get().keys() != null && !selectedShortcut.get().keys().isEmpty()){
-                List<String> keysToPress = selectedShortcut.get().keys();
+            if(selectedShortcut.isPresent() && selectedShortcut.get().getKeys() != null && !selectedShortcut.get().getKeys().isEmpty()){
+                List<String> keysToPress = selectedShortcut.get().getKeys();
                 Platform.runLater(() -> {
                     manageEscKey(mode);
                 });
@@ -161,12 +171,12 @@ public class ShortcutController implements IKeyObserver {
                 shortcutsGrid.getChildren().clear();
                 searchBox.clear();
                 String appName = foregroundAppInterceptor.getForegroundAppName();
-                int width = Integer.parseInt(SettingsManager.getInstance().getSetting("width").value());
-                int height = Integer.parseInt(SettingsManager.getInstance().getSetting("height").value());
+                int width = Integer.parseInt(settingsManager.getSetting("width").value());
+                int height = Integer.parseInt(settingsManager.getSetting("height").value());
                 Rectangle2D appBounds = foregroundAppInterceptor.getForegroundAppBounds();
-                List<Shortcut> shortcutList = ShortcutManager.getInstance().getShortcutsForApp(appName);
+                List<Shortcut> shortcutList = shortcutManager.getShortcutsForApp(appName);
                 setShortcuts(shortcutList);
-                String appDescription = ShortcutManager.getInstance().getAppDescription(appName);
+                String appDescription = shortcutManager.getAppDescription(appName);
                 setHeader(appName, appDescription);
                 Platform.runLater(() -> {
                     stage.show();
@@ -216,7 +226,7 @@ public class ShortcutController implements IKeyObserver {
         boolean supportedApp = !StringUtils.isEmpty(appDescription);
         appNameLabel.setText(supportedApp ? appDescription : appName);
         String appImageName = supportedApp ? appName : "openjdk";
-        String imagePath = SettingsManager.getInstance().getAppImagePath(appImageName);
+        String imagePath = settingsManager.getAppImagePath(appImageName);
         File imageFile = new File(imagePath);
         if(!imageFile.exists()){
             appIconImageView.setVisible(false);
@@ -301,7 +311,7 @@ public class ShortcutController implements IKeyObserver {
     }
 
     private Node createShortcutEntryNode(Shortcut shortcut, boolean useSmallerText) {
-        Label descriptionLabel = new Label(shortcut.description());
+        Label descriptionLabel = new Label(shortcut.getDescription());
         descriptionLabel.getStyleClass().addAll(Styles.TEXT, Styles.TEXT_MUTED);
         descriptionLabel.setWrapText(true);
         descriptionLabel.setMaxWidth(Double.MAX_VALUE);
@@ -309,28 +319,17 @@ public class ShortcutController implements IKeyObserver {
         descriptionLabel.setAlignment(Pos.CENTER);
 
         Node shortcutRepresentationNode;
-        if (shortcut.keys() != null && !shortcut.keys().isEmpty()) {
-            HBox keysContainer = new HBox();
-            keysContainer.setSpacing(4);
-            keysContainer.setAlignment(Pos.CENTER);
+        HBox keysContainer = new HBox();
+        keysContainer.setSpacing(4);
+        keysContainer.setAlignment(Pos.CENTER);
 
-            for (String key : shortcut.keys()) {
-                Label keyLabel = new Label(formatKeyName(key));
-                keyLabel.setStyle(InlineCSS.SHORTCUT_BORDER);
-                keyLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
-                keysContainer.getChildren().add(keyLabel);
-            }
-            shortcutRepresentationNode = keysContainer;
-        } else {
-
-            Label shortcutLabel = new Label(shortcut.shortcut());
-            shortcutLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
-            shortcutLabel.setWrapText(true);
-            if (!useSmallerText) {
-                shortcutLabel.getStyleClass().add(Styles.TITLE_4);
-            }
-            shortcutRepresentationNode = shortcutLabel;
+        for (String key : shortcut.getKeys()) {
+            Label keyLabel = new Label(formatKeyName(key));
+            keyLabel.setStyle(InlineCSS.SHORTCUT_BORDER);
+            keyLabel.getStyleClass().addAll(Styles.TEXT_BOLD, Styles.ACCENT);
+            keysContainer.getChildren().add(keyLabel);
         }
+        shortcutRepresentationNode = keysContainer;
 
         VBox contentVBox = new VBox(shortcutRepresentationNode, descriptionLabel);
         contentVBox.setAlignment(Pos.CENTER);
@@ -340,8 +339,8 @@ public class ShortcutController implements IKeyObserver {
         }
 
         Label categoryLabel = null;
-        if (!StringUtils.isEmpty(shortcut.category())) {
-            categoryLabel = new Label(shortcut.category().toLowerCase());
+        if (!StringUtils.isEmpty(shortcut.getCategory())) {
+            categoryLabel = new Label(shortcut.getCategory().toLowerCase());
             categoryLabel.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_ITALIC);
             VBox.setMargin(categoryLabel, new Insets(0, 0, 3, 0));
         }
@@ -364,10 +363,10 @@ public class ShortcutController implements IKeyObserver {
 
     private void updateFilteredShortcuts(List<Shortcut> shortcuts, String filter) {
         List<Shortcut> filteredShortcuts = shortcuts.stream()
-                .filter(shortcut -> shortcut.description().toLowerCase().contains(filter.toLowerCase()))
+                .filter(shortcut -> shortcut.getDescription().toLowerCase().contains(filter.toLowerCase()))
                 .collect(Collectors.toList());
         filteredShortcuts.addAll(shortcuts.stream()
-                .filter(shortcut -> !StringUtils.isEmpty(shortcut.category()) && shortcut.category().toLowerCase().contains(filter.toLowerCase()) && !filteredShortcuts.contains(shortcut))
+                .filter(shortcut -> !StringUtils.isEmpty(shortcut.getCategory()) && shortcut.getCategory().toLowerCase().contains(filter.toLowerCase()) && !filteredShortcuts.contains(shortcut))
                 .toList()
         );
         updateShortcutsGrid(filteredShortcuts);
