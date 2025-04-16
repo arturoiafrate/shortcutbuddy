@@ -16,6 +16,7 @@ import java.util.concurrent.*;
 @Singleton
 public class KeyListener implements NativeKeyListener {
     private final ConcurrentMap<Integer, List<IKeyObserver>> observers = new ConcurrentHashMap<>();
+    private final Set<Integer> currentlyPressedKeys = ConcurrentHashMap.newKeySet();
     private final Map<Integer, Timer> timers = new HashMap<>();
     private final ScheduledExecutorService keyHoldScheduler;
     private final ConcurrentMap<Integer, ScheduledFuture<?>> pendingHoldTasks = new ConcurrentHashMap<>();
@@ -93,8 +94,12 @@ public class KeyListener implements NativeKeyListener {
     @Override
     public void nativeKeyPressed(NativeKeyEvent nativeEvent){
         final int keyCode = nativeEvent.getKeyCode();
+        if (!currentlyPressedKeys.add(keyCode)) {
+            return;
+        }
         final List<IKeyObserver> observersList = observers.get(keyCode);
         if (observersList == null || observersList.isEmpty()) {
+            currentlyPressedKeys.remove(keyCode);
             return;
         }
         cancelHoldTask(keyCode);
@@ -132,6 +137,10 @@ public class KeyListener implements NativeKeyListener {
     @Override
     public void nativeKeyReleased(NativeKeyEvent nativeEvent) {
         final int keyCode = nativeEvent.getKeyCode();
+        boolean wasPressed = currentlyPressedKeys.remove(keyCode);
+        if (!wasPressed) {
+            return;
+        }
         final List<IKeyObserver> observersList = observers.get(keyCode);
 
         if (observersList == null || observersList.isEmpty()) {
