@@ -1,9 +1,7 @@
 package it.arturoiafrate.shortcutbuddy.controller.factory;
 
 import it.arturoiafrate.shortcutbuddy.config.ApplicationComponent;
-import it.arturoiafrate.shortcutbuddy.controller.SettingsController;
-import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
-import it.arturoiafrate.shortcutbuddy.controller.UserShortcutsController;
+import it.arturoiafrate.shortcutbuddy.controller.*;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import javafx.util.Callback;
@@ -26,8 +24,12 @@ public class ControllerFactory implements Callback<Class<?>, Object>{
             return applicationComponent.getSettingsController();
         } else if (controllerClass == ShortcutController.class){
             return applicationComponent.getShortcutController();
-        } else if (controllerClass == UserShortcutsController.class){
-            return applicationComponent.getUserShortcutsController();
+        } else if (controllerClass == ShortcutEditorController.class){
+            return applicationComponent.getShortcutEditorController();
+        } else if (controllerClass == AppShortcutEditorController.class){
+            return applicationComponent.getAppShortcutEditorController();
+        } else if (controllerClass == AppShortcutEditorDialogController.class){
+            return applicationComponent.getAppShortcutEditorDialogController();
         }
         log.error("No controller found for class: {}", controllerClass.getName());
         return null;

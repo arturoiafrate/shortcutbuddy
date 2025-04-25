@@ -6,17 +6,26 @@ import com.sun.jna.ptr.IntByReference;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import javafx.geometry.Rectangle2D;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 
 @Singleton
 public class ForegroundAppInterceptor {
+
+    private static final List<String> UWP_APP_NAMES = List.of(
+            "ApplicationFrameHost.exe",
+            "RuntimeBroker.exe",
+            "svchost.exe"
+    );
 
     @Inject
     public ForegroundAppInterceptor(){
 
     }
 
-    public String getForegroundAppTitle() {
+    public static String getForegroundAppTitle() {
         char[] buffer = new char[1024*2];
         WinDef.HWND hwnd = User32.INSTANCE.GetForegroundWindow();
         User32.INSTANCE.GetWindowText(hwnd, buffer, 1024);
@@ -78,7 +87,15 @@ public class ForegroundAppInterceptor {
         try {
             while (Kernel32.INSTANCE.Process32Next(snapshot, processEntry)) {
                 if (processEntry.th32ProcessID.intValue() == processId) {
-                    return Native.toString(processEntry.szExeFile);
+                    String processName = Native.toString(processEntry.szExeFile);
+                    if (UWP_APP_NAMES.contains(processName)) {
+                        String foregroundAppName = getForegroundAppTitle();
+                        if(!StringUtils.isEmpty(foregroundAppName) && !foregroundAppName.endsWith(".exe")){
+                            foregroundAppName = foregroundAppName + ".exe";
+                        }
+                        return foregroundAppName;
+                    }
+                    return processName;
                 }
             }
         } finally {

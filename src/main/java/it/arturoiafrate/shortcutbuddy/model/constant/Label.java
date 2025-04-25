@@ -5,7 +5,7 @@ public class Label {
     public static final String TEXTBOX_PROMPT = "app.textboxPrompt";
     public static final String LABEL_EXIT_SEARCH = "app.exitSearch";
     public static final String BUTTON_EXIT = "button.exit";
-    public static final String BUTTON_USERSHORTCUTS = "button.userShortcuts";
+    public static final String BUTTON_SHORTCUTEDITOR = "button.shortcutEditor";
     public static final String BUTTON_SETTINGS = "button.settings";
     public static final String BUTTON_ABOUT = "button.about";
     public static final String BUTTON_CHANGELOG = "button.changelog";
@@ -45,4 +45,20 @@ public class Label {
     public static final String NOTIFICATION_APPUPDATE_FETCH_LOCALWARNING = "notification.appUpdate.fetch.localWarning";
     public static final String NOTIFICATION_APPUPDATE_AVAILABLE_TITLE = "notification.appUpdate.available.title";
     public static final String NOTIFICATION_APPUPDATE_AVAILABLE_TEXT = "notification.appUpdate.available.text";
+    public static final String SHORTCUT_EDITOR_WINDOW_TITLE = "appshortcuteditor.window.title";
+    public static final String SHORTCUT_EDITOR_WINDOW_LABEL = "appshortcuteditor.window.label";
+    public static final String SHORTCUT_EDITOR_EDIT_BUTTON_TOOLTIP = "button.edit.shortcut.tooltip";
+    public static final String SHORTCUT_EDITOR_DELETE_BUTTON_TOOLTIP = "button.delete.shortcut.tooltip";
+    public static final String SHORTCUT_EDITOR_ADD_BUTTON_TOOLTIP = "button.add.shortcut.tooltip";
+    public static final String SHORTCUT_EDITOR_SAVE_BUTTON_TOOLTIP = "button.save.shortcut.tooltip";
+    public static final String SHORTCUT_EDITOR_EDITOR_TITLE = "editor.title";
+    public static final String SHORTCUT_EDITOR_ERROR_MESSAGE = "editor.error.message";
+    public static final String SHORTCUT_EDITOR_NO_APP_FOUND_MESSAGE = "editor.noAppFound.message";
+    public static final String SHORTCUT_EDITOR_NEWAPPDIALOG_NEWAPP_TITLE = "dialog.newApp.title";
+    public static final String SHORTCUT_EDITOR_NEWAPPDIALOG_NEWAPP_IMAGEPATH = "dialog.newApp.imagePath";
+    public static final String SHORTCUT_EDITOR_NEWAPPDIALOG_NEWAPP_APPPICKER = "dialog.newApp.appPicker";
+    public static final String SHORTCUT_EDITOR_NEWAPPDIALOG_NEWAPP_DESCRIPTION = "dialog.newApp.appDescription";
+    public static final String SHORTCUT_EDITOR_NEWAPPDIALOG_NEWAPP_IMAGEPICKER = "dialog.newApp.imagePicker";
+    public static final String SHORTCUT_EDITOR_DIALOG_ERROR_TITLE = "dialog.error.title";
+    public static final String SHORTCUT_EDITOR_DIALOG_ERROR_SHORTCUTEMPTY = "dialog.error.shortcut.empty";
 }

@@ -4,9 +4,7 @@ import dagger.Component;
 import it.arturoiafrate.shortcutbuddy.config.module.FxModule;
 import it.arturoiafrate.shortcutbuddy.config.module.NotificationModule;
 import it.arturoiafrate.shortcutbuddy.config.qualifier.ApplicationTrayNotificationService;
-import it.arturoiafrate.shortcutbuddy.controller.SettingsController;
-import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
-import it.arturoiafrate.shortcutbuddy.controller.UserShortcutsController;
+import it.arturoiafrate.shortcutbuddy.controller.*;
 import it.arturoiafrate.shortcutbuddy.controller.factory.ControllerFactory;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
@@ -38,7 +36,9 @@ public interface ApplicationComponent {
     KeyListener getKeyListener();
     SettingsController getSettingsController();
     ShortcutController getShortcutController();
-    UserShortcutsController getUserShortcutsController();
+    ShortcutEditorController getShortcutEditorController();
+    AppShortcutEditorController getAppShortcutEditorController();
+    AppShortcutEditorDialogController getAppShortcutEditorDialogController();
     ControllerFactory getControllerFactory();
 
     @ApplicationTrayNotificationService
@@ -46,4 +46,7 @@ public interface ApplicationComponent {
 
     void inject(ShortcutController shortcutController);
     void inject(SettingsController settingsController);
+    void inject(ShortcutEditorController shortcutEditorController);
+    void inject(AppShortcutEditorController appShortcutEditorController);
+    void inject(AppShortcutEditorDialogController appShortcutEditorDialogController);
 }

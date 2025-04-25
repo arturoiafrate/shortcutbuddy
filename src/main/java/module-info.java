@@ -1,6 +1,5 @@
 module it.arturoiafrate.shortcutbuddy {
     requires javafx.fxml;
-    requires com.github.kwhat.jnativehook;
     requires com.sun.jna;
     requires com.sun.jna.platform;
     requires org.apache.commons.io;
@@ -24,14 +23,17 @@ module it.arturoiafrate.shortcutbuddy {
     requires com.google.errorprone.annotations;
     requires java.compiler;
     requires com.github.benmanes.caffeine;
+    requires com.github.kwhat.jnativehook;
 
 
     opens it.arturoiafrate.shortcutbuddy to javafx.fxml;
+    opens it.arturoiafrate.shortcutbuddy.controller to javafx.fxml;
+    opens it.arturoiafrate.shortcutbuddy.model.bean to javafx.base, com.google.gson;
+    opens db.migration;
+    opens it.arturoiafrate.shortcutbuddy.controller.factory to javafx.fxml;
+
+    exports it.arturoiafrate.shortcutbuddy.controller.factory;
+    exports it.arturoiafrate.shortcutbuddy.model.bean;
     exports it.arturoiafrate.shortcutbuddy;
     exports it.arturoiafrate.shortcutbuddy.controller;
-    opens it.arturoiafrate.shortcutbuddy.controller to javafx.fxml;
-    opens it.arturoiafrate.shortcutbuddy.model.bean to com.google.gson;
-    opens db.migration;
-    exports it.arturoiafrate.shortcutbuddy.controller.factory;
-    opens it.arturoiafrate.shortcutbuddy.controller.factory to javafx.fxml;
 }

@@ -2,8 +2,6 @@ package it.arturoiafrate.shortcutbuddy;
 
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
-import com.github.kwhat.jnativehook.GlobalScreen;
-import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import it.arturoiafrate.shortcutbuddy.config.ApplicationComponent;
 import it.arturoiafrate.shortcutbuddy.config.DaggerApplicationComponent;
@@ -67,28 +65,20 @@ public class ShortcutBuddyApp extends Application {
 
     @Override
     public void init() {
-        log.info("Initializing application - setting Atlantafx theme");
+        log.info("Initializing application - setting default language and theme");
+        this.bundle = ResourceBundle.getBundle("i18n/messages", Languages.getLocale("english"));
         Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
     }
 
     @Override
     public void start(Stage primaryStage) {
-        this.appHostServices = getHostServices();
-        bundle = ResourceBundle.getBundle("i18n/messages", Languages.getLocale("english"));//Default
+        appHostServices = getHostServices();
         this.primaryStage = primaryStage;
         this.primaryStage.initStyle(StageStyle.UNDECORATED);
         this.primaryStage.hide();
         Platform.setImplicitExit(false);
-        if (!System.getProperty("os.name").toLowerCase().contains("windows") || !SystemTray.isSupported()) {
-            log.error("System tray is not supported on this OS");
-            throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
-        }
-        try{
-            javafx.scene.image.Image appIcon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo_128.png")));
-            primaryStage.getIcons().add(appIcon);
-        } catch (Exception e) {
-            log.error("Error loading application icon", e);
-        }
+        checkAppSupport();
+        loadAppIcon();
         showSplashScreen();
         startBackgroundTasks();
     }
@@ -106,6 +96,22 @@ public class ShortcutBuddyApp extends Application {
             shortcutManager.flushUsageCount();
         }
         super.stop();
+    }
+
+    private void checkAppSupport(){
+        if (!System.getProperty("os.name").toLowerCase().contains("windows") || !SystemTray.isSupported()) {
+            log.error("System tray is not supported on this OS");
+            throw new RuntimeException(bundle.getString(Label.ERROR_ICONTRAY));
+        }
+    }
+
+    private void loadAppIcon(){
+        try{
+            javafx.scene.image.Image appIcon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo_128.png")));
+            primaryStage.getIcons().add(appIcon);
+        } catch (Exception e) {
+            log.error("Error loading application icon", e);
+        }
     }
 
     private void showSplashScreen() {
@@ -140,35 +146,30 @@ public class ShortcutBuddyApp extends Application {
         Task<Void> loadTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                log.info("Loading application...");
+                log.info("********[Loading application]********");
+                log.info("*Loading Dagger2 components and setup SQLite database...");
+                updateProgress(0, 100);
                 applicationComponent = DaggerApplicationComponent.builder()
                         .fxModule(new FxModule(bundle, appHostServices))
                         .notificationModule(new NotificationModule())
                         .build();
                 applicationComponent.getShortcutRepository().touch();
-                updateProgress(0, 100);
-                log.info("Loading settings...");
+                log.info("**Loading settings...");
                 applicationComponent.getSettingsManager().load();
-                log.info("Settings loaded");
-                updateProgress(10, 100);
-                log.info("Initializing KeyListener...");
-                keyListener = applicationComponent.getKeyListener();
-                log.info("KeyListener initialized");
                 updateProgress(15, 100);
+                log.info("***Initializing KeyListener...");
+                keyListener = applicationComponent.getKeyListener();
                 updateProgress(30, 100);
-                log.info("Initializing stages...");
                 initPrimaryStage();
-                log.info("Primary stage initialized");
                 updateProgress(50, 100);
-                log.info("Loading shortcuts...");
+                log.info("****Loading shortcuts...");
                 applicationComponent.getShortcutManager().load();
-                log.info("Shortcuts loaded");
                 updateProgress(75, 100);
-                log.info("Starting the tray icon...");
+                log.info("*****Starting the tray icon...");
                 startTrayIcon();
                 shortcutManager = applicationComponent.getShortcutManager();
-                log.info("Tray icon started");
                 updateProgress(100, 100);
+                log.info("******Check for updates...");
                 if(applicationComponent.getSettingsManager().isAppVersionUpdated()){
                     Platform.runLater(() -> {
                         notificationService.showNotification(bundle.getString(Label.NOTIFICATION_APPUPDATE_TITLE), MessageFormat.format(bundle.getString(Label.NOTIFICATION_APPUPDATE_TEXT), AppInfo.getVersion()), TrayIcon.MessageType.NONE);
@@ -177,6 +178,7 @@ public class ShortcutBuddyApp extends Application {
                 if(applicationComponent.getSettingsManager().isEnabled("checkForUpdates")) {
                     updateCheckerService.checkForUpdatesAsync(false);
                 }
+                log.info("********[ShortcutBuddy is live and running!]********");
                 return null;
             }
         };

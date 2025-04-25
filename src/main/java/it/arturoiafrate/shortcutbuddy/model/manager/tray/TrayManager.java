@@ -1,9 +1,9 @@
 package it.arturoiafrate.shortcutbuddy.model.manager.tray;
 
 import it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp;
-import it.arturoiafrate.shortcutbuddy.controller.SettingsController;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
 import it.arturoiafrate.shortcutbuddy.controller.dialog.DialogUtils;
+import it.arturoiafrate.shortcutbuddy.controller.dialog.InlineCSS;
 import it.arturoiafrate.shortcutbuddy.controller.factory.ControllerFactory;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
 import it.arturoiafrate.shortcutbuddy.service.impl.ChangelogService;
@@ -73,18 +73,18 @@ public class TrayManager implements INotificationService {
         MenuItem aboutItem = new MenuItem(bundle.getString(Label.BUTTON_ABOUT));
         MenuItem changelogItem = new MenuItem(bundle.getString(Label.BUTTON_CHANGELOG));
         MenuItem exitItem = new MenuItem(bundle.getString(Label.BUTTON_EXIT));
-        MenuItem userShortcutsItem = new MenuItem(bundle.getString(Label.BUTTON_USERSHORTCUTS));
+        MenuItem shortcutEditor = new MenuItem(bundle.getString(Label.BUTTON_SHORTCUTEDITOR));
 
         settingsItem.addActionListener(e -> Platform.runLater(this::openSettingsWindow));
         aboutItem.addActionListener(e -> Platform.runLater(this::showAboutDialog));
         changelogItem.addActionListener(e -> Platform.runLater(this::showChangelogAction));
         checkForUpdatesItem.addActionListener(e -> Platform.runLater(this::checkForUpdates));
-        userShortcutsItem.addActionListener(e -> Platform.runLater(this::openUserShortcutsWindow));
+        shortcutEditor.addActionListener(e -> Platform.runLater(this::openUserShortcutsWindow));
         exitItem.addActionListener(e -> exitTray());
 
         PopupMenu popup = new PopupMenu();
-        //TODO
-        //popup.add(userShortcutsItem);
+
+        popup.add(shortcutEditor);
         popup.add(settingsItem);
         popup.addSeparator();
         popup.add(checkForUpdatesItem);
@@ -108,9 +108,6 @@ public class TrayManager implements INotificationService {
     private void checkForUpdates() {
         if (updateCheckerService != null) {
             updateCheckerService.checkForUpdatesAsync(true);
-        } else {
-            //TODO show notification
-            log.error("UpdateCheckerService non inizializzato.");
         }
     }
 
@@ -126,7 +123,6 @@ public class TrayManager implements INotificationService {
                 appIcon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo_128.png")));
             } catch (Exception e) {
                 log.error("Impossibile caricare l'icona dell'applicazione /images/logo_128.png", e);
-                // Restituisci null o un'icona di default
             }
         }
         return appIcon;
@@ -195,7 +191,7 @@ public class TrayManager implements INotificationService {
 
         changelogTextArea.setText(contentBuilder.toString());
         changelogTextArea.setPrefRowCount(15);
-        changelogTextArea.setStyle("-fx-font-family: 'monospace';");
+        changelogTextArea.setStyle(InlineCSS.FONT_MONOSPACE);
         DialogUtils.showInfoDialog(title, changelogTextArea, Optional.of(this.getApplicationIcon()), Optional.empty());
     }
 
@@ -236,7 +232,7 @@ public class TrayManager implements INotificationService {
                 userShortcutsStage.toFront();
                 return;
             }
-            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/userShortcuts-view.fxml"), bundle);
+            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcutEditor.fxml"), bundle);
             fxmlLoader.setControllerFactory(controllerFactory);
             userShortcutsStage = new Stage();
             userShortcutsStage.setTitle(bundle.getString(Label.USER_SHORTCUTS_TITLE));

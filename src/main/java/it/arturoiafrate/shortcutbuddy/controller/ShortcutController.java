@@ -36,6 +36,7 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -61,8 +62,6 @@ public class ShortcutController implements IKeyObserver {
 
     private static final int VISIBLE_ROWS = 10;
     private static final double ESTIMATED_ROW_HEIGHT = 28.0;
-
-    @Setter
     private Stage stage;
     private boolean blockView = false;
     @Setter
@@ -72,6 +71,7 @@ public class ShortcutController implements IKeyObserver {
     private ResourceBundle bundle;
     private GridNavigator gridNavigator;
     private List<Shortcut> currentDisplayedShortcuts;
+    private AtomicBoolean ctrlPressed;
 
     @Inject
     public ShortcutController() {
@@ -86,6 +86,7 @@ public class ShortcutController implements IKeyObserver {
         navigationTooltipLabel.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.TEXT_ITALIC, Styles.ACCENT);
         exitSearchModeLabel.getStyleClass().addAll(Styles.TEXT_SMALL, Styles.DANGER);
         gridNavigator = new GridNavigator(shortcutsGrid, scrollPane, InlineCSS.SHORTCUT_BORDER, InlineCSS.SELECTED_SHORTCUT_BORDER);
+        ctrlPressed = new AtomicBoolean();
     }
 
 
@@ -145,9 +146,7 @@ public class ShortcutController implements IKeyObserver {
             Optional<Shortcut> selectedShortcut = gridNavigator.getSelectedShortcut(currentDisplayedShortcuts);
             if(selectedShortcut.isPresent() && selectedShortcut.get().getKeys() != null && !selectedShortcut.get().getKeys().isEmpty()){
                 List<String> keysToPress = selectedShortcut.get().getKeys();
-                Platform.runLater(() -> {
-                    manageEscKey(mode);
-                });
+                Platform.runLater(() -> manageEscKey(mode));
                 keyEmulator.emulateKeysAsync(keysToPress, 500);
             }
         }
@@ -166,7 +165,9 @@ public class ShortcutController implements IKeyObserver {
     }
 
     private void manageCtrlKey(KeyOperation mode) {
-        if(mode == KeyOperation.KEY_HOLD){
+        if(mode == KeyOperation.KEY_PRESS){
+            ctrlPressed.set(true);
+        } else if(mode == KeyOperation.KEY_HOLD){
             if(!stage.isShowing()){
                 shortcutsGrid.getChildren().clear();
                 searchBox.clear();
@@ -188,6 +189,7 @@ public class ShortcutController implements IKeyObserver {
                 });
             }
         } else if(mode == KeyOperation.KEY_RELEASE){
+            ctrlPressed.set(false);
             if(stage.isShowing() && !blockView){
                 Platform.runLater(() -> {
                     stage.hide();
@@ -305,7 +307,7 @@ public class ShortcutController implements IKeyObserver {
         finalContainer.setPadding(new Insets(10));
         finalContainer.setMinHeight(50);
         finalContainer.setAlignment(Pos.CENTER);
-        finalContainer.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
+        finalContainer.setStyle(InlineCSS.SHORTCUT_CONTAINER_BORDER);
         finalContainer.setMaxWidth(Double.MAX_VALUE);
         return finalContainer;
     }
@@ -354,7 +356,7 @@ public class ShortcutController implements IKeyObserver {
         }
         finalContainer.getChildren().add(contentVBox);
 
-        finalContainer.setStyle("-fx-border-color: #cccccc; -fx-border-width: 1px; -fx-border-radius: 3px; -fx-padding: 4px;");
+        finalContainer.setStyle(InlineCSS.SHORTCUT_CONTAINER_BORDER);
         finalContainer.setMaxWidth(Double.MAX_VALUE);
         GridPane.setFillWidth(finalContainer, true);
 
@@ -374,5 +376,14 @@ public class ShortcutController implements IKeyObserver {
         if(filteredShortcuts.isEmpty()){
             shortcutsGrid.add(createEmptyShortcutEntryNode(), 0, 0);
         }
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+        this.stage.focusedProperty().addListener((observable, wasFocused, isFocused) -> {
+            if(!isFocused && !ctrlPressed.get()){
+                Platform.runLater(() -> manageEscKey(KeyOperation.KEY_PRESS));
+            }
+        });
     }
 }

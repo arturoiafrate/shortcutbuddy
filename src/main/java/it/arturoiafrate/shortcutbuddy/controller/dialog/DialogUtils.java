@@ -1,15 +1,12 @@
 package it.arturoiafrate.shortcutbuddy.controller.dialog;
 
 import atlantafx.base.theme.Styles;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.DialogPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -18,6 +15,8 @@ import javafx.stage.Modality;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.kordamp.ikonli.feather.Feather;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -29,14 +28,16 @@ public class DialogUtils {
         Stage dialogStage = createDialogStage(title, content, icon, owner);
         HBox buttonBar = new HBox();
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        Button actionButton = new Button("OK");
-        actionButton.getStyleClass().add(Styles.ACCENT);
+        Button actionButton = new Button();
+        actionButton.setGraphic(new FontIcon(Feather.CHECK_CIRCLE));
+        actionButton.getStyleClass().addAll(Styles.SUCCESS, Styles.FLAT, Styles.BUTTON_ICON);
         actionButton.setOnAction(e -> {
             action.accept(e);
             dialogStage.close();
         });
-        Button closeButton = new Button("Dismiss");
-        closeButton.getStyleClass().add(Styles.DANGER);
+        Button closeButton = new Button();
+        closeButton.setGraphic(new FontIcon(Feather.X_CIRCLE));
+        closeButton.getStyleClass().addAll(Styles.DANGER, Styles.FLAT, Styles.BUTTON_ICON);
         closeButton.setDefaultButton(true);
         closeButton.setCancelButton(true);
         closeButton.setOnAction(e -> dialogStage.close());
@@ -49,7 +50,9 @@ public class DialogUtils {
         Stage dialogStage = createDialogStage(title, content, icon, owner);
         HBox buttonBar = new HBox();
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
-        Button closeButton = new Button("OK");
+        Button closeButton = new Button();
+        closeButton.setGraphic(new FontIcon(Feather.CHECK_CIRCLE));
+        closeButton.getStyleClass().addAll(Styles.ACCENT, Styles.FLAT, Styles.BUTTON_ICON);
         closeButton.setDefaultButton(true);
         closeButton.setCancelButton(true);
         closeButton.setOnAction(e -> dialogStage.close());

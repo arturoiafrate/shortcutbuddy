@@ -42,5 +42,18 @@
       "[NEW] Added support for MS Teams, MS Word, MS Excel, MS PowerPoint, MS Outlook, Firefox.",
       "[ENCHANCEMENT] Replaced timer with a scheduled executor service to improve performance."
     ]
+  },
+  {
+    "version": "0.8.0",
+    "date": "2025-04-25",
+    "notes": [
+      "[FIX] Shortcuts are now hidden when focus lost.",
+      "[FIX] Fixed KEY_HOLD detection failure on systems with key repeat",
+      "[ENCHANCEMENT] KEY_HOLD detection timer now resets on any subsequent key press.",
+      "[NEW] You can now add support for any app from the app interface. Check 'Shortcut Editor' section.",
+      "[NEW] You can now add/modify/delete shortcuts for an existing app from the app interface. Check 'Shortcut Editor' section.",
+      "[NEW] Added support for (some) UWP apps.",
+      "[NEW] Added support for Whatsapp Desktop (UWP), Notepad."
+    ]
   }
 ]

@@ -29,6 +29,11 @@ public class ShortcutRepository {
     private static final String FIND_SHORTCUTS_SQL = "SELECT shortcut_id, keys_storage, description, category FROM shortcuts WHERE app_id = ?";
     private static final String FIND_MOST_USED_APPS_SQL = "SELECT app_id, app_name, app_description, usage_count, user_defined FROM applications ORDER BY usage_count DESC LIMIT ?";
     private static final String UPDATE_APP_USAGE_SQL = "UPDATE applications SET usage_count = usage_count + ? WHERE app_name = ?";
+    private static final String GET_ALL_APPS_SQL = "SELECT app_id, app_name, app_description, usage_count, user_defined FROM applications";
+    private static final String INSERT_SHORTCUT_SQL = "INSERT INTO shortcuts (app_id, keys_storage, description, category, user_defined) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE_SHORTCUT_SQL = "UPDATE shortcuts SET keys_storage = ?, description = ?, category = ? WHERE shortcuts.shortcut_id = ?";
+    private static final String DELETE_SHORTCUT_SQL = "DELETE FROM shortcuts WHERE shortcuts.shortcut_id = ?";
+    private static final String INSERT_APP_SQL = "INSERT INTO applications (app_name, app_description, user_defined) VALUES (?, ?, ?)";
 
     private final Gson gson;
     private final Type stringListType;
@@ -43,6 +48,26 @@ public class ShortcutRepository {
 
     public void touch() {
         log.info("ShortcutRepository is ready to use.");
+    }
+
+    public List<AppShortcuts> getAllAppList() {
+        List<AppShortcuts> appShortcutsList = new ArrayList<>();
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(GET_ALL_APPS_SQL);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                long appId = rs.getLong("app_id");
+                String appName = rs.getString("app_name");
+                String appDescription = rs.getString("app_description");
+                long usageCount = rs.getLong("usage_count");
+                boolean userDefined = rs.getBoolean("user_defined");
+                appShortcutsList.add(new AppShortcuts(appId, appName, appDescription, null, usageCount, userDefined));
+            }
+        } catch (SQLException e) {
+            log.error("Database error fetching all applications", e);
+        }
+        return appShortcutsList;
     }
 
     public List<AppShortcuts> findMostUsedApps(int limit) {
@@ -166,6 +191,75 @@ public class ShortcutRepository {
         } catch (JsonSyntaxException e) {
             log.error("Error deserialize keys JSON: {}", jsonKeys, e);
             return new ArrayList<>();
+        }
+    }
+
+    private String serializeKeys(List<String> keys) {
+        if (keys == null || keys.isEmpty()) {
+            return null;
+        }
+        try {
+            return gson.toJson(keys, this.stringListType);
+        } catch (JsonSyntaxException e) {
+            log.error("Error serializing keys: {}", keys, e);
+            return null;
+        }
+    }
+
+    public boolean insertApp(AppShortcuts app) {
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(INSERT_APP_SQL)) {
+
+            pstmt.setString(1, app.getAppName());
+            pstmt.setString(2, app.getAppDescription());
+            pstmt.setBoolean(3, true);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            log.error("Database error inserting application", e);
+            return false;
+        }
+    }
+
+    public boolean insertShortcut(Shortcut shortcut) {
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(INSERT_SHORTCUT_SQL)) {
+
+            pstmt.setLong(1, shortcut.getAppId());
+            pstmt.setString(2, serializeKeys(shortcut.getKeys()));
+            pstmt.setString(3, shortcut.getDescription());
+            pstmt.setString(4, shortcut.getCategory());
+            pstmt.setBoolean(5, true);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            log.error("Database error inserting shortcut", e);
+            return false;
+        }
+    }
+
+    public boolean updateShortcut(Shortcut shortcut) {
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(UPDATE_SHORTCUT_SQL)) {
+
+            pstmt.setString(1, serializeKeys(shortcut.getKeys()));
+            pstmt.setString(2, shortcut.getDescription());
+            pstmt.setString(3, shortcut.getCategory());
+            pstmt.setLong(4, shortcut.getId());
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            log.error("Database error updating shortcut", e);
+            return false;
+        }
+    }
+
+    public boolean deleteShortcut(long shortcutId) {
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(DELETE_SHORTCUT_SQL)) {
+
+            pstmt.setLong(1, shortcutId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            log.error("Database error deleting shortcut", e);
+            return false;
         }
     }
 }

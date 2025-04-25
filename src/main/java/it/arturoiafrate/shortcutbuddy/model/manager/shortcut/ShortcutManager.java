@@ -2,9 +2,9 @@ package it.arturoiafrate.shortcutbuddy.model.manager.shortcut;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.AppShortcuts;
 import it.arturoiafrate.shortcutbuddy.model.bean.Shortcut;
+import it.arturoiafrate.shortcutbuddy.model.bean.ShortcutEditLists;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.ShortcutRepository;
@@ -14,6 +14,10 @@ import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -48,6 +52,10 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         }
     }
 
+    public List<AppShortcuts> getAllApps() {
+        return shortcutRepository.getAllAppList();
+    }
+
 
     public List<Shortcut> getShortcutsForApp(String appName) {
         var singleAppShortcut = Optional.ofNullable(appShortcutsCache.get(appName.toLowerCase(), this::getAppShortcutsFromRepository));
@@ -74,6 +82,62 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
             return;
         }
         shortcutRepository.batchIncrementUsageCount(countsToFlush);
+    }
+
+    public boolean addAppShortcuts(AppShortcuts appShortcuts) {
+        if (StringUtils.isBlank(appShortcuts.getAppName())) {
+            return false;
+        }
+        return shortcutRepository.insertApp(appShortcuts);
+    }
+
+    public void copyAppImage(String imageFilePath, String appName){
+        if (StringUtils.isBlank(imageFilePath) || StringUtils.isBlank(appName)) {
+            return;
+        }
+        try {
+            Path sourcePath = Paths.get(imageFilePath);
+            if (!Files.exists(sourcePath) || !Files.isReadable(sourcePath)) {
+                log.error("Il file immagine sorgente non esiste o non è leggibile: {}", sourcePath);
+                return;
+            }
+            String userHome = System.getProperty("user.home");
+            Path destinationDir = Paths.get(userHome, ".shortcutbuddy", "appimages");
+            Files.createDirectories(destinationDir);
+            String destinationFileName = appName + ".png";
+            Path destinationPath = destinationDir.resolve(destinationFileName);
+            Files.copy(sourcePath, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+
+        } catch (Exception e) {
+            log.error("Errore imprevisto durante la copia dell'immagine '{}'", imageFilePath, e);
+        }
+    }
+
+    public boolean batchModifyShortcuts(String appName, ShortcutEditLists shortcutEditLists) {
+        boolean added = false;
+        boolean updated = false;
+        boolean removed = false;
+        if(shortcutEditLists.getAdded() != null) {
+            for (Shortcut shortcut : shortcutEditLists.getAdded()) {
+                added = shortcutRepository.insertShortcut(shortcut);
+            }
+        }
+        if(shortcutEditLists.getUpdated() != null) {
+            for (Shortcut shortcut : shortcutEditLists.getUpdated()) {
+                updated = shortcutRepository.updateShortcut(shortcut);
+            }
+        }
+        if(shortcutEditLists.getRemoved() != null) {
+            for (Shortcut shortcut : shortcutEditLists.getRemoved()) {
+                removed = shortcutRepository.deleteShortcut(shortcut.getId());
+            }
+        }
+        if (appShortcutsCache.asMap().containsKey(appName.toLowerCase())) {
+            appShortcutsCache.invalidate(appName.toLowerCase());
+            appShortcutsCache.put(appName.toLowerCase(), shortcutRepository.findAppShortcutsByName(appName.toLowerCase()));
+        }
+
+        return added || updated || removed;
     }
 
 }
