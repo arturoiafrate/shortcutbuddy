@@ -1,6 +1,7 @@
 package it.arturoiafrate.shortcutbuddy.controller;
 
 import atlantafx.base.theme.Styles;
+import it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp;
 import it.arturoiafrate.shortcutbuddy.config.ApplicationComponent;
 import it.arturoiafrate.shortcutbuddy.controller.dialog.InlineCSS;
 import it.arturoiafrate.shortcutbuddy.controller.dialog.NewAppDialog;
@@ -142,6 +143,10 @@ public class ShortcutEditorController {
             Scene detailScene = new Scene(root);
             detailStage.setScene(detailScene);
             detailController.initData(appInfo, appIcon);
+
+            // Register the detail stage with the application
+            ShortcutBuddyApp.getInstance().registerStage(detailStage);
+
             currentStage.setOpacity(0.5);
             detailStage.showAndWait();
             currentStage.setOpacity(1);
@@ -149,6 +154,13 @@ public class ShortcutEditorController {
         } catch (Exception e) {
             log.error("Error loading AppShortcutEditor-view.fxml", e);
             Alert errorAlert = new Alert(Alert.AlertType.ERROR, resources.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.SHORTCUT_EDITOR_ERROR_MESSAGE));
+
+            // Register the alert's stage with the application
+            errorAlert.setOnShown(event -> {
+                Stage alertStage = (Stage) errorAlert.getDialogPane().getScene().getWindow();
+                ShortcutBuddyApp.getInstance().registerStage(alertStage);
+            });
+
             errorAlert.showAndWait();
         }
     }

@@ -140,4 +140,46 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         return added || updated || removed;
     }
 
+    public boolean restoreDefaultShortcut(String appName, long shortcutId) {
+        boolean restored = shortcutRepository.restoreDefaultShortcut(shortcutId);
+        if (restored && appShortcutsCache.asMap().containsKey(appName.toLowerCase())) {
+            appShortcutsCache.invalidate(appName.toLowerCase());
+            appShortcutsCache.put(appName.toLowerCase(), shortcutRepository.findAppShortcutsByName(appName.toLowerCase()));
+        }
+        return restored;
+    }
+
+    /**
+     * Updates the starred status of a shortcut.
+     * 
+     * @param shortcutId The ID of the shortcut to update
+     * @param starred The new starred status
+     * @return True if the update was successful, false otherwise
+     */
+    public boolean updateShortcutStarred(long shortcutId, boolean starred) {
+        log.debug("Updating starred status to {} for shortcut ID: {}", starred, shortcutId);
+        boolean updated = shortcutRepository.updateShortcutStarred(shortcutId, starred);
+
+        // Find which app this shortcut belongs to and invalidate its cache
+        if (updated) {
+            for (Map.Entry<String, AppShortcuts> entry : appShortcutsCache.asMap().entrySet()) {
+                String appName = entry.getKey();
+                AppShortcuts appShortcuts = entry.getValue();
+
+                // Check if this app contains the shortcut
+                boolean containsShortcut = appShortcuts.getShortcuts().stream()
+                        .anyMatch(shortcut -> shortcut.getId() == shortcutId);
+
+                if (containsShortcut) {
+                    log.debug("Invalidating cache for app: {} after updating shortcut starred status", appName);
+                    appShortcutsCache.invalidate(appName);
+                    appShortcutsCache.put(appName, shortcutRepository.findAppShortcutsByName(appName));
+                    break;
+                }
+            }
+        }
+
+        return updated;
+    }
+
 }

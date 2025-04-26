@@ -104,9 +104,9 @@ public abstract class AbstractManager {
     }
 
     private void copyImages() throws IOException, URISyntaxException {
-        String resourceDir = "/images/apps"; // La cartella nelle risorse da copiare
+        String resourceDir = "/images/apps";
         String userHome = System.getProperty("user.home");
-        Path destinationDir = Paths.get(userHome, ".shortcutbuddy", "appimages"); // Cartella di destinazione
+        Path destinationDir = Paths.get(userHome, ".shortcutbuddy", "appimages");
 
         log.info("Starting files copy from ({}) to {}", resourceDir, destinationDir);
         if (!Files.exists(destinationDir)) {
@@ -123,8 +123,7 @@ public abstract class AbstractManager {
         log.debug("URI resource: {}", uri);
 
         Path sourcePathBase = null;
-        FileSystem jarFileSystem = null; // Teniamo traccia del FileSystem del JAR se lo apriamo
-
+        FileSystem jarFileSystem = null;
         try {
             if ("jar".equals(uri.getScheme())) {
                 try {
@@ -132,9 +131,9 @@ public abstract class AbstractManager {
                 } catch (FileSystemNotFoundException e) {
                     jarFileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
                 }
-                sourcePathBase = jarFileSystem.getPath(resourceDir); // Ottiene il Path INTERNO al JAR
+                sourcePathBase = jarFileSystem.getPath(resourceDir);
             } else {
-                sourcePathBase = Paths.get(uri); // Ottiene il Path normale dal file system
+                sourcePathBase = Paths.get(uri);
             }
             if (sourcePathBase == null || !Files.exists(sourcePathBase)) {
                 log.error("Cannot resolve or find resource path: {}", resourceDir);

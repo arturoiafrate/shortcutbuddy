@@ -108,6 +108,10 @@ public class GridNavigator {
         return currentRow != -1 && currentCol != -1;
     }
 
+    public boolean isInFirstRow() {
+        return currentRow == 0;
+    }
+
 
     private void validateAndUpdateSelection(int newRow, int newCol) {
         if (newRow >= 0 && newCol >= 0 && newCol < numColumns) {

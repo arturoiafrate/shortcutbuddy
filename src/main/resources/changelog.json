@@ -55,5 +55,15 @@
       "[NEW] Added support for (some) UWP apps.",
       "[NEW] Added support for Whatsapp Desktop (UWP), Notepad."
     ]
+  },
+  {
+    "version": "0.9.0",
+    "date": "2025-04-26",
+    "notes": [
+      "[FIX] Closing the app when other windows are open now closes all windows.",
+      "[NEW] Added ability to restore default shortcut keys. Look for the restore button in the Shortcut Editor.",
+      "[NEW] Added favorite shortcuts system. You can now mark any shortcut as favorite and it will be shown in the favorites section (max 5). In addition, for each one, you can press [1] to [5] to execute it.",
+      "[ENHANCEMENT] Logging level is now set to ERROR by default, log files are now less verbose."
+    ]
   }
 ]

@@ -1,7 +1,7 @@
 package it.arturoiafrate.shortcutbuddy.model.interceptor.foreground;
 
 import com.sun.jna.Native;
-import com.sun.jna.platform.win32.WinNT.HRESULT; // Importa HRESULT
+import com.sun.jna.platform.win32.WinNT.HRESULT;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.StdCallLibrary;

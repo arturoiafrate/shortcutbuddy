@@ -4,7 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.ReleaseInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import lombok.extern.slf4j.Slf4j; // Usa il tuo logger
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

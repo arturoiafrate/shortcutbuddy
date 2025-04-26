@@ -29,16 +29,18 @@
     <Label fx:id="exitSearchModeLabel" visible="false" />
     <TextField fx:id="searchBox" VBox.vgrow="NEVER" />
     <Label fx:id="navigationTooltipLabel" text="%app.navigationTooltip" />
-    <Label fx:id="messageLabel" visible="false" />
-    <ScrollPane fx:id="scrollPane" fitToWidth="true" VBox.vgrow="ALWAYS">
-        <content>
-            <GridPane fx:id="shortcutsGrid" hgap="10.0" vgap="5.0">
-                <columnConstraints>
-                    <ColumnConstraints percentWidth="50.0" />
-                    <ColumnConstraints percentWidth="50.0" />
-                </columnConstraints>
-            </GridPane>
-        </content>
-    </ScrollPane>
+    <VBox fx:id="shortcutsBox" VBox.vgrow="ALWAYS" >
+        <Label fx:id="messageLabel" visible="false" maxWidth="Infinity" alignment="CENTER" />
+        <ScrollPane fx:id="scrollPane" fitToWidth="true" VBox.vgrow="ALWAYS">
+            <content>
+                <GridPane fx:id="shortcutsGrid" hgap="10.0" vgap="5.0">
+                    <columnConstraints>
+                        <ColumnConstraints percentWidth="50.0" />
+                        <ColumnConstraints percentWidth="50.0" />
+                    </columnConstraints>
+                </GridPane>
+            </content>
+        </ScrollPane>
+    </VBox>
 
 </VBox>

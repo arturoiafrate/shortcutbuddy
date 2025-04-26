@@ -34,7 +34,7 @@ public class AppInfo {
 
     private static String getProperty(String key, String defaultValue) {
         if (!loaded) {
-            loadProperties(); // Dovrebbe essere già stato chiamato dal blocco static, ma per sicurezza
+            loadProperties();
         }
         return properties.getProperty(key, defaultValue);
     }

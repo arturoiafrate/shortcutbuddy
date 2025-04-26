@@ -2,6 +2,7 @@ package it.arturoiafrate.shortcutbuddy.controller.dialog;
 
 import atlantafx.base.theme.Styles;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
+import it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp;
 import it.arturoiafrate.shortcutbuddy.model.bean.AppShortcuts;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.IKeyObserver;
@@ -67,6 +68,12 @@ public class NewAppDialog extends Dialog<AppShortcuts> implements IKeyObserver {
         getDialogPane().setMinHeight(300);
         getDialogPane().setPrefWidth(450);
         getDialogPane().setPrefHeight(300);
+
+        // Register the dialog's stage with the application
+        ShortcutBuddyApp app = ShortcutBuddyApp.getInstance();
+        if (app != null) {
+            app.registerStage(this.stage);
+        }
     }
 
     private VBox createMainLayout() {

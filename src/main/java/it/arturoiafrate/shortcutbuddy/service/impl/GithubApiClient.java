@@ -1,4 +1,4 @@
-package it.arturoiafrate.shortcutbuddy.service.impl; // O tuo package
+package it.arturoiafrate.shortcutbuddy.service.impl;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -8,7 +8,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.concurrent.CompletableFuture; // Per chiamate asincrone
+import java.util.concurrent.CompletableFuture;
 
 @Slf4j
 @Singleton

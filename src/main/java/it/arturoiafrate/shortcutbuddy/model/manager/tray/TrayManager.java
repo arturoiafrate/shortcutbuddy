@@ -245,6 +245,10 @@ public class TrayManager implements INotificationService {
                 userShortcutsStage = null;
             });
             shortcutController.setUserShortcutsShown(true);
+
+            // Register the window with the application
+            ShortcutBuddyApp.getInstance().registerStage(userShortcutsStage);
+
             userShortcutsStage.sizeToScene();
             userShortcutsStage.showAndWait();
         } catch (Exception e) {
@@ -273,6 +277,10 @@ public class TrayManager implements INotificationService {
                 settingsStage = null;
             });
             shortcutController.setSettingsShown(true);
+
+            // Register the window with the application
+            ShortcutBuddyApp.getInstance().registerStage(settingsStage);
+
             settingsStage.sizeToScene();
             settingsStage.showAndWait();
         } catch (Exception e) {

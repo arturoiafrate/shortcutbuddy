@@ -2,6 +2,7 @@ package it.arturoiafrate.shortcutbuddy.controller;
 
 import atlantafx.base.controls.ToggleSwitch;
 import atlantafx.base.theme.Styles;
+import it.arturoiafrate.shortcutbuddy.ShortcutBuddyApp;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
@@ -24,7 +25,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 public class SettingsController {
 
     @FXML private ResourceBundle resources;
-    @FXML private GridPane settingsGrid; // Inietta la GridPane
+    @FXML private GridPane settingsGrid;
 
     private final Map<String, Control> settingFields = new HashMap<>();
     private List<Setting> currentSettings;
@@ -125,6 +126,12 @@ public class SettingsController {
         alert.setContentText(message);
         Stage owner = (Stage) settingsGrid.getScene().getWindow();
         alert.initOwner(owner);
+
+        // Register the alert's stage with the application
+        alert.setOnShown(e -> {
+            Stage alertStage = (Stage) alert.getDialogPane().getScene().getWindow();
+            ShortcutBuddyApp.getInstance().registerStage(alertStage);
+        });
 
         alert.showAndWait();
 
