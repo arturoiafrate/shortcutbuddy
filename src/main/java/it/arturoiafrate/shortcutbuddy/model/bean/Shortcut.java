@@ -17,6 +17,7 @@ public class Shortcut {
     private String category;
     private List<String> defaultKeys;
     private boolean starred;
+    private int usageCount;
 
     public Shortcut(long id, long appId, String description, List<String> keys, String category){
         this.id = id;
@@ -25,6 +26,7 @@ public class Shortcut {
         this.keys = keys;
         this.category = category;
         this.starred = false;
+        this.usageCount = 0;
     }
 
     public Shortcut(long id, long appId, String description, List<String> keys, String category, List<String> defaultKeys){
@@ -35,6 +37,7 @@ public class Shortcut {
         this.category = category;
         this.defaultKeys = defaultKeys;
         this.starred = false;
+        this.usageCount = 0;
     }
 
     public Shortcut(long id, long appId, String description, List<String> keys, String category, List<String> defaultKeys, boolean starred){
@@ -45,5 +48,6 @@ public class Shortcut {
         this.category = category;
         this.defaultKeys = defaultKeys;
         this.starred = starred;
+        this.usageCount = 0;
     }
 }

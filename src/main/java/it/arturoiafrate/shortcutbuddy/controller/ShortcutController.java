@@ -197,10 +197,20 @@ public class ShortcutController implements IKeyObserver {
             }
 
             if(selectedShortcut.isPresent() && selectedShortcut.get().getKeys() != null && !selectedShortcut.get().getKeys().isEmpty()){
-                List<String> keysToPress = selectedShortcut.get().getKeys();
-                Platform.runLater(() -> manageEscKey(mode));
-                keyEmulator.emulateKeysAsync(keysToPress, 500);
+                Shortcut shortcut = selectedShortcut.get();
+                List<String> keysToPress = shortcut.getKeys();
+                emulateShortcutPress(shortcut.getId(), keysToPress);
             }
+        }
+    }
+
+    private void emulateShortcutPress(long shortcutId, List<String> keysToPress) {
+        if (keysToPress != null && !keysToPress.isEmpty()) {
+            // Increment the usage count for this shortcut
+            shortcutManager.incrementShortcutUsageCount(shortcutId);
+
+            Platform.runLater(() -> manageEscKey(KeyOperation.KEY_PRESS));
+            keyEmulator.emulateKeysAsync(keysToPress, 500);
         }
     }
 
@@ -752,8 +762,7 @@ public class ShortcutController implements IKeyObserver {
 
             if (shortcut.getKeys() != null && !shortcut.getKeys().isEmpty()) {
                 List<String> keysToPress = shortcut.getKeys();
-                Platform.runLater(() -> manageEscKey(KeyOperation.KEY_PRESS));
-                keyEmulator.emulateKeysAsync(keysToPress, 500);
+                emulateShortcutPress(shortcut.getId(), keysToPress);
             }
         }
     }

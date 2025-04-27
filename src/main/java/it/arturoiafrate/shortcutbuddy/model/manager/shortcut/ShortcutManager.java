@@ -31,6 +31,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
     private final ShortcutRepository shortcutRepository;
     private final Cache<String, AppShortcuts> appShortcutsCache;
     private final ConcurrentMap<String, AtomicInteger> appUsageIncrements;
+    private final ConcurrentMap<Long, AtomicInteger> shortcutUsageIncrements;
 
     @Inject
     public ShortcutManager(SettingsManager settingsManager, ShortcutRepository shortcutRepository) {
@@ -38,6 +39,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         this.shortcutRepository = shortcutRepository;
         int cacheSize = Integer.parseInt(this.settingsManager.getSetting("cacheSize").value());
         this.appUsageIncrements = new ConcurrentHashMap<>();
+        this.shortcutUsageIncrements = new ConcurrentHashMap<>();
         this.appShortcutsCache = Caffeine.newBuilder().maximumSize(cacheSize).recordStats().build();
         log.info("Cache size: {}", cacheSize);
     }
@@ -75,13 +77,39 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
     }
 
     public void flushUsageCount(){
-        Map<String, AtomicInteger> countsToFlush = new HashMap<>(appUsageIncrements);
+        Map<String, AtomicInteger> appCountsToFlush = new HashMap<>(appUsageIncrements);
         appUsageIncrements.clear();
+
+        if (!appCountsToFlush.isEmpty()) {
+            shortcutRepository.batchIncrementUsageCount(appCountsToFlush);
+        }
+
+        // Also flush shortcut usage counts
+        flushShortcutUsageCount();
+    }
+
+    /**
+     * Increments the usage count for a shortcut.
+     * 
+     * @param shortcutId The ID of the shortcut
+     */
+    public void incrementShortcutUsageCount(long shortcutId) {
+        log.debug("Incrementing usage count for shortcut ID: {}", shortcutId);
+        shortcutUsageIncrements.computeIfAbsent(shortcutId, k -> new AtomicInteger(0)).incrementAndGet();
+    }
+
+    /**
+     * Flushes the accumulated shortcut usage counts to the database.
+     */
+    public void flushShortcutUsageCount() {
+        Map<Long, AtomicInteger> countsToFlush = new HashMap<>(shortcutUsageIncrements);
+        shortcutUsageIncrements.clear();
 
         if (countsToFlush.isEmpty()) {
             return;
         }
-        shortcutRepository.batchIncrementUsageCount(countsToFlush);
+        log.debug("Flushing usage counts for {} shortcuts", countsToFlush.size());
+        shortcutRepository.batchIncrementShortcutUsageCount(countsToFlush);
     }
 
     public boolean addAppShortcuts(AppShortcuts appShortcuts) {

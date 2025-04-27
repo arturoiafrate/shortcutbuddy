@@ -30,11 +30,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ShortcutRepository {
 
     private static final String FIND_APP_SQL = "SELECT app_id, app_description, usage_count, user_defined FROM applications WHERE app_name = ?";
-    private static final String FIND_SHORTCUTS_SQL = "SELECT shortcut_id, keys_storage, description, category, default_value, starred FROM shortcuts WHERE app_id = ?";
+    private static final String FIND_SHORTCUTS_SQL = "SELECT shortcut_id, keys_storage, description, category, default_value, starred, usage_count FROM shortcuts WHERE app_id = ? ORDER BY usage_count DESC";
     private static final String FIND_MOST_USED_APPS_SQL = "SELECT app_id, app_name, app_description, usage_count, user_defined FROM applications ORDER BY usage_count DESC LIMIT ?";
     private static final String UPDATE_APP_USAGE_SQL = "UPDATE applications SET usage_count = usage_count + ? WHERE app_name = ?";
+    private static final String UPDATE_SHORTCUT_USAGE_SQL = "UPDATE shortcuts SET usage_count = usage_count + ? WHERE shortcut_id = ?";
     private static final String GET_ALL_APPS_SQL = "SELECT app_id, app_name, app_description, usage_count, user_defined FROM applications";
-    private static final String INSERT_SHORTCUT_SQL = "INSERT INTO shortcuts (app_id, keys_storage, description, category, user_defined, default_value, starred) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String INSERT_SHORTCUT_SQL = "INSERT INTO shortcuts (app_id, keys_storage, description, category, user_defined, default_value, starred, usage_count) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_SHORTCUT_SQL = "UPDATE shortcuts SET keys_storage = ?, description = ?, category = ? WHERE shortcuts.shortcut_id = ?";
     private static final String RESTORE_DEFAULT_SHORTCUT_SQL = "UPDATE shortcuts SET keys_storage = default_value WHERE shortcuts.shortcut_id = ?";
     private static final String DELETE_SHORTCUT_SQL = "DELETE FROM shortcuts WHERE shortcuts.shortcut_id = ?";
@@ -228,6 +229,39 @@ public class ShortcutRepository {
     }
 
     /**
+     * Batch updates the usage count for multiple shortcuts.
+     * 
+     * @param increments A map of shortcut IDs to their usage count increments
+     * @return True if the update was successful, false otherwise
+     */
+    public boolean batchIncrementShortcutUsageCount(Map<Long, AtomicInteger> increments){
+        log.debug("Batch incrementing usage count for {} shortcuts", increments.size());
+
+        try (Connection conn = databaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(UPDATE_SHORTCUT_USAGE_SQL)) {
+            conn.setAutoCommit(false);
+
+            for (Map.Entry<Long, AtomicInteger> entry : increments.entrySet()) {
+                Long shortcutId = entry.getKey();
+                int increment = entry.getValue().get();
+
+                log.debug("Incrementing usage count for shortcut ID {} by {}", shortcutId, increment);
+                pstmt.setInt(1, increment);
+                pstmt.setLong(2, shortcutId);
+                pstmt.addBatch();
+            }
+
+            int[] updateCounts = pstmt.executeBatch();
+            conn.commit();
+            log.debug("Successfully updated usage counts for {} shortcuts", updateCounts.length);
+            return true;
+        } catch (SQLException e) {
+            log.error("Database error updating shortcut usage count", e);
+            return false;
+        }
+    }
+
+    /**
      * Maps a database row to a Shortcut object.
      * 
      * @param rs The ResultSet containing the shortcut data
@@ -238,7 +272,8 @@ public class ShortcutRepository {
     private Shortcut mapRowToShortcut(ResultSet rs, long appId) throws SQLException {
         String defaultValue = rs.getString("default_value");
         boolean starred = rs.getBoolean("starred");
-        return new Shortcut(
+        int usageCount = rs.getInt("usage_count");
+        Shortcut shortcut = new Shortcut(
                 rs.getLong("shortcut_id"),
                 appId,
                 rs.getString("description"),
@@ -247,6 +282,8 @@ public class ShortcutRepository {
                 deserializeKeys(defaultValue),
                 starred
         );
+        shortcut.setUsageCount(usageCount);
+        return shortcut;
     }
 
     /**
@@ -336,6 +373,7 @@ public class ShortcutRepository {
             pstmt.setBoolean(5, true);
             pstmt.setString(6, keysJson);
             pstmt.setBoolean(7, shortcut.isStarred());
+            pstmt.setInt(8, 0);
 
             boolean result = pstmt.executeUpdate() > 0;
             if (result) {
