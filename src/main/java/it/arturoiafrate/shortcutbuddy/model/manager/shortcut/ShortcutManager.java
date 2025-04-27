@@ -37,7 +37,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
     public ShortcutManager(SettingsManager settingsManager, ShortcutRepository shortcutRepository) {
         this.settingsManager = settingsManager;
         this.shortcutRepository = shortcutRepository;
-        int cacheSize = Integer.parseInt(this.settingsManager.getSetting("cacheSize").value());
+        int cacheSize = Integer.parseInt(this.settingsManager.getSetting("cacheSize").getValue());
         this.appUsageIncrements = new ConcurrentHashMap<>();
         this.shortcutUsageIncrements = new ConcurrentHashMap<>();
         this.appShortcutsCache = Caffeine.newBuilder().maximumSize(cacheSize).recordStats().build();
@@ -46,7 +46,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
 
     @Override
     public void load() {
-        String preloadAppsSettings = this.settingsManager.getSetting("preloadAppsNumber").value();
+        String preloadAppsSettings = this.settingsManager.getSetting("preloadAppsNumber").getValue();
         if(!"disabled".equals(preloadAppsSettings)){
             var mostUsedApps = shortcutRepository.findMostUsedApps(Integer.parseInt(preloadAppsSettings));
             appShortcutsCache.putAll(mostUsedApps.stream()

@@ -40,27 +40,27 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
             settings = new ArrayList<>();
         }
         Optional<Setting> appVersionSetting = settings.stream()
-                .filter(setting -> setting.key().equals("appVersion"))
+                .filter(setting -> setting.getKey().equals("appVersion"))
                 .findFirst();
 
-        appVersionUpdated = appVersionSetting.isEmpty() || !appVersionSetting.get().value().equals(currentAppVersion);
+        appVersionUpdated = appVersionSetting.isEmpty() || !appVersionSetting.get().getValue().equals(currentAppVersion);
         if(appVersionUpdated){
-            log.info("App version updated from {} to {}", appVersionSetting.map(Setting::value).orElse("null"), currentAppVersion);
+            log.info("App version updated from {} to {}", appVersionSetting.map(Setting::getValue).orElse("null"), currentAppVersion);
             List<Setting> settingsFromResource = loadFromFile("/default/" + filename, new TypeToken<List<Setting>>() {}.getType(), true);
             log.info("Settings loaded from resource");
             for(Setting settingFromResource : settingsFromResource) {
                 Optional<Setting> cSetting = settings.stream()
-                        .filter(s -> s.key().equals(settingFromResource.key()))
+                        .filter(s -> s.getKey().equals(settingFromResource.getKey()))
                         .findFirst();
                 if(cSetting.isPresent()){
-                    log.info("Setting {} already present", settingFromResource.key());
-                    if(cSetting.get().options() != settingFromResource.options()) {
-                        log.info("Setting {} options changed from {} to {}", settingFromResource.key(), cSetting.get().options(), settingFromResource.options());
+                    log.info("Setting {} already present", settingFromResource.getKey());
+                    if(cSetting.get().getOptions() != settingFromResource.getOptions()) {
+                        log.info("Setting {} options changed from {} to {}", settingFromResource.getKey(), cSetting.get().getOptions(), settingFromResource.getOptions());
                         settings.remove(cSetting.get());
-                        settings.add(new Setting(settingFromResource.key(), cSetting.get().value(), settingFromResource.readonly(), settingFromResource.options(), settingFromResource.isHide(), settingFromResource.order()));
+                        settings.add(new Setting(settingFromResource.getKey(), cSetting.get().getValue(), settingFromResource.isReadonly(), settingFromResource.getOptions(), settingFromResource.isHide(), settingFromResource.getOrder()));
                     }
                 }else{
-                    log.info("Setting {} not present, adding it", settingFromResource.key());
+                    log.info("Setting {} not present, adding it", settingFromResource.getKey());
                     settings.add(settingFromResource);
                 }
             }
@@ -73,13 +73,13 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
 
     public Setting getSetting(String key) {
         return settings.stream()
-                .filter(setting -> setting.key().equals(key))
+                .filter(setting -> setting.getKey().equals(key))
                 .findFirst().orElse(null);
     }
 
     public boolean isEnabled(String key) {
         Setting setting = getSetting(key);
-        return setting != null && "y".equals(setting.value());
+        return setting != null && "y".equals(setting.getValue());
     }
 
     public List<Setting> getSettingsAll(){

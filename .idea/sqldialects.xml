@@ -4,6 +4,8 @@
     <file url="file://$PROJECT_DIR$/src/main/java/it/arturoiafrate/shortcutbuddy/model/manager/database/repository/ShortcutRepository.java" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1_0__Create_Database.sql" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1_1__Insert_Shortcuts.sql" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1_2__Add_Apps.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1_2__Add_Apps.sql" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/src/main/resources/db/migration/V1_4__Settings_Table_And_Shortcuts_Improvement.sql" dialect="SQLite" />
+    <file url="PROJECT" dialect="SQLite" />
   </component>
 </project>

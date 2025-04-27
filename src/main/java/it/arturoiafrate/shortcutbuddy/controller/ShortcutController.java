@@ -121,22 +121,22 @@ public class ShortcutController implements IKeyObserver {
                 manageCtrlKey(mode);
                 break;
             case NativeKeyEvent.VC_PERIOD:
-                if(KeyOption.DOT.equals(settingsManager.getSetting("searchKey").value())){
+                if(KeyOption.DOT.equals(settingsManager.getSetting("searchKey").getValue())){
                     manageSearch(mode);
                 }
                 break;
             case NativeKeyEvent.VC_SPACE:
-                if(KeyOption.SPACE.equals(settingsManager.getSetting("searchKey").value())){
+                if(KeyOption.SPACE.equals(settingsManager.getSetting("searchKey").getValue())){
                     manageSearch(mode);
                 }
                 break;
             case NativeKeyEvent.VC_MINUS:
-                if(KeyOption.MINUS.equals(settingsManager.getSetting("searchKey").value())){
+                if(KeyOption.MINUS.equals(settingsManager.getSetting("searchKey").getValue())){
                     manageSearch(mode);
                 }
                 break;
             case NativeKeyEvent.VC_P:
-                if(KeyOption.P.equals(settingsManager.getSetting("searchKey").value())){
+                if(KeyOption.P.equals(settingsManager.getSetting("searchKey").getValue())){
                     manageSearch(mode);
                 }
                 break;
@@ -168,7 +168,7 @@ public class ShortcutController implements IKeyObserver {
         this.bundle = bundle;
         String promptText = MessageFormat.format(
                 bundle.getString(it.arturoiafrate.shortcutbuddy.model.constant.Label.TEXTBOX_PROMPT),
-                settingsManager.getSetting("searchKey").value()
+                settingsManager.getSetting("searchKey").getValue()
         );
         searchBox.setPromptText(promptText);
     }
@@ -308,8 +308,8 @@ public class ShortcutController implements IKeyObserver {
                 starredShortcutsGrid.getColumnConstraints().clear();
                 searchBox.clear();
                 String appName = foregroundAppInterceptor.getForegroundAppName();
-                int width = Integer.parseInt(settingsManager.getSetting("width").value());
-                int height = Integer.parseInt(settingsManager.getSetting("height").value());
+                int width = Integer.parseInt(settingsManager.getSetting("width").getValue());
+                int height = Integer.parseInt(settingsManager.getSetting("height").getValue());
                 Rectangle2D appBounds = foregroundAppInterceptor.getForegroundAppBounds();
                 List<Shortcut> shortcutList = shortcutManager.getShortcutsForApp(appName);
                 setShortcuts(shortcutList);

@@ -1,13 +1,15 @@
 package it.arturoiafrate.shortcutbuddy.model.bean;
 
-import org.apache.commons.lang3.StringUtils;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-public record Setting(String key, String value, Boolean readonly, String[] options, Boolean isHide, int order) {
-    public Setting {
-        if (StringUtils.isEmpty(key)) {
-            throw new IllegalArgumentException("Key cannot be empty");
-        }
-        if(readonly == null) readonly = false;
-        if(isHide == null) isHide = false;
-    }
+@Data
+@AllArgsConstructor
+public class Setting {
+    private final String key;
+    private final String value;
+    private boolean readonly;
+    private final String[] options;
+    private boolean isHide;
+    private final int order;
 }

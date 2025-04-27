@@ -350,7 +350,7 @@ public class ShortcutBuddyApp extends Application {
     private void initPrimaryStage() {
         log.debug("Initializing primary stage");
         Platform.runLater(() -> {
-            String chosenTheme = applicationComponent.getSettingsManager().getSetting("theme").value();
+            String chosenTheme = applicationComponent.getSettingsManager().getSetting("theme").getValue();
             if(!StringUtils.isEmpty(chosenTheme)){
                 log.debug("Applying user theme: {}", chosenTheme);
                 if(chosenTheme.equals("dark")){
@@ -360,7 +360,7 @@ public class ShortcutBuddyApp extends Application {
                 }
             }
 
-            String chosenLanguage = applicationComponent.getSettingsManager().getSetting("language").value();
+            String chosenLanguage = applicationComponent.getSettingsManager().getSetting("language").getValue();
             log.debug("Applying user language: {}", chosenLanguage);
             Locale locale = Languages.getLocale(chosenLanguage);
             bundle = ResourceBundle.getBundle("i18n/messages", locale);
@@ -370,8 +370,8 @@ public class ShortcutBuddyApp extends Application {
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcut-view.fxml"), bundle);
             fxmlLoader.setControllerFactory(applicationComponent.getControllerFactory());
             try {
-                int width = Integer.parseInt(applicationComponent.getSettingsManager().getSetting("width").value());
-                int height = Integer.parseInt(applicationComponent.getSettingsManager().getSetting("height").value());
+                int width = Integer.parseInt(applicationComponent.getSettingsManager().getSetting("width").getValue());
+                int height = Integer.parseInt(applicationComponent.getSettingsManager().getSetting("height").getValue());
                 log.debug("Creating scene with dimensions: {}x{}", width, height);
                 Scene scene = new Scene(fxmlLoader.load(), width, height);
                 primaryStage.setScene(scene);
@@ -401,7 +401,7 @@ public class ShortcutBuddyApp extends Application {
         keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
 
         int keyCode = NativeKeyEvent.VC_PERIOD;
-        String searchKey = applicationComponent.getSettingsManager().getSetting("searchKey").value();
+        String searchKey = applicationComponent.getSettingsManager().getSetting("searchKey").getValue();
         log.debug("Configuring search key: {}", searchKey);
 
         if(KeyOption.SPACE.equals(searchKey)) {

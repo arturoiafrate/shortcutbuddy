@@ -53,7 +53,7 @@ public class SettingsController {
         for (int i = 0; i < settingsList.size(); i++) {
             Setting setting = settingsList.get(i);
             if(!setting.isHide()){
-                Label keyLabel = new Label(resources.getString("settings.setting."+setting.key()) + ":");
+                Label keyLabel = new Label(resources.getString("settings.setting."+setting.getKey()) + ":");
                 keyLabel.getStyleClass().addAll(Styles.ACCENT, Styles.TEXT_BOLD);
                 keyLabel.setAlignment(Pos.CENTER_LEFT);
                 keyLabel.setWrapText(true);
@@ -64,28 +64,28 @@ public class SettingsController {
                 keyLabel.setGraphic(infoIcon);
                 keyLabel.setContentDisplay(ContentDisplay.RIGHT);
                 keyLabel.setGraphicTextGap(5);
-                Tooltip tooltip = new Tooltip(resources.getString("settings.setting."+setting.key()+".tooltip"));
+                Tooltip tooltip = new Tooltip(resources.getString("settings.setting."+setting.getKey()+".tooltip"));
                 tooltip.setWrapText(true);
                 tooltip.setMaxWidth(300);
                 Tooltip.install(infoIcon, tooltip);
 
                 Control valueField;
-                if (setting.options() == null) {
-                    TextField valueTextField = new TextField(setting.value());
-                    valueTextField.setEditable(!setting.readonly());
+                if (setting.getOptions() == null) {
+                    TextField valueTextField = new TextField(setting.getValue());
+                    valueTextField.setEditable(!setting.isReadonly());
                     valueTextField.setMaxWidth(Double.MAX_VALUE);
                     valueField = valueTextField;
                 } else {
-                    if(setting.options().length == 2 && "y".equals(setting.options()[0]) && "n".equals(setting.options()[1])){
+                    if(setting.getOptions().length == 2 && "y".equals(setting.getOptions()[0]) && "n".equals(setting.getOptions()[1])){
                         ToggleSwitch toggleSwitch = new ToggleSwitch();
                         toggleSwitch.setLabelPosition(HorizontalDirection.RIGHT);
-                        toggleSwitch.setSelected("y".equals(setting.value()));
+                        toggleSwitch.setSelected("y".equals(setting.getValue()));
                         valueField = toggleSwitch;
                     } else {
                         ComboBox<String> comboBox = new ComboBox<>();
-                        comboBox.setItems(FXCollections.observableArrayList(setting.options()));
-                        comboBox.setValue(setting.value());
-                        comboBox.setDisable(setting.readonly());
+                        comboBox.setItems(FXCollections.observableArrayList(setting.getOptions()));
+                        comboBox.setValue(setting.getValue());
+                        comboBox.setDisable(setting.isReadonly());
                         valueField = comboBox;
                     }
                 }
@@ -94,7 +94,7 @@ public class SettingsController {
                 settingsGrid.add(keyLabel, 0, i);
                 settingsGrid.add(valueField, 1, i);
 
-                settingFields.put(setting.key(), valueField);
+                settingFields.put(setting.getKey(), valueField);
             }
         }
     }
@@ -114,7 +114,7 @@ public class SettingsController {
             } else if (control instanceof ToggleSwitch toggleSwitch) {
                 newValue=toggleSwitch.isSelected() ? "y" : "n";
             }
-            newSettings.add(new Setting(currentSetting.key(), newValue, currentSetting.readonly(), currentSetting.options(), currentSetting.isHide(), currentSetting.order()));
+            newSettings.add(new Setting(currentSetting.getKey(), newValue, currentSetting.isReadonly(), currentSetting.getOptions(), currentSetting.isHide(), currentSetting.getOrder()));
         }
         boolean isSaved = settingsManager.save(newSettings);
         Alert alert = isSaved ? new Alert(Alert.AlertType.INFORMATION) : new Alert(Alert.AlertType.ERROR);

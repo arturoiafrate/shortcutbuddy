@@ -237,7 +237,7 @@ public class TrayManager implements INotificationService {
             userShortcutsStage = new Stage();
             userShortcutsStage.setTitle(bundle.getString(Label.USER_SHORTCUTS_TITLE));
             userShortcutsStage.getIcons().add(this.getApplicationIcon());
-            Scene userShortcutsScene = new Scene(fxmlLoader.load(), Integer.parseInt(settingsManager.getSetting("width").value()), Integer.parseInt(settingsManager.getSetting("height").value()));
+            Scene userShortcutsScene = new Scene(fxmlLoader.load(), Integer.parseInt(settingsManager.getSetting("width").getValue()), Integer.parseInt(settingsManager.getSetting("height").getValue()));
             userShortcutsStage.setScene(userShortcutsScene);
             userShortcutsStage.initModality(Modality.APPLICATION_MODAL);
             userShortcutsStage.setOnCloseRequest( event -> {
@@ -269,7 +269,7 @@ public class TrayManager implements INotificationService {
             settingsStage = new Stage();
             settingsStage.setTitle(bundle.getString(Label.SETTINGS_TITLE));
             settingsStage.getIcons().add(this.getApplicationIcon());
-            Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(settingsManager.getSetting("width").value()), Integer.parseInt(settingsManager.getSetting("height").value()));
+            Scene settingsScene = new Scene(fxmlLoader.load(), Integer.parseInt(settingsManager.getSetting("width").getValue()), Integer.parseInt(settingsManager.getSetting("height").getValue()));
             settingsStage.setScene(settingsScene);
             settingsStage.initModality(Modality.APPLICATION_MODAL);
             settingsStage.setOnCloseRequest(event -> {
