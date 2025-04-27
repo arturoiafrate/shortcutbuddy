@@ -1,10 +1,13 @@
 package it.arturoiafrate.shortcutbuddy.model.manager.settings;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import it.arturoiafrate.shortcutbuddy.model.bean.Setting;
 import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.IFileSystemManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.SettingsRepository;
 import it.arturoiafrate.shortcutbuddy.utility.AppInfo;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -16,65 +19,50 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Singleton
 public class SettingsManager extends AbstractManager implements IFileSystemManager {
-    private List<Setting> settings;
-    private final String filename = "settings.json";
     private final String currentAppVersion;
+    private final SettingsRepository settingsRepository;
+    private final Cache<String, Setting> settingsCache;
+
     @Getter
     private boolean appVersionUpdated = false;
 
     @Inject
-    public SettingsManager() {
-        settings = new ArrayList<>();
-        currentAppVersion = AppInfo.getVersion();
+    public SettingsManager(SettingsRepository settingsRepository) {
+        this.settingsRepository = settingsRepository;
+        this.currentAppVersion = AppInfo.getVersion();
+        this.settingsCache = Caffeine.newBuilder().maximumSize(50).recordStats().build();
     }
 
 
     @Override
     public void load() {
-        settings = loadFromFile(filename, new TypeToken<List<Setting>>() {}.getType(), false);
-        if (settings == null) {
-            settings = new ArrayList<>();
-        }
-        Optional<Setting> appVersionSetting = settings.stream()
-                .filter(setting -> setting.getKey().equals("appVersion"))
-                .findFirst();
-
-        appVersionUpdated = appVersionSetting.isEmpty() || !appVersionSetting.get().getValue().equals(currentAppVersion);
+        var settings = settingsRepository.getAllSettings();
+        settingsCache.invalidateAll();
+        settingsCache.putAll(settings.stream()
+                .collect(Collectors.toMap(Setting::getKey, setting -> setting)));
+        Setting appVersionSetting = settingsCache.getIfPresent("app.internal.lastVersion");
+        assert appVersionSetting != null;
+        appVersionUpdated = !appVersionSetting.getValue().equals(currentAppVersion);
         if(appVersionUpdated){
-            log.info("App version updated from {} to {}", appVersionSetting.map(Setting::getValue).orElse("null"), currentAppVersion);
-            List<Setting> settingsFromResource = loadFromFile("/default/" + filename, new TypeToken<List<Setting>>() {}.getType(), true);
-            log.info("Settings loaded from resource");
-            for(Setting settingFromResource : settingsFromResource) {
-                Optional<Setting> cSetting = settings.stream()
-                        .filter(s -> s.getKey().equals(settingFromResource.getKey()))
-                        .findFirst();
-                if(cSetting.isPresent()){
-                    log.info("Setting {} already present", settingFromResource.getKey());
-                    if(cSetting.get().getOptions() != settingFromResource.getOptions()) {
-                        log.info("Setting {} options changed from {} to {}", settingFromResource.getKey(), cSetting.get().getOptions(), settingFromResource.getOptions());
-                        settings.remove(cSetting.get());
-                        settings.add(new Setting(settingFromResource.getKey(), cSetting.get().getValue(), settingFromResource.isReadonly(), settingFromResource.getOptions(), settingFromResource.isHide(), settingFromResource.getOrder()));
-                    }
-                }else{
-                    log.info("Setting {} not present, adding it", settingFromResource.getKey());
-                    settings.add(settingFromResource);
-                }
-            }
-            appVersionSetting.ifPresent(setting -> settings.remove(setting));
-            settings.add(new Setting("appVersion", currentAppVersion, true, null, true, 0));
-            log.info("Saving settings with new app version {}", currentAppVersion);
-            save(settings);
+            log.info("App version updated from {} to {}", appVersionSetting.getValue(), currentAppVersion);
+            appVersionSetting.setValue(currentAppVersion);
+            settingsRepository.updateSetting(appVersionSetting);
+            settingsCache.invalidate("app.internal.lastVersion");
+            settingsCache.put("app.internal.lastVersion", appVersionSetting);
         }
     }
 
+    private Setting getSettingFromRepository(String key) {
+        return settingsRepository.getSettingByKey(key);
+    }
+
     public Setting getSetting(String key) {
-        return settings.stream()
-                .filter(setting -> setting.getKey().equals(key))
-                .findFirst().orElse(null);
+        return settingsCache.get(key, this::getSettingFromRepository);
     }
 
     public boolean isEnabled(String key) {
@@ -83,18 +71,15 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
     }
 
     public List<Setting> getSettingsAll(){
-        return settings;
+        return new ArrayList<>(settingsCache.getAllPresent(settingsCache.asMap().keySet()).values());
     }
 
     public boolean save(List<Setting> settings) {
-        try{
-            File file = new File(getFilePath(filename));
-            String jsonString = new Gson().toJson(settings);
-            FileUtils.writeStringToFile(file, jsonString, "UTF-8");
-            return true;
-        } catch (Exception e){
-            log.error("Error while saving settings", e);
-        }
-        return false;
+        settings.forEach(setting -> {
+            settingsCache.invalidate(setting.getKey());
+            settingsRepository.updateSetting(setting);
+            settingsCache.put(setting.getKey(), setting);
+        });
+        return true;
     }
 }

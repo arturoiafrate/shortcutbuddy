@@ -10,6 +10,7 @@ import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundApp
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
 import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
 import it.arturoiafrate.shortcutbuddy.model.manager.database.DatabaseManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.SettingsRepository;
 import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.ShortcutRepository;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
@@ -25,6 +26,7 @@ import jakarta.inject.Singleton;
 public interface ApplicationComponent {
     DatabaseManager getDatabaseManager();
     ShortcutRepository getShortcutRepository();
+    SettingsRepository getSettingsRepository();
     ShortcutManager getShortcutManager();
     SettingsManager getSettingsManager();
     ChangelogService getChangelogService();
