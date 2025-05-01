@@ -85,15 +85,19 @@ public abstract class AbstractManager {
                 createDefaultFile(file, "/default/" + fileName);
             }
             String json = FileUtils.readFileToString(file, "UTF-8");
-            try{
-                copyImages();
-            } catch (Exception e){
-                log.error("Error while copying images", e);
-            }
+            copyAppImages();
             return new Gson().fromJson(json, type);
         } catch (IOException | URISyntaxException e) {
             log.error("Error while loading file {}", fileName, e);
             throw new RuntimeException(e);
+        }
+    }
+
+    public void copyAppImages(){
+        try{
+            copyImages();
+        } catch (Exception e){
+            log.error("Error while copying images", e);
         }
     }
 

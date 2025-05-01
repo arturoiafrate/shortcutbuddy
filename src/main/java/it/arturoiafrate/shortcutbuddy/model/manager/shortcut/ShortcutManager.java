@@ -42,6 +42,7 @@ public class ShortcutManager extends AbstractManager implements IFileSystemManag
         this.shortcutUsageIncrements = new ConcurrentHashMap<>();
         this.appShortcutsCache = Caffeine.newBuilder().maximumSize(cacheSize).recordStats().build();
         log.info("Cache size: {}", cacheSize);
+        copyAppImages();
     }
 
     @Override

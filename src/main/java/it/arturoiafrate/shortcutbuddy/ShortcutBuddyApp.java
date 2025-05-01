@@ -267,15 +267,33 @@ public class ShortcutBuddyApp extends Application {
             @Override
             protected Void call() throws Exception {
                 log.info("Starting application loading process");
-                log.info("Loading Dagger2 components and setting up SQLite database");
+                log.info("Setting up SQLite database");
                 updateProgress(0, 100);
+
+                // Create a temporary component just to access the settings
+                ApplicationComponent tempComponent = DaggerApplicationComponent.builder()
+                        .fxModule(new FxModule(bundle, appHostServices))
+                        .notificationModule(new NotificationModule())
+                        .build();
+                tempComponent.getShortcutRepository().touch();
+
+                log.info("Loading settings");
+                tempComponent.getSettingsManager().load();
+                updateProgress(10, 100);
+
+                // Update the bundle with the user's language preference
+                String chosenLanguage = tempComponent.getSettingsManager().getSetting("language").getValue();
+                log.debug("Applying user language from settings: {}", chosenLanguage);
+                Locale locale = Languages.getLocale(chosenLanguage);
+                bundle = ResourceBundle.getBundle("i18n/messages", locale);
+
+                // Now create the real component with the correct bundle
+                log.info("Loading Dagger2 components with user language");
                 applicationComponent = DaggerApplicationComponent.builder()
                         .fxModule(new FxModule(bundle, appHostServices))
                         .notificationModule(new NotificationModule())
                         .build();
                 applicationComponent.getShortcutRepository().touch();
-
-                log.info("Loading settings");
                 applicationComponent.getSettingsManager().load();
                 updateProgress(15, 100);
 
@@ -284,6 +302,7 @@ public class ShortcutBuddyApp extends Application {
                 updateProgress(30, 100);
 
                 initPrimaryStage();
+
                 updateProgress(50, 100);
 
                 log.info("Loading shortcuts");
@@ -360,10 +379,6 @@ public class ShortcutBuddyApp extends Application {
                 }
             }
 
-            String chosenLanguage = applicationComponent.getSettingsManager().getSetting("language").getValue();
-            log.debug("Applying user language: {}", chosenLanguage);
-            Locale locale = Languages.getLocale(chosenLanguage);
-            bundle = ResourceBundle.getBundle("i18n/messages", locale);
             primaryStage.setTitle(bundle.getString(Label.APP_TITLE));
 
             log.debug("Loading main view");

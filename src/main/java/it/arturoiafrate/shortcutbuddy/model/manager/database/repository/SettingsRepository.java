@@ -22,8 +22,8 @@ import java.util.List;
 @Singleton
 public class SettingsRepository {
 
-    private static final String GET_ALL_SETTINGS_SQL = "SELECT key, value, is_readonly, is_hidden, value_type, allowed_options FROM settings";
-    private static final String GET_SETTING_BY_KEY_SQL = "SELECT key, value, is_readonly, is_hidden, value_type, allowed_options FROM settings WHERE key = ?";
+    private static final String GET_ALL_SETTINGS_SQL = "SELECT key, value, is_readonly, is_hidden, value_type, allowed_options, group_name, setting_order FROM settings oRDER BY setting_order";
+    private static final String GET_SETTING_BY_KEY_SQL = "SELECT key, value, is_readonly, is_hidden, value_type, allowed_options, group_name, setting_order FROM settings WHERE key = ?";
     private static final String UPDATE_SETTING_SQL = "UPDATE settings SET value = ? WHERE key = ?";
 
     private final DatabaseManager databaseManager;
@@ -144,9 +144,12 @@ public class SettingsRepository {
     private Setting mapRowToSetting(ResultSet rs) throws SQLException {
         String key = rs.getString("key");
         String value = rs.getString("value");
+        String valueType = rs.getString("value_type");
         boolean readonly = rs.getBoolean("is_readonly");
         boolean isHide = rs.getBoolean("is_hidden");
         String allowedOptions = rs.getString("allowed_options");
+        String groupName = rs.getString("group_name");
+        int settingOrder = rs.getInt("setting_order");
         
         // Parse allowed options if available
         String[] options = null;
@@ -157,6 +160,6 @@ public class SettingsRepository {
         }
         
         // For simplicity, we're setting order to 0 as it's not in the database
-        return new Setting(key, value, readonly, options, isHide, 0);
+        return new Setting(key, value, valueType, readonly, options, isHide, settingOrder, groupName);
     }
 }

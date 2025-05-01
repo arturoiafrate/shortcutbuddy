@@ -40,7 +40,7 @@
       "[NEW] Added preload system to load the last used app shortcuts at startup. Check the settings page to set the preload size.",
       "[ENHANCEMENT] Replacing singleton pattern with dependency injection.",
       "[NEW] Added support for MS Teams, MS Word, MS Excel, MS PowerPoint, MS Outlook, Firefox.",
-      "[ENCHANCEMENT] Replaced timer with a scheduled executor service to improve performance."
+      "[ENHANCEMENT] Replaced timer with a scheduled executor service to improve performance."
     ]
   },
   {
@@ -49,7 +49,7 @@
     "notes": [
       "[FIX] Shortcuts are now hidden when focus lost.",
       "[FIX] Fixed KEY_HOLD detection failure on systems with key repeat",
-      "[ENCHANCEMENT] KEY_HOLD detection timer now resets on any subsequent key press.",
+      "[ENHANCEMENT] KEY_HOLD detection timer now resets on any subsequent key press.",
       "[NEW] You can now add support for any app from the app interface. Check 'Shortcut Editor' section.",
       "[NEW] You can now add/modify/delete shortcuts for an existing app from the app interface. Check 'Shortcut Editor' section.",
       "[NEW] Added support for (some) UWP apps.",
@@ -64,6 +64,18 @@
       "[NEW] Added ability to restore default shortcut keys. Look for the restore button in the Shortcut Editor.",
       "[NEW] Added favorite shortcuts system. You can now mark any shortcut as favorite and it will be shown in the favorites section (max 5). In addition, for each one, you can press [1] to [5] to execute it.",
       "[ENHANCEMENT] Logging level is now set to ERROR by default, log files are now less verbose."
+    ]
+  },
+  {
+    "version": "1.0.0",
+    "date": "2025-05-01",
+    "notes": [
+      "[NEW] Added usage statistics for shortcuts. Now shortcuts are displayed by usage frequency.",
+      "[ENHANCEMENT] Settings are now stored in the database instead of a JSON file.",
+      "[ENHANCEMENT] Settings are now grouped by category. Renewed the settings page.",
+      "[FIX] Application icons are now correctly loaded.",
+      "[NEW] Added Italian language support.",
+      "[ENHANCEMENT] Shortcut window is now, as default, bigger (720x600)."
     ]
   }
 ]
