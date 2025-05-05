@@ -213,7 +213,7 @@ public class NewAppDialog extends Dialog<AppShortcuts> implements IKeyObserver {
     }
 
     @Override
-    public void update(int keyCode, KeyOperation mode) {
+    public void update(int keyCode, KeyOperation mode, NativeKeyEvent nativeKeyEvent) {
         Platform.runLater(() -> {
             if(keyCode == NativeKeyEvent.VC_W && mode == KeyOperation.KEY_PRESS) {
                 appPicker.setText(appInterceptor.getForegroundAppName().toLowerCase());

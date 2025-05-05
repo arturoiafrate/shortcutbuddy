@@ -30,6 +30,8 @@ public class ControllerFactory implements Callback<Class<?>, Object>{
             return applicationComponent.getAppShortcutEditorController();
         } else if (controllerClass == AppShortcutEditorDialogController.class){
             return applicationComponent.getAppShortcutEditorDialogController();
+        } else if (controllerClass == ClipboardSnippetController.class){
+            return applicationComponent.getClipboardSnippetController();
         }
         log.error("No controller found for class: {}", controllerClass.getName());
         return null;

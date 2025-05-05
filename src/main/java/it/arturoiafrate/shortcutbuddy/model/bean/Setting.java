@@ -14,4 +14,6 @@ public class Setting {
     private final boolean isHide;
     private final int order;
     private String groupName;
+    private boolean isDev;
+    private String conditionalEnabling;
 }

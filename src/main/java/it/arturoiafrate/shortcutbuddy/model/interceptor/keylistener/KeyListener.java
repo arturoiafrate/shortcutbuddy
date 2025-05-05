@@ -196,6 +196,7 @@ public class KeyListener implements NativeKeyListener {
         if (!currentlyPressedKeys.add(keyCode)) {
             return;
         }
+
         cancelAllHoldTasks();
         final List<IKeyObserver> observersList = observers.getOrDefault(keyCode, new ArrayList<>());
         var allObserverList = observers.get(KEY_ALL);
@@ -210,7 +211,7 @@ public class KeyListener implements NativeKeyListener {
         Platform.runLater(() -> {
             observersToNotifyPress.forEach(observer -> {
                 try {
-                    observer.update(keyCode, KeyOperation.KEY_PRESS);
+                    observer.update(keyCode, KeyOperation.KEY_PRESS, nativeEvent);
                 }
                 catch (Exception e) {
                     log.error("Observer error {} during KEY_PRESS for {}", observer.getClass().getSimpleName(), keyCode, e);
@@ -223,7 +224,7 @@ public class KeyListener implements NativeKeyListener {
                     List<IKeyObserver> observersToNotifyHold = new ArrayList<>(observersList);
                     Platform.runLater(() -> {
                         observersToNotifyHold.forEach(observer -> {
-                            try { observer.update(keyCode, KeyOperation.KEY_HOLD); }
+                            try { observer.update(keyCode, KeyOperation.KEY_HOLD, nativeEvent); }
                             catch (Exception e) { log.error("Error in observer {} during KEY_HOLD for {}", observer.getClass().getSimpleName(), keyCode, e); }
                         });
                     });
@@ -258,7 +259,7 @@ public class KeyListener implements NativeKeyListener {
         Platform.runLater(() -> {
             observersToNotifyRelease.forEach(observer -> {
                 try {
-                    observer.update(keyCode, KeyOperation.KEY_RELEASE);
+                    observer.update(keyCode, KeyOperation.KEY_RELEASE, nativeEvent);
                 }
                 catch (Exception e) {
                     log.error("Error in observer {} during KEY_RELEASE for {}", observer.getClass().getSimpleName(), keyCode, e);

@@ -7,12 +7,14 @@ import it.arturoiafrate.shortcutbuddy.config.ApplicationComponent;
 import it.arturoiafrate.shortcutbuddy.config.DaggerApplicationComponent;
 import it.arturoiafrate.shortcutbuddy.config.module.FxModule;
 import it.arturoiafrate.shortcutbuddy.config.module.NotificationModule;
+import it.arturoiafrate.shortcutbuddy.controller.ClipboardSnippetController;
 import it.arturoiafrate.shortcutbuddy.controller.ShortcutController;
 import it.arturoiafrate.shortcutbuddy.model.constant.KeyOption;
 import it.arturoiafrate.shortcutbuddy.model.constant.Label;
 import it.arturoiafrate.shortcutbuddy.model.enumerator.Languages;
-import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
-import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
+import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyOperation;
+import it.arturoiafrate.shortcutbuddy.model.manager.clipboard.ClipboardHistoryManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.hotkey.GlobalHotkeyManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.tray.TrayManager;
 import it.arturoiafrate.shortcutbuddy.service.INotificationService;
@@ -31,6 +33,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -49,34 +52,28 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ShortcutBuddyApp extends Application {
+    @Getter
     private static ShortcutBuddyApp instance;
 
-    private Stage primaryStage;
-    private Stage splashStage;
+    private Stage shortcutStage;
     private Stage settingsStage;
     private Stage userShortcutsStage;
-    private KeyListener keyListener;
-    private KeyEmulator keyEmulator;
+    private Stage clipboardSnippetStage;
+    private Stage splashStage;
     private ShortcutController shortcutController;
+    private ClipboardSnippetController clipboardSnippetController;
     private ResourceBundle bundle;
     private TrayManager trayManager;
     private INotificationService notificationService;
     private UpdateCheckerService updateCheckerService;
     private ApplicationComponent applicationComponent;
     private ShortcutManager shortcutManager;
+    private ClipboardHistoryManager clipboardHistoryManager;
     private ScheduledExecutorService backgroundScheduler;
+    private GlobalHotkeyManager globalHotkeyManager;
     private static HostServices appHostServices;
 
     private final Set<Stage> openStages = ConcurrentHashMap.newKeySet();
-
-    /**
-     * Gets the singleton instance of the application.
-     * 
-     * @return The ShortcutBuddyApp instance
-     */
-    public static ShortcutBuddyApp getInstance() {
-        return instance;
-    }
 
     /**
      * Initializes the application before the start method is called.
@@ -92,26 +89,26 @@ public class ShortcutBuddyApp extends Application {
     }
 
     /**
-     * Starts the application, initializes the primary stage, and begins the application loading process.
+     * Starts the application, initializes the Shortcut stage, and begins the application loading process.
      * 
-     * @param primaryStage The primary stage provided by JavaFX
+     * @param shortcutStage The shortcut stage provided by JavaFX
      */
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage shortcutStage) {
         log.debug("Starting application");
         instance = this;
 
         appHostServices = getHostServices();
-        this.primaryStage = primaryStage;
-        this.primaryStage.initStyle(StageStyle.UNDECORATED);
-        this.primaryStage.hide();
+        this.shortcutStage = shortcutStage;
+        this.shortcutStage.initStyle(StageStyle.UNDECORATED);
+        this.shortcutStage.hide();
         Platform.setImplicitExit(false);
         checkAppSupport();
         loadAppIcon();
         showSplashScreen();
         startBackgroundTasks();
 
-        registerStage(primaryStage);
+        registerStage(shortcutStage);
         log.debug("Application startup complete");
     }
 
@@ -127,9 +124,9 @@ public class ShortcutBuddyApp extends Application {
         closeAllOpenWindows();
 
         shutdownScheduler();
-        if(keyListener != null) {
-            log.debug("Shutting down key listener");
-            keyListener.shutdown();
+        if(globalHotkeyManager != null) {
+            log.debug("Shutting down globalHotkeyManager");
+            globalHotkeyManager.shutdown();
         }
         if(trayManager != null) {
             log.debug("Removing tray icon");
@@ -139,9 +136,14 @@ public class ShortcutBuddyApp extends Application {
             log.debug("Flushing shortcut usage count");
             shortcutManager.flushUsageCount();
         }
+        if(clipboardHistoryManager != null) {
+            log.debug("Stopping Clipboard Monitor Service");
+            clipboardHistoryManager.shutdown();
+        }
         log.info("Application shutdown complete");
         super.stop();
     }
+
 
     /**
      * Closes all open windows that have been registered with the application.
@@ -206,13 +208,13 @@ public class ShortcutBuddyApp extends Application {
     }
 
     /**
-     * Loads the application icon and sets it for the primary stage.
+     * Loads the application icon and sets it for the shortcut stage.
      */
     private void loadAppIcon(){
         log.debug("Loading application icon");
         try{
             javafx.scene.image.Image appIcon = new javafx.scene.image.Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/logo_128.png")));
-            primaryStage.getIcons().add(appIcon);
+            shortcutStage.getIcons().add(appIcon);
             log.debug("Application icon loaded successfully");
         } catch (Exception e) {
             log.error("Error loading application icon", e);
@@ -296,22 +298,39 @@ public class ShortcutBuddyApp extends Application {
                 applicationComponent.getShortcutRepository().touch();
                 applicationComponent.getSettingsManager().load();
                 updateProgress(15, 100);
+                Platform.runLater(() -> {
+                    String chosenTheme = applicationComponent.getSettingsManager().getSetting("theme").getValue();
+                    if(!StringUtils.isEmpty(chosenTheme)){
+                        log.debug("Applying user theme: {}", chosenTheme);
+                        if(chosenTheme.equals("dark")){
+                            Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+                        }else if(chosenTheme.equals("light")){
+                            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+                        }
+                    }
+                });
 
-                log.info("Initializing KeyListener");
-                keyListener = applicationComponent.getKeyListener();
+                log.info("Initializing Hotkey Manager");
                 updateProgress(30, 100);
+                globalHotkeyManager = applicationComponent.getGlobalHotkeyManager();
 
-                initPrimaryStage();
 
-                updateProgress(50, 100);
+                initShortcutStage();
+                if(applicationComponent.getSettingsManager().isEnabled("enableClipboardManager")){
+                    initClipboardSnippetStage();
+                }
+
+                updateProgress(40, 100);
 
                 log.info("Loading shortcuts");
                 applicationComponent.getShortcutManager().load();
-                updateProgress(75, 100);
+                updateProgress(65, 100);
 
                 log.info("Starting the tray icon");
                 startTrayIcon();
                 shortcutManager = applicationComponent.getShortcutManager();
+                updateProgress(85, 100);
+                initPlugins();
                 updateProgress(100, 100);
 
                 log.info("Checking for updates");
@@ -341,6 +360,19 @@ public class ShortcutBuddyApp extends Application {
         new Thread(loadTask).start();
     }
 
+
+    private void initPlugins(){
+        log.info("Initializing plugins");
+        clipboardHistoryManager = applicationComponent.getClipboardHistoryManager();
+        try {
+            clipboardHistoryManager.initialize();
+            log.info("Clipboard Manager initialized");
+        } catch (Exception e) {
+            log.error("Failed to initialize Clipboard Manager", e);
+        }
+        log.info("Plugin services started.");
+    }
+
     /**
      * Initializes and starts the system tray icon.
      * This method sets up the tray icon with the necessary references and starts it.
@@ -362,24 +394,15 @@ public class ShortcutBuddyApp extends Application {
     }
 
     /**
-     * Initializes the primary stage of the application.
+     * Initializes the shortcut stage of the application.
      * This method loads the user's theme and language preferences, sets up the main view,
      * and initializes the shortcut controller.
      */
-    private void initPrimaryStage() {
-        log.debug("Initializing primary stage");
+    private void initShortcutStage() {
+        log.debug("Initializing shortcut stage");
         Platform.runLater(() -> {
-            String chosenTheme = applicationComponent.getSettingsManager().getSetting("theme").getValue();
-            if(!StringUtils.isEmpty(chosenTheme)){
-                log.debug("Applying user theme: {}", chosenTheme);
-                if(chosenTheme.equals("dark")){
-                    Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
-                }else if(chosenTheme.equals("light")){
-                    Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
-                }
-            }
 
-            primaryStage.setTitle(bundle.getString(Label.APP_TITLE));
+            shortcutStage.setTitle(bundle.getString(Label.APP_TITLE));
 
             log.debug("Loading main view");
             FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/shortcut-view.fxml"), bundle);
@@ -389,16 +412,16 @@ public class ShortcutBuddyApp extends Application {
                 int height = Integer.parseInt(applicationComponent.getSettingsManager().getSetting("height").getValue());
                 log.debug("Creating scene with dimensions: {}x{}", width, height);
                 Scene scene = new Scene(fxmlLoader.load(), width, height);
-                primaryStage.setScene(scene);
+                shortcutStage.setScene(scene);
 
-                subscribeKeyEvents(fxmlLoader);
                 shortcutController = fxmlLoader.getController();
+                subscribeShowShortcutStage();
                 applicationComponent.inject(shortcutController);
                 shortcutController.setBundle(bundle);
-                shortcutController.setStage(primaryStage);
-                log.debug("Primary stage initialization complete");
+                shortcutController.setStage(shortcutStage);
+                log.debug("Shortcut stage initialization complete");
             } catch (IOException e) {
-                log.error("Error while loading primary stage", e);
+                log.error("Error while loading Shortcut stage", e);
                 throw new RuntimeException(e);
             }
         });
@@ -407,14 +430,14 @@ public class ShortcutBuddyApp extends Application {
     /**
      * Subscribes to key events for the application.
      * This method sets up listeners for various keyboard keys that the application responds to.
-     * 
-     * @param fxmlLoader The FXMLLoader containing the controller to subscribe to events
+     *
      */
-    private void subscribeKeyEvents(FXMLLoader fxmlLoader){
-        log.debug("Subscribing to key events");
-        keyListener.subscribe(NativeKeyEvent.VC_CONTROL, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_ESCAPE, fxmlLoader.getController());
 
+    private void subscribeShowShortcutStage(){
+        globalHotkeyManager = applicationComponent.getGlobalHotkeyManager();
+        globalHotkeyManager.subscribeKeyHold(NativeKeyEvent.VC_CONTROL, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_CONTROL, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_ESCAPE, shortcutController);
         int keyCode = NativeKeyEvent.VC_PERIOD;
         String searchKey = applicationComponent.getSettingsManager().getSetting("searchKey").getValue();
         log.debug("Configuring search key: {}", searchKey);
@@ -427,19 +450,80 @@ public class ShortcutBuddyApp extends Application {
         else if(KeyOption.P.equals(searchKey)) {
             keyCode = NativeKeyEvent.VC_P;
         }
+        globalHotkeyManager.subscribeKeyEvent(keyCode, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_DOWN, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_UP, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_LEFT, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_RIGHT, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_ENTER, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_1, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_2, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_3, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_4, shortcutController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_5, shortcutController);
+    }
 
-        keyListener.subscribe(keyCode, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_DOWN, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_UP, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_LEFT, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_RIGHT, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_ENTER, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_1, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_2, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_3, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_4, fxmlLoader.getController());
-        keyListener.subscribe(NativeKeyEvent.VC_5, fxmlLoader.getController());
-        log.debug("Key event subscriptions complete");
+
+
+    /**
+     * Initializes the clipboard snippet stage of the application.
+     * This method loads the user's theme and language preferences, sets up the clipboard snippet view,
+     * and initializes the clipboard snippet controller.
+     */
+    private void initClipboardSnippetStage() {
+        log.debug("Initializing clipboard snippet stage");
+        Platform.runLater(() -> {
+            clipboardSnippetStage = new Stage();
+            clipboardSnippetStage.initStyle(StageStyle.UNDECORATED);
+            clipboardSnippetStage.setTitle(bundle.getString(Label.APP_TITLE));
+            registerStage(clipboardSnippetStage);
+
+            log.debug("Loading clipboard snippet view");
+            FXMLLoader fxmlLoader = new FXMLLoader(ShortcutBuddyApp.class.getResource("/view/clipboardSnippet-view.fxml"), bundle);
+            fxmlLoader.setControllerFactory(applicationComponent.getControllerFactory());
+            try {
+                int width = 450;
+                int height = 350;
+                log.debug("Creating scene with dimensions: {}x{}", width, height);
+                Scene scene = new Scene(fxmlLoader.load(), width, height);
+                clipboardSnippetStage.setScene(scene);
+
+                clipboardSnippetController = fxmlLoader.getController();
+                subscribeShowClipboardSnippetStage();
+                applicationComponent.inject(clipboardSnippetController);
+                clipboardSnippetController.setBundle(bundle);
+                clipboardSnippetController.setStage(clipboardSnippetStage);
+                log.debug("Clipboard snippet stage initialization complete");
+            } catch (IOException e) {
+                log.error("Error while loading Clipboard snippet stage", e);
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    /**
+     * Subscribes to key events for the clipboard snippet view.
+     * This method sets up listeners for various keyboard keys that the clipboard snippet view responds to.
+     */
+    private void subscribeShowClipboardSnippetStage() {
+        globalHotkeyManager = applicationComponent.getGlobalHotkeyManager();
+
+        // Set up a shortcut for Ctrl+\ to show the clipboard snippet view
+        Set<Integer> ctrlBackslash = ConcurrentHashMap.newKeySet();
+        ctrlBackslash.add(NativeKeyEvent.VC_CONTROL);
+        ctrlBackslash.add(NativeKeyEvent.VC_BACK_SLASH);
+
+        globalHotkeyManager.subscribeShortcut(ctrlBackslash, (keyCode, mode, nativeKeyEvent) -> {
+            if (mode == KeyOperation.KEY_PRESS) {
+                log.debug("Ctrl+Shift+V pressed, showing clipboard snippet view");
+                clipboardSnippetController.showStage();
+            }
+        });
+
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_ESCAPE, clipboardSnippetController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_DOWN, clipboardSnippetController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_UP, clipboardSnippetController);
+        globalHotkeyManager.subscribeKeyEvent(NativeKeyEvent.VC_ENTER, clipboardSnippetController);
     }
 
     /**
@@ -468,6 +552,13 @@ public class ShortcutBuddyApp extends Application {
             } catch (Exception e) {
                 log.error("Error flushing usage count", e);
             }
+            if(applicationComponent != null && applicationComponent.getSettingsManager() != null && clipboardHistoryManager != null){
+                if(applicationComponent.getSettingsManager().isEnabled("enableClipboardManager")){
+                    clipboardHistoryManager.saveHistoryToDb();
+                }
+            }
+
+            log.info("Scheduled background task completed");
         };
 
         backgroundScheduler.scheduleAtFixedRate(flushTask, 15, 15, TimeUnit.MINUTES);

@@ -9,14 +9,18 @@ import it.arturoiafrate.shortcutbuddy.controller.factory.ControllerFactory;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.foreground.ForegroundAppInterceptor;
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyListener;
 import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
+import it.arturoiafrate.shortcutbuddy.model.manager.clipboard.ClipboardHistoryManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.database.DatabaseManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.ClipboardHistoryRepository;
 import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.SettingsRepository;
 import it.arturoiafrate.shortcutbuddy.model.manager.database.repository.ShortcutRepository;
+import it.arturoiafrate.shortcutbuddy.model.manager.hotkey.GlobalHotkeyManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.shortcut.ShortcutManager;
 import it.arturoiafrate.shortcutbuddy.model.manager.tray.TrayManager;
 import it.arturoiafrate.shortcutbuddy.service.INotificationService;
 import it.arturoiafrate.shortcutbuddy.service.impl.ChangelogService;
+import it.arturoiafrate.shortcutbuddy.service.impl.ClipboardMonitorService;
 import it.arturoiafrate.shortcutbuddy.service.impl.GithubApiClient;
 import it.arturoiafrate.shortcutbuddy.service.impl.UpdateCheckerService;
 import jakarta.inject.Singleton;
@@ -27,8 +31,10 @@ public interface ApplicationComponent {
     DatabaseManager getDatabaseManager();
     ShortcutRepository getShortcutRepository();
     SettingsRepository getSettingsRepository();
+    ClipboardHistoryRepository getClipboardHistoryRepository();
     ShortcutManager getShortcutManager();
     SettingsManager getSettingsManager();
+    ClipboardHistoryManager getClipboardHistoryManager();
     ChangelogService getChangelogService();
     TrayManager getTrayManager();
     GithubApiClient getGithubApiClient();
@@ -41,7 +47,10 @@ public interface ApplicationComponent {
     ShortcutEditorController getShortcutEditorController();
     AppShortcutEditorController getAppShortcutEditorController();
     AppShortcutEditorDialogController getAppShortcutEditorDialogController();
+    ClipboardSnippetController getClipboardSnippetController();
     ControllerFactory getControllerFactory();
+    ClipboardMonitorService getClipboardMonitorService();
+    GlobalHotkeyManager getGlobalHotkeyManager();
 
     @ApplicationTrayNotificationService
     INotificationService getApplicationTrayNotificationService();
@@ -51,4 +60,5 @@ public interface ApplicationComponent {
     void inject(ShortcutEditorController shortcutEditorController);
     void inject(AppShortcutEditorController appShortcutEditorController);
     void inject(AppShortcutEditorDialogController appShortcutEditorDialogController);
+    void inject(ClipboardSnippetController clipboardSnippetController);
 }

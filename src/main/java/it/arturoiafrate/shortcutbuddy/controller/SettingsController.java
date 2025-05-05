@@ -11,12 +11,19 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import org.apache.commons.lang3.StringUtils;
 import org.kordamp.ikonli.feather.Feather;
 import org.kordamp.ikonli.javafx.FontIcon;
+
+import java.io.File;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,6 +35,8 @@ public class SettingsController {
     @FXML private Button saveButton;
 
     private final Map<String, Control> settingFields = new HashMap<>();
+    private final Map<String, Node> buttonBoxes = new HashMap<>();
+    private final Map<String, List<String>> dependentSettings = new HashMap<>();
     private List<Setting> currentSettings;
 
     @Inject
@@ -39,14 +48,51 @@ public class SettingsController {
     @FXML
     public void initialize() {
         this.currentSettings = settingsManager.getSettingsAll();
+        buildDependencyMap(currentSettings);
         Platform.runLater(() -> setSettingsData(currentSettings));
         saveButton.setGraphic(new FontIcon(Feather.SAVE));
         saveButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT, Styles.SUCCESS);
     }
 
+    private void buildDependencyMap(List<Setting> settings) {
+        dependentSettings.clear();
+        for (Setting setting : settings) {
+            if (!StringUtils.isEmpty(setting.getConditionalEnabling())) {
+                String conditionalKey = setting.getConditionalEnabling();
+                dependentSettings.computeIfAbsent(conditionalKey, k -> new ArrayList<>()).add(setting.getKey());
+            }
+        }
+    }
+
+    private boolean shouldBeEnabled(Setting setting) {
+        if (StringUtils.isEmpty(setting.getConditionalEnabling())) {
+            return true;
+        }
+        return settingsManager.isEnabled(setting.getConditionalEnabling());
+    }
+
+    private void updateDependentControls(String conditionalKey, boolean enabled) {
+        List<String> dependents = dependentSettings.get(conditionalKey);
+        if (dependents != null) {
+            for (String dependentKey : dependents) {
+                Control control = settingFields.get(dependentKey);
+                if (control != null) {
+                    control.setDisable(!enabled);
+                }
+
+                // Also disable/enable the button box if it exists
+                Node buttonBox = buttonBoxes.get(dependentKey);
+                if (buttonBox != null) {
+                    buttonBox.setDisable(!enabled);
+                }
+            }
+        }
+    }
+
     private void setSettingsData(List<Setting> settingsList) {
         tabPane.getTabs().clear();
         settingFields.clear();
+        buttonBoxes.clear();
 
         Map<String, List<Setting>> grouped = settingsList.stream()
                 .filter(s -> !s.isHide())
@@ -56,7 +102,10 @@ public class SettingsController {
         for (Map.Entry<String, List<Setting>> entry : grouped.entrySet()) {
             String groupName = entry.getKey();
             List<Setting> groupSettings = entry.getValue();
-
+            boolean areAllDev = groupSettings.stream().allMatch(Setting::isDev);
+            if(!settingsManager.isDevMode() && areAllDev) {
+                continue;
+            }
             VBox container = new VBox(10);
             container.setPadding(new Insets(10));
 
@@ -80,11 +129,61 @@ public class SettingsController {
 
         for (int i = 0; i < settings.size(); i++) {
             Setting setting = settings.get(i);
-            Label label = createLabel(setting);
-            Control control = createControl(setting);
-            grid.add(label, 0, i);
-            grid.add(control, 1, i);
-            settingFields.put(setting.getKey(), control);
+            if(!setting.isDev() || settingsManager.isDevMode()){
+                Label label = createLabel(setting);
+                Control control = createControl(setting);
+                grid.add(label, 0, i);
+                grid.add(control, 1, i);
+                settingFields.put(setting.getKey(), control);
+
+                // Add additional controls for PICKER type
+                if ("PICKER".equals(setting.getValueType()) && control instanceof TextField textField) {
+                    // Create a button to open directory chooser
+                    Button browseButton = new Button();
+                    FontIcon folderIcon = new FontIcon(Feather.FOLDER);
+                    browseButton.setGraphic(folderIcon);
+                    browseButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
+
+                    // Create a button to clear the text field
+                    Button clearButton = new Button();
+                    FontIcon clearIcon = new FontIcon(Feather.X);
+                    clearButton.setGraphic(clearIcon);
+                    clearButton.getStyleClass().addAll(Styles.BUTTON_ICON, Styles.FLAT);
+
+                    // Set up the directory chooser action
+                    browseButton.setOnAction(event -> {
+                        DirectoryChooser directoryChooser = new DirectoryChooser();
+                        directoryChooser.setTitle(resources.getString("settings.setting." + setting.getKey()));
+
+                        // Set initial directory if there's a value
+                        if (!textField.getText().isEmpty()) {
+                            File initialDir = new File(textField.getText());
+                            if (initialDir.exists() && initialDir.isDirectory()) {
+                                directoryChooser.setInitialDirectory(initialDir);
+                            }
+                        }
+
+                        // Show directory chooser dialog
+                        File selectedDirectory = directoryChooser.showDialog(browseButton.getScene().getWindow());
+                        if (selectedDirectory != null) {
+                            textField.setText(selectedDirectory.getAbsolutePath());
+                        }
+                    });
+
+                    // Set up the clear button action
+                    clearButton.setOnAction(event -> textField.setText(""));
+
+                    // Create an HBox to hold the buttons
+                    HBox buttonBox = new HBox(5, browseButton, clearButton);
+                    grid.add(buttonBox, 2, i);
+                    buttonBoxes.put(setting.getKey(), buttonBox);
+
+                    // Ensure the button box is disabled if the control is disabled
+                    if (control.isDisabled()) {
+                        buttonBox.setDisable(true);
+                    }
+                }
+            }
         }
 
         return grid;
@@ -110,6 +209,8 @@ public class SettingsController {
     }
 
     private Control createControl(Setting setting) {
+        Control control;
+
         if (setting.getOptions() == null) {
             TextField textField = new TextField(setting.getValue());
             textField.setEditable(!setting.isReadonly());
@@ -119,21 +220,48 @@ public class SettingsController {
                         textField.setText(newVal.replaceAll("[^\\d]", ""));
                     }
                 });
+            } else if ("PICKER".equals(setting.getValueType())){
+                // Make the text field non-editable for PICKER type
+                textField.setEditable(false);
             }
-            return textField;
+            control = textField;
         } else {
             if (setting.getOptions().length == 2 && "y".equals(setting.getOptions()[0]) && "n".equals(setting.getOptions()[1])) {
                 ToggleSwitch toggleSwitch = new ToggleSwitch();
                 toggleSwitch.setSelected("y".equals(setting.getValue()));
-                return toggleSwitch;
+
+                // Add listener for conditional enabling
+                if (dependentSettings.containsKey(setting.getKey())) {
+                    toggleSwitch.selectedProperty().addListener((obs, oldVal, newVal) -> {
+                        updateDependentControls(setting.getKey(), newVal);
+                    });
+                }
+
+                control = toggleSwitch;
             } else {
                 ComboBox<String> comboBox = new ComboBox<>();
                 comboBox.setItems(FXCollections.observableArrayList(setting.getOptions()));
                 comboBox.setValue(setting.getValue());
                 comboBox.setDisable(setting.isReadonly());
-                return comboBox;
+
+                // Add listener for conditional enabling if this is a y/n choice
+                if (dependentSettings.containsKey(setting.getKey())) {
+                    comboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
+                        updateDependentControls(setting.getKey(), "y".equals(newVal));
+                    });
+                }
+
+                control = comboBox;
             }
         }
+
+        // Apply conditional enabling
+        if (!StringUtils.isEmpty(setting.getConditionalEnabling())) {
+            boolean shouldEnable = shouldBeEnabled(setting);
+            control.setDisable(!shouldEnable);
+        }
+
+        return control;
     }
 
     @FXML
@@ -151,7 +279,7 @@ public class SettingsController {
             } else if (control instanceof ToggleSwitch toggleSwitch) {
                 newValue = toggleSwitch.isSelected() ? "y" : "n";
             }
-            newSettings.add(new Setting(currentSetting.getKey(), newValue, currentSetting.getValueType(), currentSetting.isReadonly(), currentSetting.getOptions(), currentSetting.isHide(), currentSetting.getOrder(), currentSetting.getGroupName()));
+            newSettings.add(new Setting(currentSetting.getKey(), newValue, currentSetting.getValueType(), currentSetting.isReadonly(), currentSetting.getOptions(), currentSetting.isHide(), currentSetting.getOrder(), currentSetting.getGroupName(), currentSetting.isDev(), currentSetting.getConditionalEnabling()));
         }
         boolean isSaved = settingsManager.save(newSettings);
         Alert alert = isSaved ? new Alert(Alert.AlertType.INFORMATION) : new Alert(Alert.AlertType.ERROR);

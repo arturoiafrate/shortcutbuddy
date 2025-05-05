@@ -77,5 +77,14 @@
       "[NEW] Added Italian language support.",
       "[ENHANCEMENT] Shortcut window is now, as default, bigger (720x600)."
     ]
+  },
+  {
+    "version": "1.1.0",
+    "date": "2025-05-02",
+    "notes": [
+      "[NEW] Added clipboard manager. If enabled, you can now use the shortcut [CTRL] + [\\] to open the clipboard manager. Default is disabled.",
+      "[NEW] Added snippet manager. You can now select up to 5 snippet folders to be shown in the snippet manager. Default is disabled.",
+      "[ENHANCEMENT] Added dependency between settings. Now, settings can be modified only if the main feature is enabled."
+    ]
   }
 ]

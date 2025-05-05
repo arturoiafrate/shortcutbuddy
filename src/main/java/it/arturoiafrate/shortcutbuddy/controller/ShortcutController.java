@@ -28,6 +28,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Duration;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -114,7 +115,7 @@ public class ShortcutController implements IKeyObserver {
 
 
     @Override
-    public void update(int keyCode, KeyOperation mode) {
+    public void update(int keyCode, KeyOperation mode, NativeKeyEvent nativeKeyEvent) {
         if(isSettingsShown || isUserShortcutsShown) return;
         switch (keyCode) {
             case NativeKeyEvent.VC_CONTROL:
@@ -302,6 +303,7 @@ public class ShortcutController implements IKeyObserver {
             ctrlPressed.set(true);
         } else if(mode == KeyOperation.KEY_HOLD){
             if(!stage.isShowing()){
+                if(!Window.getWindows().isEmpty()) return;
                 shortcutsGrid.getChildren().clear();
                 shortcutsGrid.getColumnConstraints().clear();
                 starredShortcutsGrid.getChildren().clear();

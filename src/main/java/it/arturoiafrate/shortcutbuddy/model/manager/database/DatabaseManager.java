@@ -4,6 +4,7 @@ import it.arturoiafrate.shortcutbuddy.model.manager.AbstractManager;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.flywaydb.core.Flyway;
 import org.sqlite.SQLiteDataSource;
 
@@ -14,13 +15,15 @@ import java.sql.SQLException;
 @Singleton
 public class DatabaseManager extends AbstractManager {
     private static final String DB_NAME = "shortcutbuddy.sqlite";
+    private static final String DEV_DB_PATH = "shortcutbuddy_dev.sqlite";
     private final SQLiteDataSource dataSource;
 
     @Inject
     public DatabaseManager() {
         String dbUrl = null;
+        String dev = System.getenv("DEV");
         try {
-            String filePath = getFilePath(DB_NAME);
+            String filePath = getFilePath((!StringUtils.isEmpty(dev) && dev.equals("true")) ? DEV_DB_PATH : DB_NAME);
             dbUrl = "jdbc:sqlite:" + filePath;
             log.info("Configuring DataSource SQLite for URL: {}", dbUrl);
             this.dataSource = new SQLiteDataSource();

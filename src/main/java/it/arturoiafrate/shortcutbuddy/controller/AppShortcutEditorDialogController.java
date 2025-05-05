@@ -147,7 +147,7 @@ public class AppShortcutEditorDialogController implements IKeyObserver {
     }
 
     @Override
-    public void update(int keyCode, KeyOperation mode) {
+    public void update(int keyCode, KeyOperation mode, NativeKeyEvent nativeKeyEvent) {
         if(!(mode == KeyOperation.KEY_PRESS)){
             return;
         }

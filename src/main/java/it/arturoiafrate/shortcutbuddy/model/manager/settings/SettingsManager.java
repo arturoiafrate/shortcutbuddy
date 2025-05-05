@@ -14,6 +14,7 @@ import jakarta.inject.Singleton;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,8 +29,8 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
     private final SettingsRepository settingsRepository;
     private final Cache<String, Setting> settingsCache;
 
-    @Getter
-    private boolean appVersionUpdated = false;
+    @Getter private boolean appVersionUpdated = false;
+    @Getter private boolean devMode = false;
 
     @Inject
     public SettingsManager(SettingsRepository settingsRepository) {
@@ -54,6 +55,11 @@ public class SettingsManager extends AbstractManager implements IFileSystemManag
             settingsRepository.updateSetting(appVersionSetting);
             settingsCache.invalidate("app.internal.lastVersion");
             settingsCache.put("app.internal.lastVersion", appVersionSetting);
+        }
+        String dev = System.getenv("DEV");
+        if(!StringUtils.isEmpty(dev) && dev.equals("true")) {
+            devMode = true;
+            log.info("Running in DEV mode");
         }
     }
 

@@ -31,9 +31,12 @@ module it.arturoiafrate.shortcutbuddy {
     opens it.arturoiafrate.shortcutbuddy.model.bean to javafx.base, com.google.gson;
     opens db.migration;
     opens it.arturoiafrate.shortcutbuddy.controller.factory to javafx.fxml;
+    opens it.arturoiafrate.shortcutbuddy.model.interceptor.clipboard to com.sun.jna;
 
     exports it.arturoiafrate.shortcutbuddy.controller.factory;
     exports it.arturoiafrate.shortcutbuddy.model.bean;
     exports it.arturoiafrate.shortcutbuddy;
     exports it.arturoiafrate.shortcutbuddy.controller;
+    exports it.arturoiafrate.shortcutbuddy.model.enumerator;
+    exports it.arturoiafrate.shortcutbuddy.model.interceptor.clipboard to com.sun.jna;
 }

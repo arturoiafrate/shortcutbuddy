@@ -61,4 +61,5 @@ public class Label {
     public static final String SHORTCUT_EDITOR_NEWAPPDIALOG_NEWAPP_IMAGEPICKER = "dialog.newApp.imagePicker";
     public static final String SHORTCUT_EDITOR_DIALOG_ERROR_TITLE = "dialog.error.title";
     public static final String SHORTCUT_EDITOR_DIALOG_ERROR_SHORTCUTEMPTY = "dialog.error.shortcut.empty";
+    public static final String APP_CLIPBOARD_TOOLTIP = "app.clipboard.tooltip";
 }
