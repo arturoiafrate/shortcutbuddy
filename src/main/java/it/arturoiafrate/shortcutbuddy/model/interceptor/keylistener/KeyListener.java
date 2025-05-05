@@ -4,6 +4,8 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
+import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
+import com.github.kwhat.jnativehook.mouse.NativeMouseListener;
 import it.arturoiafrate.shortcutbuddy.model.type.BidirectionalMap;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -15,7 +17,7 @@ import java.util.concurrent.*;
 
 @Slf4j
 @Singleton
-public class KeyListener implements NativeKeyListener {
+public class KeyListener implements NativeKeyListener, NativeMouseListener {
     private final ConcurrentMap<Integer, List<IKeyObserver>> observers = new ConcurrentHashMap<>();
     private final Set<Integer> currentlyPressedKeys = ConcurrentHashMap.newKeySet();
     private final Map<Integer, Timer> timers = new HashMap<>();
@@ -145,6 +147,7 @@ public class KeyListener implements NativeKeyListener {
                 GlobalScreen.registerNativeHook();
             }
             GlobalScreen.addNativeKeyListener(this);
+            GlobalScreen.addNativeMouseListener(this);
         } catch (NativeHookException e) {
             log.error("Error registering native hook", e);
             throw new RuntimeException(e);
@@ -155,6 +158,7 @@ public class KeyListener implements NativeKeyListener {
         try {
             if (GlobalScreen.isNativeHookRegistered()) {
                 GlobalScreen.removeNativeKeyListener(this);
+                GlobalScreen.removeNativeMouseListener(this);
                 GlobalScreen.unregisterNativeHook();
             }
         } catch (Exception e) {
@@ -274,6 +278,11 @@ public class KeyListener implements NativeKeyListener {
             boolean cancelled = existingTask.cancel(false);
             if (cancelled) log.trace("Cancelled pending task KEY_HOLD for {}", keyCode);
         }
+    }
+
+    @Override
+    public void nativeMousePressed(NativeMouseEvent nativeEvent){
+        cancelAllHoldTasks();
     }
 
     private void cancelAllHoldTasks() {

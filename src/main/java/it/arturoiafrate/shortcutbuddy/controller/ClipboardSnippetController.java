@@ -11,6 +11,7 @@ import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.IKeyObserver
 import it.arturoiafrate.shortcutbuddy.model.interceptor.keylistener.KeyOperation;
 import it.arturoiafrate.shortcutbuddy.model.keyemulator.KeyEmulator;
 import it.arturoiafrate.shortcutbuddy.model.manager.clipboard.ClipboardHistoryManager;
+import it.arturoiafrate.shortcutbuddy.model.manager.settings.SettingsManager;
 import jakarta.inject.Inject;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -67,6 +68,7 @@ public class ClipboardSnippetController implements IKeyObserver {
     private final ClipboardHistoryManager clipboardHistoryManager;
     private final KeyEmulator keyEmulator;
     private final ForegroundAppInterceptor foregroundAppInterceptor;
+    private final SettingsManager settingsManager;
 
     private Stage stage;
 
@@ -80,10 +82,12 @@ public class ClipboardSnippetController implements IKeyObserver {
     @Inject
     public ClipboardSnippetController(ClipboardHistoryManager clipboardHistoryManager, 
                                      KeyEmulator keyEmulator,
-                                     ForegroundAppInterceptor foregroundAppInterceptor) {
+                                     ForegroundAppInterceptor foregroundAppInterceptor,
+                                     SettingsManager settingsManager) {
         this.clipboardHistoryManager = clipboardHistoryManager;
         this.keyEmulator = keyEmulator;
         this.foregroundAppInterceptor = foregroundAppInterceptor;
+        this.settingsManager = settingsManager;
     }
 
     @FXML
@@ -94,6 +98,19 @@ public class ClipboardSnippetController implements IKeyObserver {
         searchBox.textProperty().addListener((observable, oldValue, newValue) -> {
             updateFilteredEntries(clipboardEntries, newValue);
         });
+
+        // Set visibility of snippetsLabelBox based on enableSnippetManager setting
+        updateSnippetsLabelVisibility();
+    }
+
+    /**
+     * Updates the visibility of the snippetsLabelBox based on the enableSnippetManager setting.
+     * This ensures the snippets label is only visible when the snippet manager is enabled.
+     */
+    private void updateSnippetsLabelVisibility() {
+        boolean snippetsEnabled = settingsManager.isEnabled("enableSnippetManager");
+        snippetsLabelBox.setVisible(snippetsEnabled);
+        snippetsLabelBox.setManaged(snippetsEnabled); // This ensures layout space is not reserved when invisible
     }
 
     public void setStage(Stage stage){
@@ -363,6 +380,9 @@ public class ClipboardSnippetController implements IKeyObserver {
             Platform.runLater(() -> {
                 // Load the latest clipboard entries
                 setClipboardEntries(clipboardHistoryManager.getHistory());
+
+                // Update snippetsLabelBox visibility based on current settings
+                updateSnippetsLabelVisibility();
 
                 // Try to get the caret position from the foreground application
                 Point2D caretPosition = foregroundAppInterceptor.getCaretPosition();
